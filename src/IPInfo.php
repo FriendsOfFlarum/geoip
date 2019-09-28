@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP;
-
 
 use Flarum\Database\AbstractModel;
 
@@ -24,6 +31,6 @@ class IPInfo extends AbstractModel
         'country_code', 'zip_code',
         'isp', 'organization',
         'threat_level', 'threat_types',
-        'error'
+        'error',
     ];
 }

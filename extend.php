@@ -26,8 +26,8 @@ return [
         ->content(function (Document $document) {
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
-    new Extend\Locales(__DIR__ . '/resources/locale'),
+    new Extend\Locales(__DIR__.'/resources/locale'),
     function (Dispatcher $events) {
         $events->subscribe(Listeners\AddApiRelationships::class);
-    }
+    },
 ];

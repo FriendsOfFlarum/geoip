@@ -1,10 +1,16 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Api\Services;
 
-
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use GuzzleHttp\Client;
@@ -20,12 +26,13 @@ class FreeGeoIP implements ServiceInterface
     {
         $this->client = new Client([
             'base_uri' => 'https://freegeoip.app',
-            'verify' => false
+            'verify'   => false,
         ]);
     }
 
     /**
      * @param string $ip
+     *
      * @return ServiceResponse|null
      */
     public function get(string $ip)

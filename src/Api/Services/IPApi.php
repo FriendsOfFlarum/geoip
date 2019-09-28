@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Api\Services;
 
@@ -25,12 +33,13 @@ class IPApi implements ServiceInterface
         $this->settings = $settings;
 
         $this->client = new Client([
-            'base_uri' => 'http://ip-api.com'
+            'base_uri' => 'http://ip-api.com',
         ]);
     }
 
     /**
      * @param string $ip
+     *
      * @return ServiceResponse|null
      */
     public function get(string $ip)
@@ -38,14 +47,16 @@ class IPApi implements ServiceInterface
         $res = $this->client->get(
             "/json/{$ip}",
             ['query' => [
-                'fields' => 'status,message,countryCode,isp,org'
+                'fields' => 'status,message,countryCode,isp,org',
             ]]
         );
 
         $body = json_decode($res->getBody());
 
-        if ($body->status != 'success') return (new ServiceResponse())
+        if ($body->status != 'success') {
+            return (new ServiceResponse())
             ->setError($body->message);
+        }
 
         $data = (new ServiceResponse())
             ->setCountryCode($body->countryCode)

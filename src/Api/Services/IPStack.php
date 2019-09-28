@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Api\Services;
 
@@ -28,25 +36,28 @@ class IPStack implements ServiceInterface
         $this->settings = $settings;
 
         $this->client = new Client([
-            'base_uri' => $this->host
+            'base_uri' => $this->host,
         ]);
     }
 
     /**
      * @param string $ip
+     *
      * @return ServiceResponse|null
      */
     public function get(string $ip) : ?ServiceResponse
     {
         $accessKey = $this->settings->get("{$this->settingPrefix}.access_key");
 
-        if (!$accessKey) return null;
+        if (!$accessKey) {
+            return null;
+        }
 
         $res = $this->client->get(
             "/api/{$ip}",
             ['query' => [
                 'access_key' => $accessKey,
-                'security' => (int) $this->settings->get("{$this->settingPrefix}.security", 0)
+                'security'   => (int) $this->settings->get("{$this->settingPrefix}.security", 0),
             ]]
         );
 

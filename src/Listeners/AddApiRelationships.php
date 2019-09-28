@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Listeners;
 
 use Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
-use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
@@ -34,19 +41,22 @@ class AddApiRelationships
         $events->listen(WillGetData::class, [$this, 'includeRelationship']);
     }
 
-    public function addModelRelationship(GetModelRelationship $event) {
+    public function addModelRelationship(GetModelRelationship $event)
+    {
         if ($event->isRelationship(Post::class, 'ip_info')) {
             return $event->model->hasOne(IPInfo::class, 'address', 'ip_address');
         }
     }
 
-    public function addRelationship(GetApiRelationship $event) {
+    public function addRelationship(GetApiRelationship $event)
+    {
         if ($event->isRelationship(PostSerializer::class, 'ip_info') && $event->serializer->getActor()->can('viewIps')) {
             return $event->serializer->hasOne($event->model, IPInfoSerializer::class, 'ip_info');
         }
     }
 
-    public function includeRelationship(WillGetData $event) {
+    public function includeRelationship(WillGetData $event)
+    {
         if ($event->isController(Controller\ListPostsController::class)
             || $event->isController(Controller\ShowPostController::class)
             || $event->isController(Controller\CreatePostController::class)

@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Api\Services;
-
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceInterface;
@@ -28,28 +35,31 @@ class IPData implements ServiceInterface
 
         $this->client = new Client([
             'base_uri' => 'https://api.ipdata.co',
-            'verify' => false,
+            'verify'   => false,
         ]);
     }
 
     /**
      * @param string $ip
+     *
      * @return ServiceResponse|null
      */
     public function get(string $ip)
     {
-        $apiKey = $this->settings->get("fof-geoip.services.ipdata.access_key");
+        $apiKey = $this->settings->get('fof-geoip.services.ipdata.access_key');
 
-        if (!$apiKey) return null;
+        if (!$apiKey) {
+            return;
+        }
 
         $res = null;
 
         try {
             $res = $this->client->get("/{$ip}", [
                 'query' => [
-                    'fields' => 'country_code,postal,asn,threat',
-                    'api-key' => $apiKey
-                ]
+                    'fields'  => 'country_code,postal,asn,threat',
+                    'api-key' => $apiKey,
+                ],
             ]);
         } catch (RequestException $e) {
             $body = json_decode($e->getResponse()->getBody());
