@@ -1,0 +1,30 @@
+.PostMeta .PostMeta-ip, .Modal div label[for="ban-option-only"] {
+  &[data-threat-level=high] {
+    color: @alert-error-bg;
+  }
+
+  &[data-threat-level=medium] {
+    color: lighten(@alert-error-bg, 10%);
+  }
+
+  &[data-threat-level=low] {
+    color: @alert-success-bg;
+  }
+
+  img {
+    position: relative;
+    top: 3px;
+    left: 5px;
+    margin-right: 10px;
+  }
+
+  img ~ code {
+    margin-right: 5px;
+  }
+}
+
+.Modal #geoip-map {
+  height: 300px;
+  resize: vertical;
+  overflow: hidden;
+}
