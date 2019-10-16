@@ -52,35 +52,35 @@ class ServiceResponse implements \JsonSerializable
     {
     }
 
-    public function setCountryCode(string $country_code)
+    public function setCountryCode(?string $country_code)
     {
         $this->country_code = $country_code;
 
         return $this;
     }
 
-    public function setZipCode(string $zip_code)
+    public function setZipCode(?string $zip_code)
     {
         $this->zip_code = $zip_code;
 
         return $this;
     }
 
-    public function setIsp(string $isp)
+    public function setIsp(?string $isp)
     {
         $this->isp = $isp;
 
         return $this;
     }
 
-    public function setOrganization(string $organization)
+    public function setOrganization(?string $organization)
     {
         $this->organization = $organization;
 
         return $this;
     }
 
-    public function setThreatLevel(string $level)
+    public function setThreatLevel(?string $level)
     {
         $this->threat_level = $level;
 
@@ -94,7 +94,7 @@ class ServiceResponse implements \JsonSerializable
         return $this;
     }
 
-    public function setError(string $error)
+    public function setError(?string $error)
     {
         $this->error = $error;
 
