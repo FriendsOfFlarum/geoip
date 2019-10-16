@@ -74,7 +74,7 @@ class IPData implements ServiceInterface
             ->setCountryCode($body->country_code)
             ->setZipCode($body->postal)
             ->setThreatLevel($body->threat->is_threat)
-            ->setThreatTypes($body->threat->is_known_attacker ? ['attacker'] : ($body->threat->is_known_abuser ? ['abuser'] : null));
+            ->setThreatType($body->threat->is_known_attacker ? 'attacker' : ($body->threat->is_known_abuser ? 'abuser' : null));
 
         if ($body->asn->type == 'isp') {
             $data->setIsp($body->asn->name);

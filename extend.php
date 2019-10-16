@@ -16,6 +16,9 @@ use Flarum\Frontend\Document;
 use FoF\GeoIP\Api\GeoIP;
 use Illuminate\Events\Dispatcher;
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')

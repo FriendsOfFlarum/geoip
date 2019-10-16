@@ -74,7 +74,7 @@ class IPStack implements ServiceInterface
         if ($body->security) {
             $data
                 ->setThreatLevel($body->security->threat_level)
-                ->setThreatTypes($body->security->threat_types);
+                ->setThreatType(implode(', ', $body->security->threat_types));
         }
 
         return $data;

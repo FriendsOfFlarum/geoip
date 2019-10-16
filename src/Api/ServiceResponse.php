@@ -39,9 +39,9 @@ class ServiceResponse implements \JsonSerializable
     private $threat_level;
 
     /**
-     * @var array
+     * @var string
      */
-    private $threat_types;
+    private $threat_type;
 
     /**
      * @var
@@ -87,9 +87,9 @@ class ServiceResponse implements \JsonSerializable
         return $this;
     }
 
-    public function setThreatTypes(?array $types)
+    public function setThreatType(?string $types)
     {
-        $this->threat_types = $types;
+        $this->threat_type = $types;
 
         return $this;
     }
