@@ -11,7 +11,6 @@
 
 namespace FoF\GeoIP\Repositories;
 
-use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
 use Illuminate\Cache\Repository;
