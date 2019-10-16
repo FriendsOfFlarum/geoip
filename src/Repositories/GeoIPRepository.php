@@ -48,12 +48,6 @@ class GeoIPRepository
         return IPInfo::where('address', $ip)->first() ?? $this->obtain($ip);
     }
 
-    public function ensure(Post $post) {
-        if ($post->ip_info) return;
-
-        $post->ip_info = $this->obtain($post->ip_address);
-    }
-
     private function obtain(?string $ip)
     {
         $response = $this->geoip->get($ip);
