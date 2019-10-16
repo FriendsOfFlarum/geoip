@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Repositories;
 
+use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
 use Illuminate\Cache\Repository;
@@ -44,20 +45,27 @@ class GeoIPRepository
             return;
         }
 
-        $data = IPInfo::where('address', $ip)->first();
+        return IPInfo::where('address', $ip)->first() ?? $this->obtain($ip);
+    }
 
-        if (!$data) {
-            $response = $this->geoip->get($ip);
+    public function ensure(Post $post) {
+        if ($post->ip_info) return;
 
-            if ($response) {
-                $data = new IPInfo();
+        $post->ip_info = $this->obtain($post->ip_address);
+    }
 
-                $data->address = $ip;
-                $data->fill($response->toJson());
-                $data->save();
-            }
+    private function obtain(?string $ip)
+    {
+        $response = $this->geoip->get($ip);
+
+        if ($response) {
+            $data = new IPInfo();
+
+            $data->address = $ip;
+            $data->fill($response->toJson());
+            $data->save();
         }
 
-        return $data;
+        return $data ?? null;
     }
 }

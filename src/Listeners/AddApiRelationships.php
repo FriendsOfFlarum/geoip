@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Listeners;
 
 use Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
+use Flarum\Api\Event\WillSerializeData;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;
 use Flarum\Event\GetModelRelationship;
@@ -51,6 +52,8 @@ class AddApiRelationships
     public function addRelationship(GetApiRelationship $event)
     {
         if ($event->isRelationship(PostSerializer::class, 'ip_info') && $event->serializer->getActor()->can('viewIps')) {
+            $this->geoip->ensure($event->model);
+
             return $event->serializer->hasOne($event->model, IPInfoSerializer::class, 'ip_info');
         }
     }
