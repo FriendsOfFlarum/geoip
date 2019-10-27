@@ -5,8 +5,8 @@
   "dependencies": {
     "@fof/components": "github:friendsofflarum/components",
     "country-code-emoji": "^1.0.0",
+    "external-load": "^1.0.0",
     "flarum-webpack-config": "^0.1.0-beta.10",
-    "load.js": "^3.1.2",
     "twemoji-basename": "^1.0.0",
     "webpack": "^4.26.0",
     "webpack-cli": "^3.0.7"

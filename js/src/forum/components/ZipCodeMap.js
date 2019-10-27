@@ -1,6 +1,6 @@
 import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import load from 'load.js';
+import load from 'external-load';
 
 let addedResources = false;
 const addResources = async () => {
