@@ -76,10 +76,12 @@ class IPData implements ServiceInterface
             ->setThreatLevel($body->threat->is_threat)
             ->setThreatType($body->threat->is_known_attacker ? 'attacker' : ($body->threat->is_known_abuser ? 'abuser' : null));
 
-        if ($body->asn->type == 'isp') {
-            $data->setIsp($body->asn->name);
-        } else {
-            $data->setOrganization($body->asn->name);
+        if (isset($body->asn->type)) {
+            if ($body->asn->type == 'isp') {
+                $data->setIsp($body->asn->name);
+            } else {
+                $data->setOrganization($body->asn->name);
+            }
         }
 
         return $data;
