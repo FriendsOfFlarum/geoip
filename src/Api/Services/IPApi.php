@@ -55,7 +55,7 @@ class IPApi implements ServiceInterface
 
         if ($body->status != 'success') {
             return (new ServiceResponse())
-            ->setError($body->message);
+                ->setError($body->message);
         }
 
         $data = (new ServiceResponse())

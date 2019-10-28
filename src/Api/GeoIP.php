@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Api;
 
+use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class GeoIP
@@ -21,6 +22,8 @@ class GeoIP
         'ipdata'    => Services\IPData::class,
         'ipstack'   => Services\IPStack::class,
     ];
+
+    private $prefix = 'fof-geoip.services';
 
     /**
      * @var SettingsRepositoryInterface
@@ -46,6 +49,31 @@ class GeoIP
             return;
         }
 
+        $timeKey = "{$this->prefix}.$serviceName.last_error_time";
+        $errorKey = "{$this->prefix}.$serviceName.error";
+        $lastErrorTime = $this->settings->get($timeKey);
+
+        if ($lastErrorTime && Carbon::createFromTimestamp($lastErrorTime)->isAfter(Carbon::now()->subHour())) {
+            return self::getFakeResponse($this->settings->get($errorKey));
+        } else if ($lastErrorTime) {
+            $this->settings->delete($timeKey);
+            $this->settings->delete($errorKey);
+        }
+
         return app()->make($service)->get($ip);
+    }
+
+    public static function setError(string $service, string $error) {
+        $settings = app('flarum.settings');
+
+        $settings->set("fof-geoip.services.$service.last_error_time", time());
+        $settings->set("fof-geoip.services.$service.error", $error);
+
+        return self::getFakeResponse($error);
+    }
+
+    protected static function getFakeResponse(string $error) {
+        return (new ServiceResponse(true))
+            ->setError($error);
     }
 }

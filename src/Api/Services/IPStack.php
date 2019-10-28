@@ -12,9 +12,11 @@
 namespace FoF\GeoIP\Api\Services;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class IPStack implements ServiceInterface
 {
@@ -37,6 +39,7 @@ class IPStack implements ServiceInterface
 
         $this->client = new Client([
             'base_uri' => $this->host,
+            'verify'   => false,
         ]);
     }
 
@@ -61,7 +64,16 @@ class IPStack implements ServiceInterface
             ]]
         );
 
-        $body = json_encode($res->getBody());
+        $body = json_decode($res->getBody());
+
+        if (isset($body->success) && !$body->success) {
+            return GeoIP::setError(
+                'ipstack',
+                isset($body->error->info)
+                    ? $body->error->info
+                    : json_encode($body)
+            );
+        }
 
         $data = (new ServiceResponse())
             ->setCountryCode($body->country_code)

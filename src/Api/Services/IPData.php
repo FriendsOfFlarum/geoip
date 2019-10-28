@@ -12,10 +12,12 @@
 namespace FoF\GeoIP\Api\Services;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Str;
 
 class IPData implements ServiceInterface
 {
@@ -49,7 +51,7 @@ class IPData implements ServiceInterface
         $apiKey = $this->settings->get('fof-geoip.services.ipdata.access_key');
 
         if (!$apiKey) {
-            return;
+            return null;
         }
 
         $res = null;
@@ -63,6 +65,11 @@ class IPData implements ServiceInterface
             ]);
         } catch (RequestException $e) {
             $body = json_decode($e->getResponse()->getBody());
+            $error = $body->message;
+
+            if (Str::startsWith($error, "You have either exceeded your quota or that API key does not exist.")) {
+                return GeoIP::setError('ipdata', $error);
+            }
 
             return (new ServiceResponse())
                 ->setError($body->message);

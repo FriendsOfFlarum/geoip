@@ -60,7 +60,10 @@ class GeoIPRepository
 
             $data->address = $ip;
             $data->fill($response->toJson());
-            $data->save();
+
+            if (!$response->fake) {
+                $data->save();
+            }
         }
 
         $this->retrieving = array_diff($this->retrieving, [$ip]);

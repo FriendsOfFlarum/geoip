@@ -13,6 +13,7 @@ namespace FoF\GeoIP;
 
 use Flarum\Extend;
 use Flarum\Frontend\Document;
+use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
 use Illuminate\Events\Dispatcher;
 
@@ -31,6 +32,7 @@ return [
         }),
     new Extend\Locales(__DIR__.'/resources/locale'),
     function (Dispatcher $events) {
+        $events->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class);
         $events->subscribe(Listeners\AddApiRelationships::class);
     },
 ];
