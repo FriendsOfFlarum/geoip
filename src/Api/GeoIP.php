@@ -55,7 +55,7 @@ class GeoIP
 
         if ($lastErrorTime && Carbon::createFromTimestamp($lastErrorTime)->isAfter(Carbon::now()->subHour())) {
             return self::getFakeResponse($this->settings->get($errorKey));
-        } else if ($lastErrorTime) {
+        } elseif ($lastErrorTime) {
             $this->settings->delete($timeKey);
             $this->settings->delete($errorKey);
         }
@@ -63,7 +63,8 @@ class GeoIP
         return app()->make($service)->get($ip);
     }
 
-    public static function setError(string $service, string $error) {
+    public static function setError(string $service, string $error)
+    {
         $settings = app('flarum.settings');
 
         $settings->set("fof-geoip.services.$service.last_error_time", time());
@@ -72,7 +73,8 @@ class GeoIP
         return self::getFakeResponse($error);
     }
 
-    protected static function getFakeResponse(string $error) {
+    protected static function getFakeResponse(string $error)
+    {
         return (new ServiceResponse(true))
             ->setError($error);
     }

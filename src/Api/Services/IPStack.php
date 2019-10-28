@@ -16,7 +16,6 @@ use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 
 class IPStack implements ServiceInterface
 {

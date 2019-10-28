@@ -14,7 +14,7 @@ namespace FoF\GeoIP\Api;
 class ServiceResponse implements \JsonSerializable
 {
     /**
-     * @var boolean
+     * @var bool
      */
     public $fake;
 

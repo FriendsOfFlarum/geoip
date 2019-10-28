@@ -51,7 +51,7 @@ class IPData implements ServiceInterface
         $apiKey = $this->settings->get('fof-geoip.services.ipdata.access_key');
 
         if (!$apiKey) {
-            return null;
+            return;
         }
 
         $res = null;
@@ -67,7 +67,7 @@ class IPData implements ServiceInterface
             $body = json_decode($e->getResponse()->getBody());
             $error = $body->message;
 
-            if (Str::startsWith($error, "You have either exceeded your quota or that API key does not exist.")) {
+            if (Str::startsWith($error, 'You have either exceeded your quota or that API key does not exist.')) {
                 return GeoIP::setError('ipdata', $error);
             }
 

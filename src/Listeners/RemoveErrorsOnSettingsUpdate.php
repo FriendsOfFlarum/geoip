@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\GeoIP\Listeners;
-
 
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -20,7 +27,8 @@ class RemoveErrorsOnSettingsUpdate
         $this->settings = $settings;
     }
 
-    public function handle(Saving $event) {
+    public function handle(Saving $event)
+    {
         foreach ($event->settings as $key => $value) {
             if (!Str::startsWith($key, 'fof-geoip.service')) {
                 continue;
