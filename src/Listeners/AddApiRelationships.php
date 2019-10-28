@@ -12,7 +12,6 @@
 namespace FoF\GeoIP\Listeners;
 
 use Flarum\Api\Controller;
-use Flarum\Api\Event\Serializing;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;

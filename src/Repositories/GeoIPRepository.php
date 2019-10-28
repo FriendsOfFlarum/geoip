@@ -14,7 +14,6 @@ namespace FoF\GeoIP\Repositories;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
 use Illuminate\Cache\Repository;
-use Illuminate\Support\Arr;
 
 class GeoIPRepository
 {
@@ -44,7 +43,7 @@ class GeoIPRepository
     public function get($ip)
     {
         if (!$ip || in_array($ip, $this->retrieving)) {
-            return null;
+            return;
         }
 
         return IPInfo::where('address', $ip)->first() ?? $this->obtain($ip);
