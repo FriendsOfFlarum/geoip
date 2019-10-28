@@ -14,6 +14,7 @@ namespace FoF\GeoIP\Repositories;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
 use Illuminate\Cache\Repository;
+use Illuminate\Support\Arr;
 
 class GeoIPRepository
 {
@@ -26,6 +27,8 @@ class GeoIPRepository
      * @var Repository
      */
     protected $cache;
+
+    protected $retrieving = [];
 
     public function __construct(GeoIP $geoip, Repository $cache)
     {
@@ -40,8 +43,8 @@ class GeoIPRepository
      */
     public function get($ip)
     {
-        if (!$ip) {
-            return;
+        if (!$ip || in_array($ip, $this->retrieving)) {
+            return null;
         }
 
         return IPInfo::where('address', $ip)->first() ?? $this->obtain($ip);
@@ -49,6 +52,8 @@ class GeoIPRepository
 
     private function obtain(?string $ip)
     {
+        $this->retrieving[] = $ip;
+
         $response = $this->geoip->get($ip);
 
         if ($response) {
@@ -58,6 +63,8 @@ class GeoIPRepository
             $data->fill($response->toJson());
             $data->save();
         }
+
+        $this->retrieving = array_diff($this->retrieving, [$ip]);
 
         return $data ?? null;
     }

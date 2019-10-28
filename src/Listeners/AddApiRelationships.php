@@ -39,14 +39,16 @@ class AddApiRelationships
     {
         $events->listen(GetModelRelationship::class, [$this, 'addModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'addRelationship']);
-        $events->listen(Serializing::class, [$this, 'passRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeRelationship']);
     }
 
     public function addModelRelationship(GetModelRelationship $event)
     {
         if ($event->isRelationship(Post::class, 'ip_info')) {
-            return $event->model->hasOne(IPInfo::class, 'address', 'ip_address');
+            return $event->model->hasOne(IPInfo::class, 'address', 'ip_address')
+                ->withDefault(function ($instance, $model) {
+                    return $this->geoip->get($model->ip_address);
+                });
         }
     }
 
@@ -54,14 +56,6 @@ class AddApiRelationships
     {
         if ($event->isRelationship(PostSerializer::class, 'ip_info') && $event->serializer->getActor()->can('viewIps')) {
             return $event->serializer->hasOne($event->model, IPInfoSerializer::class, 'ip_info');
-        }
-    }
-
-    public function passRelationship(Serializing $event)
-    {
-        if ($event->isSerializer(PostSerializer::class) && $event->serializer->getActor()->can('viewIps') && !$event->model->ip_info) {
-            $event->model->setRelation('ip_info', $this->geoip->get($event->model->ip_address));
-            $event->model->refresh();
         }
     }
 
