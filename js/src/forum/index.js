@@ -42,7 +42,10 @@ app.initializers.add('fof/geoip', () => {
     app.store.models.posts.prototype.ipInfo = Model.hasOne('ip_info');
 
     extend(PostMeta.prototype, 'view', function(vdom) {
+        if (!this.props.post) return;
+
         const ipInfo = this.props.post.ipInfo();
+        const ipAddress = this.props.post.ipAddress && this.props.post.ipAddress();
 
         if (!ipInfo) return;
 
@@ -52,7 +55,7 @@ app.initializers.add('fof/geoip', () => {
         const { description, threat, image } = getIPData(ipInfo);
 
         el.children[0] = (
-            <span config={el => $(el).tooltip()} title={description + (!!threat ? ` (${threat})` : '')} onclick={copyIP(this.props.post.ipAddress())}>
+            <span config={el => $(el).tooltip()} title={description + (!!threat ? ` (${threat})` : '')} onclick={ipAddress && copyIP(ipAddress)}>
                 {el.children[0]}
             </span>
         );
