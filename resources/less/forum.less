@@ -1,4 +1,17 @@
 .PostMeta .PostMeta-ip, .Modal div label[for="ban-option-only"] {
+  img {
+    position: relative;
+    top: 3px;
+    left: 5px;
+    margin-right: 10px;
+  }
+
+  img ~ code {
+    margin-right: 5px;
+  }
+}
+
+.PostMeta .PostMeta-ip, .Modal label[for="ban-option-only"] code {
   &[data-threat-level=high] {
     color: @alert-error-bg;
   }
@@ -10,17 +23,10 @@
   &[data-threat-level=low] {
     color: @alert-success-bg;
   }
+}
 
-  img {
-    position: relative;
-    top: 3px;
-    left: 5px;
-    margin-right: 10px;
-  }
-
-  img ~ code {
-    margin-right: 5px;
-  }
+.PostMeta .Dropdown-menu {
+  width: 450px;
 }
 
 .Modal #geoip-map {
