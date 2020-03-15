@@ -47,7 +47,7 @@ class IPStack implements ServiceInterface
      *
      * @return ServiceResponse|null
      */
-    public function get(string $ip) : ?ServiceResponse
+    public function get(string $ip): ?ServiceResponse
     {
         $accessKey = $this->settings->get("{$this->settingPrefix}.access_key");
 
