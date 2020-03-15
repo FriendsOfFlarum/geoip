@@ -47,7 +47,7 @@ class IPApi implements ServiceInterface
         $res = $this->client->get(
             "/json/{$ip}",
             ['query' => [
-                'fields' => 'status,message,countryCode,isp,org',
+                'fields' => 'status,message,countryCode,zip,isp,org',
             ]]
         );
 
@@ -58,12 +58,10 @@ class IPApi implements ServiceInterface
                 ->setError($body->message);
         }
 
-        $data = (new ServiceResponse())
+        return (new ServiceResponse())
             ->setCountryCode($body->countryCode)
             ->setZipCode($body->zip)
             ->setIsp($body->isp)
             ->setOrganization($body->org);
-
-        return $data;
     }
 }
