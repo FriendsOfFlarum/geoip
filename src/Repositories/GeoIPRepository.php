@@ -61,7 +61,7 @@ class GeoIPRepository
             $data->address = $ip;
             $data->fill($response->toJson());
 
-            if (!$response->fake) {
+            if (!$response->fake && !IPInfo::query()->where('address', $ip)->exists()) {
                 $data->save();
             }
         }
