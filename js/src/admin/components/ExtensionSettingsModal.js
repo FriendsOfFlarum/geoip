@@ -42,7 +42,7 @@ export default class GeoipSettingsModal extends SettingsModal {
                 <br />
                 <br />
                 <p className="helpText">
-                    {m.trust(linkify(extractText(app.translator.trans(`fof-geoip.admin.settings.service_${service}_description`))))}
+                    {service && m.trust(linkify(extractText(app.translator.trans(`fof-geoip.admin.settings.service_${service}_description`))))}
                 </p>
             </div>,
 
