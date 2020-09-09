@@ -36,19 +36,8 @@ class AddApiRelationships
 
     public function subscribe(Dispatcher $events)
     {
-        $events->listen(GetModelRelationship::class, [$this, 'addModelRelationship']);
         $events->listen(GetApiRelationship::class, [$this, 'addRelationship']);
         $events->listen(WillGetData::class, [$this, 'includeRelationship']);
-    }
-
-    public function addModelRelationship(GetModelRelationship $event)
-    {
-        if ($event->isRelationship(Post::class, 'ip_info')) {
-            return $event->model->hasOne(IPInfo::class, 'address', 'ip_address')
-                ->withDefault(function ($instance, $model) {
-                    return $this->geoip->get($model->ip_address);
-                });
-        }
     }
 
     public function addRelationship(GetApiRelationship $event)

@@ -29,6 +29,12 @@ return [
         ->content(function (Document $document) {
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
+    (new Extend\Model(Post::class))->relationship('ip_info', function ($model) {
+        return $model->hasOne(IPInfo::class, 'address', 'ip_address')
+        ->withDefault(function ($instance, $submodel) {
+            return $this->geoip->get($submodel->ip_address);
+        });
+    }),
     new Extend\Locales(__DIR__.'/resources/locale'),
     function (Dispatcher $events) {
         $events->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class);
