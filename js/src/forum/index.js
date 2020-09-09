@@ -18,7 +18,7 @@ const getIPData = ipInfo => {
         const url = getFlagEmojiUrl(ipInfo.countryCode());
 
         data.image = url && (
-            <img src={url} alt={ipInfo.countryCode()} height="16" loading="lazy" title={ipInfo.countryCode()} config={el => $(el).tooltip()} />
+            <img src={url} alt={ipInfo.countryCode()} height="16" loading="lazy" title={ipInfo.countryCode()} oncreate={vnode => $(vnode.dom).tooltip()} />
         );
     }
 
@@ -26,26 +26,21 @@ const getIPData = ipInfo => {
 };
 
 const copyIP = ip =>
-    function() {
+    function () {
         copyToClipboard(ip);
 
-        app.alerts.show(
-            new Alert({
-                type: 'success',
-                children: app.translator.trans('fof-geoip.forum.alerts.ip_copied'),
-            })
-        );
+        app.alerts.show(app.translator.trans('fof-geoip.forum.alerts.ip_copied'), { type: 'success' });
     };
 
 app.initializers.add('fof/geoip', () => {
     app.store.models.ip_info = IPInfo;
     app.store.models.posts.prototype.ipInfo = Model.hasOne('ip_info');
 
-    extend(PostMeta.prototype, 'view', function(vdom) {
-        if (!this.props.post) return;
+    extend(PostMeta.prototype, 'view', function (vdom) {
+        if (!this.attrs.post) return;
 
-        const ipInfo = this.props.post.ipInfo();
-        const ipAddress = this.props.post.ipAddress && this.props.post.ipAddress();
+        const ipInfo = this.attrs.post.ipInfo();
+        const ipAddress = this.attrs.post.ipAddress && this.attrs.post.ipAddress();
 
         if (!ipInfo) return;
 
@@ -54,11 +49,11 @@ app.initializers.add('fof/geoip', () => {
 
         const { description, threat, image } = getIPData(ipInfo);
 
-        el.children[0] = (
-            <span config={el => $(el).tooltip()} title={description + (!!threat ? ` (${threat})` : '')} onclick={ipAddress && copyIP(ipAddress)}>
-                {el.children[0]}
+        el.children = [(
+            <span oncreate={vnode => $(vnode.dom).tooltip()} title={description + (!!threat ? ` (${threat})` : '')} onclick={ipAddress && copyIP(ipAddress)}>
+                {el.text}
             </span>
-        );
+        )];
 
         if (image) {
             el.children.unshift(image);
@@ -67,12 +62,14 @@ app.initializers.add('fof/geoip', () => {
         if (ipInfo.threatLevel) {
             el.attrs['data-threat-level'] = ipInfo.threatLevel();
         }
+
+        console.log(ipInfo);
     });
 
     const BanIPModal = flarum.core.compat['fof/ban-ips/components/BanIPModal'];
 
     if (BanIPModal) {
-        extend(BanIPModal.prototype, 'content', function(vdom) {
+        extend(BanIPModal.prototype, 'content', function (vdom) {
             if (!this.post || !this.post.ipAddress()) return;
 
             const ipInfo = this.post.ipInfo();
@@ -102,7 +99,7 @@ app.initializers.add('fof/geoip', () => {
                 code.attrs['data-threat-level'] = ipInfo.threatLevel();
 
                 code.children[1] = (
-                    <span config={el => $(el).tooltip()} title={description + (!!threat ? ` (${threat})` : '')}>
+                    <span oncreate={vnode => $(vnode.dom).tooltip()} title={description + (!!threat ? ` (${threat})` : '')}>
                         {code.children[1]}
                     </span>
                 );

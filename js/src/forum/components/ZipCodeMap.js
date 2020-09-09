@@ -13,8 +13,8 @@ const addResources = async () => {
 };
 
 export default class ZipCodeMap extends Component {
-    constructor() {
-        super(...arguments);
+    oninit(vnode) {
+        super.oninit(vnode);
 
         this.data = null;
 
@@ -28,7 +28,7 @@ export default class ZipCodeMap extends Component {
             return <div />;
         }
 
-        return <div id="geoip-map" config={this.configMap.bind(this)} />;
+        return <div id="geoip-map" oncreate={this.configMap.bind(this)} />;
     }
 
     search() {
@@ -41,9 +41,9 @@ export default class ZipCodeMap extends Component {
                 .request({
                     url: `https://nominatim.openstreetmap.org/search`,
                     method: 'GET',
-                    data: {
-                        q: this.props.zip,
-                        countrycodes: this.props.country,
+                    params: {
+                        q: this.attrs.zip,
+                        countrycodes: this.attrs.country,
                         limit: 1,
                         format: 'json',
                     },
@@ -57,13 +57,12 @@ export default class ZipCodeMap extends Component {
         );
     }
 
-    configMap(el, isInitialized) {
-        if (isInitialized) return;
+    configMap(vnode) {
         if (!this.data) return;
 
         const { boundingbox: bounding, display_name: displayName } = this.data;
 
-        this.map = L.map(el).setView([51.505, -0.09], 5);
+        this.map = L.map(vnode.dom).setView([51.505, -0.09], 5);
 
         L.control.scale().addTo(this.map);
 
