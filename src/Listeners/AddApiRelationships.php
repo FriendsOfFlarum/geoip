@@ -15,24 +15,11 @@ use Flarum\Api\Controller;
 use Flarum\Api\Event\WillGetData;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Event\GetApiRelationship;
-use Flarum\Event\GetModelRelationship;
-use Flarum\Post\Post;
-use FoF\GeoIP\IPInfo;
 use FoF\GeoIP\IPInfoSerializer;
-use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Events\Dispatcher;
 
 class AddApiRelationships
 {
-    /**
-     * @var GeoIPRepository
-     */
-    protected $geoip;
-
-    public function __construct(GeoIPRepository $geoip)
-    {
-        $this->geoip = $geoip;
-    }
 
     public function subscribe(Dispatcher $events)
     {
