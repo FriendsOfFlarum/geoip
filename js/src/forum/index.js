@@ -62,8 +62,6 @@ app.initializers.add('fof/geoip', () => {
         if (ipInfo.threatLevel) {
             el.attrs['data-threat-level'] = ipInfo.threatLevel();
         }
-
-        console.log(ipInfo);
     });
 
     const BanIPModal = flarum.core.compat['fof/ban-ips/components/BanIPModal'];
