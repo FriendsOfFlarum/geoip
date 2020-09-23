@@ -29,7 +29,7 @@ const copyIP = ip =>
     function () {
         copyToClipboard(ip);
 
-        app.alerts.show(app.translator.trans('fof-geoip.forum.alerts.ip_copied'), { type: 'success' });
+        app.alerts.show({ type: 'success' }, app.translator.trans('fof-geoip.forum.alerts.ip_copied'));
     };
 
 app.initializers.add('fof/geoip', () => {
