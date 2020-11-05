@@ -20,7 +20,6 @@ use Illuminate\Events\Dispatcher;
 
 class AddApiRelationships
 {
-
     public function subscribe(Dispatcher $events)
     {
         $events->listen(GetApiRelationship::class, [$this, 'addRelationship']);

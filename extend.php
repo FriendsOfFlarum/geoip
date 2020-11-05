@@ -15,7 +15,6 @@ use Flarum\Extend;
 use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
-use FoF\GeoIP\IPInfo;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Events\Dispatcher;
