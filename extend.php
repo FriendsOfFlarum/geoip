@@ -13,8 +13,11 @@ namespace FoF\GeoIP;
 
 use Flarum\Extend;
 use Flarum\Frontend\Document;
+use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
+use FoF\GeoIP\IPInfo;
 use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Events\Dispatcher;
 
 error_reporting(E_ALL);
@@ -29,6 +32,12 @@ return [
         ->content(function (Document $document) {
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
+    (new Extend\Model(Post::class))->relationship('ip_info', function ($model) {
+        return $model->hasOne(IPInfo::class, 'address', 'ip_address')
+        ->withDefault(function ($instance, $submodel) {
+            return app(GeoIpRepository::class)->get($submodel->ip_address);
+        });
+    }),
     new Extend\Locales(__DIR__.'/resources/locale'),
     function (Dispatcher $events) {
         $events->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class);
