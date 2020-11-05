@@ -15,6 +15,7 @@ use Flarum\Extend;
 use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
+use FoF\Components\Extend\AddFofComponents;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Events\Dispatcher;
@@ -23,6 +24,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 return [
+    new AddFofComponents(),
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/resources/less/forum.less'),
