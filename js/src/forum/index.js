@@ -40,7 +40,7 @@ app.initializers.add('fof/geoip', () => {
         if (!this.attrs.post) return;
 
         const ipInfo = this.attrs.post.ipInfo();
-        const ipAddress = this.attrs.post.ipAddress && this.attrs.post.ipAddress();
+        const ipAddress = this.attrs.post.data.attributes.ipAddress;
 
         if (!ipInfo) return;
 
@@ -49,9 +49,12 @@ app.initializers.add('fof/geoip', () => {
 
         const { description, threat, image } = getIPData(ipInfo);
 
+        // Hack to prevent double IP address being displayed.
+        el.text = ' ';
+
         el.children = [(
             <span oncreate={vnode => $(vnode.dom).tooltip()} title={description + (!!threat ? ` (${threat})` : '')} onclick={ipAddress && copyIP(ipAddress)}>
-                {el.text}
+                {ipAddress}
             </span>
         )];
 
