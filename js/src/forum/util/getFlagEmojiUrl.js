@@ -1,7 +1,7 @@
 import flag from 'country-code-emoji';
 import convert from 'twemoji-basename';
 
-export default countryCode => {
+export default (countryCode) => {
     const codepoint = flag(countryCode);
     const basename = convert(codepoint);
 

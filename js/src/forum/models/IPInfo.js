@@ -7,6 +7,6 @@ export default class IPInfo extends mixin(Model, {
     isp: Model.attribute('isp'),
     organization: Model.attribute('organization'),
     threatLevel: Model.attribute('threatLevel'),
-    threatTypes: Model.attribute('threatTypes', val => (val && JSON.parse(val)) || Array.wrap),
+    threatTypes: Model.attribute('threatTypes', (val) => (val && JSON.parse(val)) || Array.wrap),
     error: Model.attribute('error'),
 }) {}

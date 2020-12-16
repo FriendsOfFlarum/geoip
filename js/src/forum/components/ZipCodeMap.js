@@ -48,7 +48,7 @@ export default class ZipCodeMap extends Component {
                         format: 'json',
                     },
                 })
-                .then(data => {
+                .then((data) => {
                     this.data = data[0];
                     this.loading = false;
 
@@ -72,9 +72,6 @@ export default class ZipCodeMap extends Component {
             maxZoom: 19,
         }).addTo(this.map);
 
-        L.marker([bounding[0], bounding[2]])
-            .addTo(this.map)
-            .bindPopup(displayName)
-            .openPopup();
+        L.marker([bounding[0], bounding[2]]).addTo(this.map).bindPopup(displayName).openPopup();
     }
 }
