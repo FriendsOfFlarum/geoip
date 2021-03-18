@@ -1,7 +1,6 @@
-import { extend } from 'flarum/extend';
-import Alert from 'flarum/components/Alert';
-import PostMeta from 'flarum/components/PostMeta';
-import Model from 'flarum/Model';
+import { extend } from 'flarum/common/extend';
+import PostMeta from 'flarum/common/components/PostMeta';
+import Model from 'flarum/common/Model';
 
 import copyToClipboard from './util/copyToClipboard';
 import getFlagEmojiUrl from './util/getFlagEmojiUrl';

@@ -60,12 +60,12 @@ class GeoIP
             $this->settings->delete($errorKey);
         }
 
-        return app()->make($service)->get($ip);
+        return resolve($service)->get($ip);
     }
 
     public static function setError(string $service, string $error)
     {
-        $settings = app('flarum.settings');
+        $settings = resolve('flarum.settings');
 
         $settings->set("fof-geoip.services.$service.last_error_time", time());
         $settings->set("fof-geoip.services.$service.error", $error);

@@ -36,7 +36,7 @@ return [
     (new Extend\Model(Post::class))->relationship('ip_info', function ($model) {
         return $model->hasOne(IPInfo::class, 'address', 'ip_address')
         ->withDefault(function ($instance, $submodel) {
-            return app(GeoIpRepository::class)->get($submodel->ip_address);
+            return resolve(GeoIpRepository::class)->get($submodel->ip_address);
         });
     }),
 

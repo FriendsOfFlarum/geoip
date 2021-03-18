@@ -1,7 +1,7 @@
-import Alert from 'flarum/components/Alert';
-import ExtensionPage from 'flarum/components/ExtensionPage';
-import humanTime from 'flarum/helpers/humanTime';
-import extractText from 'flarum/utils/extractText';
+import Alert from 'flarum/common/components/Alert';
+import ExtensionPage from 'flarum/common/components/ExtensionPage';
+import humanTime from 'flarum/common/helpers/humanTime';
+import extractText from 'flarum/common/utils/extractText';
 import linkify from 'linkify-lite';
 import { settings } from '@fof-components';
 
