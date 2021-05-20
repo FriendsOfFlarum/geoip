@@ -1,5 +1,5 @@
 import Alert from 'flarum/common/components/Alert';
-import ExtensionPage from 'flarum/common/components/ExtensionPage';
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import humanTime from 'flarum/common/helpers/humanTime';
 import extractText from 'flarum/common/utils/extractText';
 import linkify from 'linkify-lite';
@@ -15,7 +15,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
     }
 
     content() {
-        const service = this.setting('fof-geoip.service')();
+        const service = this.setting('fof-geoip.service')() || 'freegeoip';
         const errorTime = Number(app.data.settings[`fof-geoip.services.${service}.last_error_time`]) * 1000;
         let error = app.data.settings[`fof-geoip.services.${service}.error`];
 
@@ -36,6 +36,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
                             name: 'fof-geoip.service',
                             setting: this.setting.bind(this),
                             required: true,
+                            default: 'freegeoip'
                         })}
                         <br />
                         <br />

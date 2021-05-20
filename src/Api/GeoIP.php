@@ -42,7 +42,7 @@ class GeoIP
      */
     public function get(string $ip)
     {
-        $serviceName = $this->settings->get('fof-geoip.service');
+        $serviceName = $this->settings->get('fof-geoip.service', 'freegeoip');
         $service = self::$services[$serviceName] ?? null;
 
         if ($service == null) {

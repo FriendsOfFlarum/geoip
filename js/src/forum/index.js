@@ -1,7 +1,8 @@
+
 import { extend } from 'flarum/common/extend';
 import PostMeta from 'flarum/common/components/PostMeta';
 import Model from 'flarum/common/Model';
-
+import Tooltip from 'flarum/common/components/Tooltip';
 import copyToClipboard from './util/copyToClipboard';
 import getFlagEmojiUrl from './util/getFlagEmojiUrl';
 import ZipCodeMap from './components/ZipCodeMap';
@@ -17,14 +18,9 @@ const getIPData = (ipInfo) => {
         const url = getFlagEmojiUrl(ipInfo.countryCode());
 
         data.image = url && (
-            <img
-                src={url}
-                alt={ipInfo.countryCode()}
-                height="16"
-                loading="lazy"
-                title={ipInfo.countryCode()}
-                oncreate={(vnode) => $(vnode.dom).tooltip()}
-            />
+            <Tooltip text={ipInfo.countryCode()}>
+                <img src={url} alt={ipInfo.countryCode()} height="16" loading="lazy" />
+            </Tooltip>
         );
     }
 
@@ -55,17 +51,12 @@ app.initializers.add('fof/geoip', () => {
 
         const { description, threat, image } = getIPData(ipInfo);
 
-        // Hack to prevent double IP address being displayed.
-        el.text = ' ';
+        delete(el.text);
 
         el.children = [
-            <span
-                oncreate={(vnode) => $(vnode.dom).tooltip()}
-                title={description + (!!threat ? ` (${threat})` : '')}
-                onclick={ipAddress && copyIP(ipAddress)}
-            >
-                {ipAddress}
-            </span>,
+            <Tooltip text={description + (!!threat ? ` (${threat})` : '')}>
+                <span onclick={ipAddress && copyIP(ipAddress)}>{ipAddress}</span>
+            </Tooltip>,
         ];
 
         if (image) {
@@ -110,9 +101,9 @@ app.initializers.add('fof/geoip', () => {
                 code.attrs['data-threat-level'] = ipInfo.threatLevel();
 
                 code.children[1] = (
-                    <span oncreate={(vnode) => $(vnode.dom).tooltip()} title={description + (!!threat ? ` (${threat})` : '')}>
-                        {code.children[1]}
-                    </span>
+                    <Tooltip text={description + (!!threat ? ` (${threat})` : '')}>
+                        <span>{code.children[1]}</span>
+                    </Tooltip>
                 );
 
                 if (image) {

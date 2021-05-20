@@ -33,7 +33,7 @@ return [
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
 
-    (new Extend\Model(Post::class))->relationship('ip_info', function ($model) {
+    (new Extend\Model(Post::class))->relationship('ip_info', function (Post $model) {
         return $model->hasOne(IPInfo::class, 'address', 'ip_address')
         ->withDefault(function ($instance, $submodel) {
             return resolve(GeoIpRepository::class)->get($submodel->ip_address);
