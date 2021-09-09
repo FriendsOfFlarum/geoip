@@ -1,13 +1,9 @@
+import app from 'flarum/admin/app';
 import Alert from 'flarum/common/components/Alert';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import humanTime from 'flarum/common/helpers/humanTime';
 import extractText from 'flarum/common/utils/extractText';
 import linkify from 'linkify-lite';
-import { settings } from '@fof-components';
-
-const {
-    items: { BooleanItem, SelectItem, StringItem },
-} = settings;
 
 export default class GeoipSettingsPage extends ExtensionPage {
     oninit(vnode) {
@@ -25,25 +21,21 @@ export default class GeoipSettingsPage extends ExtensionPage {
             <div className="container">
                 <div className="geopage">
                     <div className="Form-group">
-                        <label>{app.translator.trans('fof-geoip.admin.settings.service_label')}</label>
-
-                        {SelectItem.component({
+                        {this.buildSettingComponent({
+                            type: 'select',
+                            setting: 'fof-geoip.service',
+                            label: app.translator.trans('fof-geoip.admin.settings.service_label'),
                             options: app.data['fof-geoip.services'].reduce((o, p) => {
                                 o[p] = app.translator.trans(`fof-geoip.admin.settings.service_${p}_label`);
 
                                 return o;
                             }, {}),
-                            name: 'fof-geoip.service',
-                            setting: this.setting.bind(this),
                             required: true,
-                            default: 'freegeoip'
+                            default: 'freegeoip',
+                            help:
+                                service &&
+                                m.trust(linkify(extractText(app.translator.trans(`fof-geoip.admin.settings.service_${service}_description`)))),
                         })}
-                        <br />
-                        <br />
-                        <p className="helpText">
-                            {service &&
-                                m.trust(linkify(extractText(app.translator.trans(`fof-geoip.admin.settings.service_${service}_description`))))}
-                        </p>
                     </div>
                     {error
                         ? Alert.component(
@@ -57,20 +49,21 @@ export default class GeoipSettingsPage extends ExtensionPage {
 
                     {['ipdata', 'ipstack'].includes(service)
                         ? [
-                              <StringItem name={`fof-geoip.services.${service}.access_key`} setting={this.setting.bind(this)} required>
-                                  {app.translator.trans('fof-geoip.admin.settings.access_key_label')}
-                              </StringItem>,
+                              this.buildSettingComponent({
+                                  type: 'string',
+                                  setting: `fof-geoip.services.${service}.access_key`,
+                                  label: app.translator.trans('fof-geoip.admin.settings.access_key_label'),
+                                  required: true,
+                              }),
                           ]
                         : []}
-                    {service === 'ipstack' ? (
-                        <div className="Form-group">
-                            <BooleanItem name={`fof-geoip.services.ipstack.security`} setting={this.setting.bind(this)}>
-                                {app.translator.trans('fof-geoip.admin.settings.security_label')}
-                            </BooleanItem>
-                        </div>
-                    ) : (
-                        []
-                    )}
+                    {service === 'ipstack'
+                        ? this.buildSettingComponent({
+                              type: 'boolean',
+                              setting: 'fof-geoip.services.ipstack.security',
+                              label: app.translator.trans('fof-geoip.admin.settings.security_label'),
+                          })
+                        : []}
                     {this.submitButton()}
                 </div>
             </div>,

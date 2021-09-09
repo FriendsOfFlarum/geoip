@@ -1,4 +1,3 @@
-
 import { extend } from 'flarum/common/extend';
 import PostMeta from 'flarum/common/components/PostMeta';
 import Model from 'flarum/common/Model';
@@ -51,7 +50,7 @@ app.initializers.add('fof/geoip', () => {
 
         const { description, threat, image } = getIPData(ipInfo);
 
-        delete(el.text);
+        delete el.text;
 
         el.children = [
             <Tooltip text={description + (!!threat ? ` (${threat})` : '')}>

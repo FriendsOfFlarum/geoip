@@ -20,7 +20,6 @@
     ],
     "require": {
         "flarum/core": "^1.0.0",
-        "fof/components": "*",
         "guzzlehttp/guzzle": "6.* || 7.*"
     },
     "authors": [
