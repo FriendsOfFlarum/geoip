@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import PostMeta from 'flarum/common/components/PostMeta';
 import Model from 'flarum/common/Model';
