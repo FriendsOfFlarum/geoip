@@ -45,7 +45,7 @@ return [
 
     (new Extend\ApiSerializer(PostSerializer::class))
         ->relationship('ip_info', function (PostSerializer $serializer, Post $model) {
-            if ($serializer->getActor()->can('viewIps')) {
+            if ($serializer->getActor()->can('viewIps', $model)) {
                 return $serializer->hasOne($model, IPInfoSerializer::class, 'ip_info');
             }
         }),
