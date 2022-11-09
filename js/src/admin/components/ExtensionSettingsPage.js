@@ -11,7 +11,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
   }
 
   content() {
-    const service = this.setting('fof-geoip.service')() || 'freegeoip';
+    const service = this.setting('fof-geoip.service')();
     const errorTime = Number(app.data.settings[`fof-geoip.services.${service}.last_error_time`]) * 1000;
     let error = app.data.settings[`fof-geoip.services.${service}.error`];
 
@@ -31,7 +31,6 @@ export default class GeoipSettingsPage extends ExtensionPage {
                 return o;
               }, {}),
               required: true,
-              default: 'freegeoip',
               help: service && m.trust(linkify(extractText(app.translator.trans(`fof-geoip.admin.settings.service_${service}_description`)))),
             })}
           </div>

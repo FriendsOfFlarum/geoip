@@ -17,7 +17,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 class GeoIP
 {
     public static $services = [
-        'freegeoip' => Services\FreeGeoIP::class,
         'ipapi'     => Services\IPApi::class,
         'ipdata'    => Services\IPData::class,
         'ipstack'   => Services\IPStack::class,
@@ -42,7 +41,7 @@ class GeoIP
      */
     public function get(string $ip)
     {
-        $serviceName = $this->settings->get('fof-geoip.service', 'freegeoip');
+        $serviceName = $this->settings->get('fof-geoip.service');
         $service = self::$services[$serviceName] ?? null;
 
         if ($service == null) {
