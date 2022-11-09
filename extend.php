@@ -64,4 +64,7 @@ return [
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
         ->addInclude('posts.ip_info'),
+
+    (new Extend\Settings())
+        ->default('fof-geoip.service', 'ipapi'),
 ];

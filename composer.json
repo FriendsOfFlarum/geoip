@@ -19,8 +19,9 @@
         }
     ],
     "require": {
+        "php": "^8.0",
         "flarum/core": "^1.2.0",
-        "guzzlehttp/guzzle": "6.* || 7.*"
+        "guzzlehttp/guzzle": "^7.3"
     },
     "authors": [
         {
