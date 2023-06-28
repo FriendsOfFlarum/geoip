@@ -46,8 +46,8 @@ app.initializers.add('fof/geoip', () => {
 
     if (!ipInfo) return;
 
-    const dropdownMenu = vdom.children.find((e) => e.attrs && e.attrs.className && e.attrs.className.includes('dropdown-menu'));
-    const el = dropdownMenu.children.find((e) => e.tag === 'span' && e.attrs && e.attrs.className === 'PostMeta-ip');
+    const dropdownMenu = vdom.children.find((e) => e.attrs?.className?.includes('dropdown-menu'));
+    const el = dropdownMenu.children.find((e) => e.tag === 'span' && e.attrs?.className === 'PostMeta-ip');
 
     const { description, threat, image } = getIPData(ipInfo);
 
@@ -75,22 +75,13 @@ app.initializers.add('fof/geoip', () => {
       if (!this.post || !this.post.ipAddress()) return;
 
       const ipInfo = this.post.ipInfo();
-      const formGroup = vdom.children.find(
-        (e) =>
-          e &&
-          e.attrs &&
-          e.attrs.className &&
-          e.attrs.className.includes('Form-group') &&
-          e.children &&
-          Array.isArray(e.children) &&
-          e.children.find((e) => e.tag === 'div')
-      );
+      const formGroup = vdom.children.find((e) => e?.attrs?.className?.includes('Form-group') && e.children?.find?.((e) => e.tag === 'div'));
 
       if (!ipInfo || !formGroup) return;
 
       for (const child of formGroup.children) {
-        const label = child.children.find((e) => e && e.tag === 'label');
-        const code = label && label.children.find((e) => e && e.tag === 'code');
+        const label = child.children.find((e) => e?.tag === 'label');
+        const code = label && label.children.find((e) => e?.tag === 'code');
 
         const codeIndex = code && label.children.indexOf(code);
         if (!code) continue;
