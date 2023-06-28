@@ -11,63 +11,47 @@
 
 namespace FoF\GeoIP\Repositories;
 
+use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
-use Illuminate\Cache\Repository;
+use FoF\GeoIP\Jobs\RetrieveIP;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Support\Arr;
 
 class GeoIPRepository
 {
-    /**
-     * @var GeoIP
-     */
-    protected $geoip;
-
-    /**
-     * @var Repository
-     */
-    protected $cache;
-
-    protected $retrieving = [];
-
-    public function __construct(GeoIP $geoip, Repository $cache)
-    {
-        $this->geoip = $geoip;
-        $this->cache = $cache;
-    }
+    public function __construct(protected GeoIP $geoIP, protected Queue $queue) {}
 
     /**
      * @param string|null $ip
      *
-     * @return IPInfo
+     * @return IPInfo|void
      */
     public function get($ip)
     {
-        if (!$ip || in_array($ip, $this->retrieving)) {
+        if (!$ip) {
             return;
         }
 
-        return IPInfo::where('address', $ip)->first() ?? $this->obtain($ip);
+        return $this->geoIP->getSaved($ip);
     }
 
-    private function obtain(?string $ip)
-    {
-        $this->retrieving[] = $ip;
+    /**
+     * @param Post $post
+     * @return IPInfo|void
+     */
+    public function retrieveForPost(Post $post) {
+        $ip = $post->ip_address;
+        $info = $this->get($ip);
 
-        $response = $this->geoip->get($ip);
-
-        if ($response) {
-            $data = new IPInfo();
-
-            $data->address = $ip;
-            $data->fill($response->toJson());
-
-            if (!$response->fake && !IPInfo::query()->where('address', $ip)->exists()) {
-                $data->save();
-            }
+        // Return the info or null. If we're already retrieving this IP, we don't want to queue it again
+        if ($info || !$ip || RetrieveIP::isQueued($ip)) {
+            return $info;
         }
 
-        $this->retrieving = array_diff($this->retrieving, [$ip]);
+        $this->queue->push(new RetrieveIP($ip));
 
-        return $data ?? null;
+        // If using the sync queue driver (default), the job will be executed immediately
+        return Arr::get(RetrieveIP::$retrieved, $ip);
     }
 }

@@ -18,7 +18,9 @@ use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Jobs\RetrieveIP;
 use FoF\GeoIP\Repositories\GeoIPRepository;
+use Illuminate\Contracts\Queue\Queue;
 
 return [
     (new Extend\Frontend('forum'))
@@ -34,7 +36,7 @@ return [
     (new Extend\Model(Post::class))->relationship('ip_info', function (Post $model) {
         return $model->hasOne(IPInfo::class, 'address', 'ip_address')
         ->withDefault(function ($instance, $submodel) {
-            return resolve(GeoIpRepository::class)->get($submodel->ip_address);
+            return resolve(GeoIPRepository::class)->retrieveForPost($submodel);
         });
     }),
 

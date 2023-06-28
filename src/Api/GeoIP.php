@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Api;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\GeoIP\IPInfo;
 
 class GeoIP
 {
@@ -44,8 +45,33 @@ class GeoIP
         $serviceName = $this->settings->get('fof-geoip.service');
         $service = self::$services[$serviceName] ?? null;
 
-        if ($service == null) {
+        if (!$service) {
             return;
+        }
+
+        return resolve($service)->get($ip);
+    }
+
+    public function getSaved(string $ip) {
+        $response = $this->checkErrors();
+
+        if ($response) {
+            $ipInfo = new IPInfo();
+            $ipInfo->address = $ip;
+            $ipInfo->fill($response->toJSON());
+            return $ipInfo;
+        }
+
+        return IPInfo::where('address', $ip)->first();
+    }
+
+    protected function checkErrors(): ?ServiceResponse
+    {
+        $serviceName = $this->settings->get('fof-geoip.service');
+        $service = self::$services[$serviceName] ?? null;
+
+        if (!$service) {
+            return null;
         }
 
         $timeKey = "{$this->prefix}.$serviceName.last_error_time";
@@ -59,7 +85,7 @@ class GeoIP
             $this->settings->delete($errorKey);
         }
 
-        return resolve($service)->get($ip);
+        return null;
     }
 
     public static function setError(string $service, string $error)
