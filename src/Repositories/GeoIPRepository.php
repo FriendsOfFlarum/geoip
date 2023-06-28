@@ -20,7 +20,9 @@ use Illuminate\Support\Arr;
 
 class GeoIPRepository
 {
-    public function __construct(protected GeoIP $geoIP, protected Queue $queue) {}
+    public function __construct(protected GeoIP $geoIP, protected Queue $queue)
+    {
+    }
 
     /**
      * @param string|null $ip
@@ -38,9 +40,11 @@ class GeoIPRepository
 
     /**
      * @param Post $post
+     *
      * @return IPInfo|void
      */
-    public function retrieveForPost(Post $post) {
+    public function retrieveForPost(Post $post)
+    {
         $ip = $post->ip_address;
         $info = $this->get($ip);
 

@@ -1,8 +1,16 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Jobs;
 
-use Flarum\Post\Post;
 use Flarum\Queue\AbstractJob;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
@@ -16,7 +24,8 @@ class RetrieveIP extends AbstractJob
     public static array $retrieving = [];
     public static array $retrieved = [];
 
-    public function __construct(protected string $ip) {
+    public function __construct(protected string $ip)
+    {
         self::$queued[] = $ip;
     }
 

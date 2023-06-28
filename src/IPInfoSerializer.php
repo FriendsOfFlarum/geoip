@@ -25,7 +25,9 @@ class IPInfoSerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($ip)
     {
-        if (!$ip) return [];
+        if (!$ip) {
+            return [];
+        }
 
         return [
             'countryCode'       => $ip->country_code,

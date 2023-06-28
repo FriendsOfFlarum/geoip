@@ -18,9 +18,7 @@ use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Jobs\RetrieveIP;
 use FoF\GeoIP\Repositories\GeoIPRepository;
-use Illuminate\Contracts\Queue\Queue;
 
 return [
     (new Extend\Frontend('forum'))

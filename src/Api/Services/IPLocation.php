@@ -11,7 +11,6 @@
 
 namespace FoF\GeoIP\Api\Services;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use GuzzleHttp\Client;
@@ -38,7 +37,7 @@ class IPLocation implements ServiceInterface
     public function get(string $ip)
     {
         $res = $this->client->get(
-            "/",
+            '/',
             ['query' => [
                 'ip' => $ip,
             ]]
@@ -48,7 +47,7 @@ class IPLocation implements ServiceInterface
 
         if ($body->response_code != '200') {
             return (new ServiceResponse())
-                ->setError(sprintf("%s %s", $body->response_code, $body->response_message));
+                ->setError(sprintf('%s %s', $body->response_code, $body->response_message));
         }
 
         return (new ServiceResponse())

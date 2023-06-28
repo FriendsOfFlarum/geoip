@@ -18,9 +18,9 @@ use FoF\GeoIP\IPInfo;
 class GeoIP
 {
     public static $services = [
-        'ipapi'     => Services\IPApi::class,
-        'ipdata'    => Services\IPData::class,
-        'ipstack'   => Services\IPStack::class,
+        'ipapi'      => Services\IPApi::class,
+        'ipdata'     => Services\IPData::class,
+        'ipstack'    => Services\IPStack::class,
         'iplocation' => Services\IPLocation::class,
     ];
 
@@ -53,13 +53,15 @@ class GeoIP
         return resolve($service)->get($ip);
     }
 
-    public function getSaved(string $ip) {
+    public function getSaved(string $ip)
+    {
         $response = $this->checkErrors();
 
         if ($response) {
             $ipInfo = new IPInfo();
             $ipInfo->address = $ip;
             $ipInfo->fill($response->toJSON());
+
             return $ipInfo;
         }
 
