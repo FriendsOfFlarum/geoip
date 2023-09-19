@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
@@ -19,12 +28,12 @@ class IPData extends BaseGeoService
     {
         return [
             'http_errors' => false,
-            'delay' => 100,
-            'retries' => 3,
-            'query' => [
-                'fields' => 'country_code,postal,asn,threat',
-                'api-key' => $apiKey
-            ]
+            'delay'       => 100,
+            'retries'     => 3,
+            'query'       => [
+                'fields'  => 'country_code,postal,asn,threat',
+                'api-key' => $apiKey,
+            ],
         ];
     }
 

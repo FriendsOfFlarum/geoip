@@ -19,7 +19,7 @@ use FoF\GeoIP\Traits\HandlesGeoIPErrors;
 class GeoIP
 {
     use HandlesGeoIPErrors;
-    
+
     public static $services = [
         'ipapi'      => Services\IPApi::class,
         'ipdata'     => Services\IPData::class,

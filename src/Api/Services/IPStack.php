@@ -29,14 +29,13 @@ class IPStack extends BaseGeoService
         return [
             'query' => [
                 'access_key' => $apiKey,
-                'security' => (int) $this->settings->get("{$this->settingPrefix}.security", 0),
+                'security'   => (int) $this->settings->get("{$this->settingPrefix}.security", 0),
             ],
             'http_errors' => false,
-            'delay' => 100,
-            'retries' => 3,
+            'delay'       => 100,
+            'retries'     => 3,
         ];
     }
-
 
     protected function hasError(object $body): bool
     {

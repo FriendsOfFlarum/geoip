@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
@@ -24,11 +33,11 @@ class IPApi extends BaseGeoService
     {
         return [
             'http_errors' => false,
-            'delay' => 100,
-            'retries' => 3,
-            'query' => [
+            'delay'       => 100,
+            'retries'     => 3,
+            'query'       => [
                 'fields' => 'status,message,countryCode,zip,isp,org',
-            ]
+            ],
         ];
     }
 

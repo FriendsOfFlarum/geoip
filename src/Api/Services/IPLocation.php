@@ -24,13 +24,12 @@ class IPLocation extends BaseGeoService
         return "/?ip={$ip}";
     }
 
-
     protected function getRequestOptions(?string $apiKey): array
     {
         return [
             'http_errors' => false,
-            'delay' => 100,
-            'retries' => 3,
+            'delay'       => 100,
+            'retries'     => 3,
         ];
     }
 
@@ -44,12 +43,10 @@ class IPLocation extends BaseGeoService
         return $body->response_code !== '200';
     }
 
-
     protected function handleError(object $body): ?ServiceResponse
     {
         return GeoIP::setError('iplocation', sprintf('%s %s', $body->response_code, $body->response_message));
     }
-
 
     protected function parseResponse(object $body): ServiceResponse
     {

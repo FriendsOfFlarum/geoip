@@ -31,7 +31,7 @@ abstract class BaseGeoService implements ServiceInterface
     {
         $this->client = new Client([
             'base_uri' => $this->host,
-            'verify' => false,
+            'verify'   => false,
         ]);
     }
 
@@ -41,6 +41,7 @@ abstract class BaseGeoService implements ServiceInterface
 
         if ($this->requiresApiKey() && !$apiKey) {
             $this->logger->error("No API key found for {$this->host}");
+
             return null;
         }
 
@@ -51,6 +52,7 @@ abstract class BaseGeoService implements ServiceInterface
 
         if ($this->hasError($body)) {
             $this->logger->error("Error detected in response from {$this->host}");
+
             return $this->handleError($body);
         }
 
