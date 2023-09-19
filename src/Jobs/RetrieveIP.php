@@ -14,7 +14,7 @@ namespace FoF\GeoIP\Jobs;
 use Flarum\Queue\AbstractJob;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\IPInfo;
-use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Arr;
 
 class RetrieveIP extends AbstractJob

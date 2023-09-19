@@ -11,69 +11,44 @@
 
 namespace FoF\GeoIP\Api\Services;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
-use GuzzleHttp\Client;
 
-class IPStack implements ServiceInterface
+class IPStack extends BaseGeoService
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Client
-     */
-    private $client;
-
     protected $host = 'https://api.ipstack.com';
     protected $settingPrefix = 'fof-geoip.services.ipstack';
 
-    public function __construct(SettingsRepositoryInterface $settings)
+    protected function buildUrl(string $ip, ?string $apiKey): string
     {
-        $this->settings = $settings;
-
-        $this->client = new Client([
-            'base_uri' => $this->host,
-            'verify'   => false,
-        ]);
+        return "/api/{$ip}";
     }
 
-    /**
-     * @param string $ip
-     *
-     * @return ServiceResponse|null
-     */
-    public function get(string $ip): ?ServiceResponse
+    protected function getRequestOptions(?string $apiKey): array
     {
-        $accessKey = $this->settings->get("{$this->settingPrefix}.access_key");
-
-        if (!$accessKey) {
-            return null;
-        }
-
-        $res = $this->client->get(
-            "/api/{$ip}",
-            ['query' => [
-                'access_key' => $accessKey,
+        return [
+            'query' => [
+                'access_key' => $apiKey,
                 'security'   => (int) $this->settings->get("{$this->settingPrefix}.security", 0),
-            ]]
-        );
+            ],
+            'http_errors' => false,
+            'delay'       => 100,
+            'retries'     => 3,
+        ];
+    }
 
-        $body = json_decode($res->getBody());
+    protected function hasError(object $body): bool
+    {
+        return isset($body->success) && !$body->success;
+    }
 
-        if (isset($body->success) && !$body->success) {
-            return GeoIP::setError(
-                'ipstack',
-                isset($body->error->info)
-                    ? $body->error->info
-                    : json_encode($body)
-            );
-        }
+    protected function handleError(object $body): ?ServiceResponse
+    {
+        return GeoIP::setError('ipstack', $body->error->info ?? json_encode($body));
+    }
 
+    protected function parseResponse(object $body): ServiceResponse
+    {
         $data = (new ServiceResponse())
             ->setCountryCode($body->country_code)
             ->setZipCode($body->zip);

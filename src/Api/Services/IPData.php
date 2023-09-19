@@ -11,73 +11,45 @@
 
 namespace FoF\GeoIP\Api\Services;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Str;
 
-class IPData implements ServiceInterface
+class IPData extends BaseGeoService
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected $host = 'https://api.ipdata.co';
+    protected $settingPrefix = 'fof-geoip.services.ipdata';
 
-    /**
-     * @var Client
-     */
-    private $client;
-
-    public function __construct(SettingsRepositoryInterface $settings)
+    protected function buildUrl(string $ip, ?string $apiKey): string
     {
-        $this->settings = $settings;
-
-        $this->client = new Client([
-            'base_uri' => 'https://api.ipdata.co',
-            'verify'   => false,
-        ]);
+        return "/{$ip}";
     }
 
-    /**
-     * @param string $ip
-     *
-     * @return ServiceResponse|null
-     */
-    public function get(string $ip)
+    protected function getRequestOptions(?string $apiKey): array
     {
-        $apiKey = $this->settings->get('fof-geoip.services.ipdata.access_key');
+        return [
+            'http_errors' => false,
+            'delay'       => 100,
+            'retries'     => 3,
+            'query'       => [
+                'fields'  => 'country_code,postal,asn,threat',
+                'api-key' => $apiKey,
+            ],
+        ];
+    }
 
-        if (!$apiKey) {
-            return;
-        }
+    protected function hasError(object $body): bool
+    {
+        return isset($body->error);
+    }
 
-        $res = null;
+    protected function handleError(object $body): ?ServiceResponse
+    {
+        return GeoIP::setError('ipdata', $body->error->message ?? json_encode($body));
+    }
 
-        try {
-            $res = $this->client->get("/{$ip}", [
-                'query' => [
-                    'fields'  => 'country_code,postal,asn,threat',
-                    'api-key' => $apiKey,
-                ],
-            ]);
-        } catch (RequestException $e) {
-            $body = json_decode($e->getResponse()->getBody());
-            $error = $body->message;
-
-            if (Str::startsWith($error, 'You have either exceeded your quota or that API key does not exist.')) {
-                return GeoIP::setError('ipdata', $error);
-            }
-
-            return (new ServiceResponse())
-                ->setError($body->message);
-        }
-
-        $body = json_decode($res->getBody());
-
-        $data = (new ServiceResponse())
+    protected function parseResponse(object $body): ServiceResponse
+    {
+        $response = (new ServiceResponse())
             ->setCountryCode($body->country_code)
             ->setZipCode($body->postal)
             ->setThreatLevel($body->threat->is_threat)
@@ -85,12 +57,12 @@ class IPData implements ServiceInterface
 
         if (isset($body->asn->type)) {
             if ($body->asn->type == 'isp') {
-                $data->setIsp($body->asn->name);
+                $response->setIsp($body->asn->name);
             } else {
-                $data->setOrganization($body->asn->name);
+                $response->setOrganization($body->asn->name);
             }
         }
 
-        return $data;
+        return $response;
     }
 }

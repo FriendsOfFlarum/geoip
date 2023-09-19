@@ -11,45 +11,45 @@
 
 namespace FoF\GeoIP\Api\Services;
 
-use FoF\GeoIP\Api\ServiceInterface;
+use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
-use GuzzleHttp\Client;
 
-class IPLocation implements ServiceInterface
+class IPLocation extends BaseGeoService
 {
-    /**
-     * @var Client
-     */
-    private Client $client;
+    protected $host = 'https://api.iplocation.net';
+    protected $settingPrefix = 'fof-geoip.services.iplocation';
 
-    public function __construct()
+    protected function buildUrl(string $ip, ?string $apiKey): string
     {
-        $this->client = new Client([
-            'base_uri' => 'https://api.iplocation.net',
-        ]);
+        return "/?ip={$ip}";
     }
 
-    /**
-     * @param string $ip
-     *
-     * @return ServiceResponse|null
-     */
-    public function get(string $ip)
+    protected function getRequestOptions(?string $apiKey): array
     {
-        $res = $this->client->get(
-            '/',
-            ['query' => [
-                'ip' => $ip,
-            ]]
-        );
+        return [
+            'http_errors' => false,
+            'delay'       => 100,
+            'retries'     => 3,
+        ];
+    }
 
-        $body = json_decode($res->getBody());
+    protected function requiresApiKey(): bool
+    {
+        return false;
+    }
 
-        if ($body->response_code != '200') {
-            return (new ServiceResponse())
-                ->setError(sprintf('%s %s', $body->response_code, $body->response_message));
-        }
+    protected function hasError(object $body): bool
+    {
+        return $body->response_code !== '200';
+    }
 
+    protected function handleError(object $body): ?ServiceResponse
+    {
+        return GeoIP::setError('iplocation', sprintf('%s %s', $body->response_code, $body->response_message));
+    }
+
+    protected function parseResponse(object $body): ServiceResponse
+    {
         return (new ServiceResponse())
             ->setCountryCode($body->country_code2)
             ->setIsp($body->isp);

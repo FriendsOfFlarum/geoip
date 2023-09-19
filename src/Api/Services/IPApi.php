@@ -11,53 +11,48 @@
 
 namespace FoF\GeoIP\Api\Services;
 
-use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\GeoIP\Api\ServiceInterface;
+use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
-use GuzzleHttp\Client;
 
-class IPApi implements ServiceInterface
+class IPApi extends BaseGeoService
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected $host = 'http://ip-api.com';
+    protected $settingPrefix = 'fof-geoip.services.ipapi';
 
-    /**
-     * @var Client
-     */
-    private $client;
-
-    public function __construct(SettingsRepositoryInterface $settings)
+    protected function buildUrl(string $ip, ?string $apiKey): string
     {
-        $this->settings = $settings;
-
-        $this->client = new Client([
-            'base_uri' => 'http://ip-api.com',
-        ]);
+        return "/json/{$ip}";
     }
 
-    /**
-     * @param string $ip
-     *
-     * @return ServiceResponse|null
-     */
-    public function get(string $ip)
+    protected function requiresApiKey(): bool
     {
-        $res = $this->client->get(
-            "/json/{$ip}",
-            ['query' => [
+        return false;
+    }
+
+    protected function getRequestOptions(?string $apiKey): array
+    {
+        return [
+            'http_errors' => false,
+            'delay'       => 100,
+            'retries'     => 3,
+            'query'       => [
                 'fields' => 'status,message,countryCode,zip,isp,org',
-            ]]
-        );
+            ],
+        ];
+    }
 
-        $body = json_decode($res->getBody());
+    protected function hasError(object $body): bool
+    {
+        return $body->status !== 'success';
+    }
 
-        if ($body->status != 'success') {
-            return (new ServiceResponse())
-                ->setError($body->message);
-        }
+    protected function handleError(object $body): ?ServiceResponse
+    {
+        return GeoIP::setError('ipapi', $body->message ?? json_encode($body));
+    }
 
+    protected function parseResponse(object $body): ServiceResponse
+    {
         return (new ServiceResponse())
             ->setCountryCode($body->countryCode)
             ->setZipCode($body->zip)
