@@ -48,7 +48,6 @@ abstract class BaseGeoService implements ServiceInterface
         $res = $this->client->get($this->buildUrl($ip, $apiKey), $this->getRequestOptions($apiKey));
 
         $body = json_decode($res->getBody());
-        $body = json_decode($res->getBody());
 
         if ($this->hasError($body)) {
             $this->logger->error("Error detected in response from {$this->host}");
