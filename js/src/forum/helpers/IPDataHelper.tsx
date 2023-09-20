@@ -28,5 +28,10 @@ export const getIPData = (ipInfo: IPInfo) => {
   const description = getDescription(ipInfo);
   const threat = getThreat(ipInfo);
   const image = getFlagImage(ipInfo);
-  return { description, threat, image };
+
+  // Extracting zip and country from ipInfo
+  const zip = ipInfo.zipCode();
+  const country = ipInfo.countryCode(); // Assuming the country code is used as 'country'
+
+  return { description, threat, image, zip, country };
 };

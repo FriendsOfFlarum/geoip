@@ -67,4 +67,7 @@ return [
 
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi'),
+
+    (new Extend\Routes('api'))
+        ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class),
 ];
