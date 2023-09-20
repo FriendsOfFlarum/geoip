@@ -64,7 +64,7 @@ export default function extendPostMeta() {
           'mapButton',
           <Tooltip text={app.translator.trans('fof-geoip.forum.map_button_label')}>
             <Button
-              icon="fas fa-map"
+              icon="fas fa-map-marker-alt"
               className="Button Button--icon Button--link"
               onclick={() => app.modal.show(MapModal, { ipInfo: ipInformation, ipAddr: ipAddr })}
               aria-label={app.translator.trans('fof-geoip.forum.map_button_label')}
