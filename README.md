@@ -13,6 +13,17 @@ Moderators play a crucial role in maintaining the health and quality of forums. 
 - **Interactive Mapping**: Let moderators visualize user locations with an integrated map view.
 - **Threat Detection**: Equip moderators with the ability to highlight potentially malicious IP addresses through threat level indicators. (Via supported IP location data providers)
 
+### Screenshots
+##### Redesigned meta info (visible to admins/mods)
+![image](https://user-images.githubusercontent.com/16573496/269216977-b8814964-dfe7-4af9-b519-628506fbc109.png)
+
+##### Integration with session management (visible to own profile)
+![image](https://user-images.githubusercontent.com/16573496/269137486-b13008fa-a47b-4909-9e9e-d5d2eaa180d4.png)
+
+##### Information modal with location map
+![image](https://user-images.githubusercontent.com/16573496/269137411-ae7657f1-38b5-46ba-9bd7-df802696a882.png)
+
+
 ### Installation
 
 Install manually with composer:
