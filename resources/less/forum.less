@@ -1,36 +1,98 @@
-.PostMeta .PostMeta-ip, .Modal div label[for="ban-option-only"] {
-  img {
-    position: relative;
-    top: 3px;
-    left: 5px;
-    margin-right: 10px;
+.PostMeta {
+  .ip-container {
+      display: flex;            
+      align-items: center;      
+      white-space: nowrap;      
+      overflow: hidden;         
+
+      > span {
+          overflow: hidden;         
+          text-overflow: ellipsis;  
+          max-width: 90%;           
+      }
+
+      img {
+          margin-right: 10px;
+          vertical-align: middle; // This ensures the image is vertically centered
+      }
   }
 
-  img ~ code {
-    margin-right: 5px;
-  }
-}
+  .PostMeta-ip, .Modal div label[for="ban-option-only"] {
+      img {
+          // Remove the relative positioning
+          // position: relative;
+          // top: 3px;
+          // left: 5px;
+          margin-right: 10px;
+      }
 
-.PostMeta .PostMeta-ip, .Modal label[for="ban-option-only"] code {
-  &[data-threat-level=high] {
-    color: @alert-error-bg;
+      img ~ code {
+          margin-right: 5px;
+      }
   }
 
-  &[data-threat-level=medium] {
-    color: lighten(@alert-error-bg, 10%);
+  .PostMeta-ip, .Modal label[for="ban-option-only"] code {
+      &[data-threat-level=high] {
+          color: @alert-error-bg;
+      }
+
+      &[data-threat-level=medium] {
+          color: lighten(@alert-error-bg, 10%);
+      }
+
+      &[data-threat-level=low] {
+          color: @alert-success-bg;
+      }
   }
 
-  &[data-threat-level=low] {
-    color: @alert-success-bg;
+  .Dropdown-menu {
+      width: 450px;
   }
-}
-
-.PostMeta .Dropdown-menu {
-  width: 450px;
 }
 
 .Modal #geoip-map {
   height: 300px;
   resize: vertical;
   overflow: hidden;
+}
+
+.MapModal {
+  .IPSubtitle {
+    font-size: 1em;
+    font-weight: normal;
+    color: @muted-color;
+    margin-top: -10px;
+    margin-bottom: 20px;
+  }
+
+  .IPDetails {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid @muted-color;
+    border-radius: @border-radius;
+    background-color: @control-bg;
+
+    h3 {
+      font-size: 1.25em;
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: @primary-color;
+    }
+
+    p {
+      margin: 5px 0;
+      color: @text-color;
+    }
+  }
+
+  .clickable-ip:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  #mapContainer {
+    margin-top: 10px;
+    border: 1px solid @muted-color;
+    border-radius: @border-radius;
+  }
 }

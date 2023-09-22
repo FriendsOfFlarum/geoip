@@ -7,8 +7,8 @@ let addedResources = false;
 const addResources = async () => {
   if (addedResources) return;
 
-  await load.css('https://unpkg.com/leaflet@1.5.1/dist/leaflet.css');
-  await load.js('https://unpkg.com/leaflet@1.5.1/dist/leaflet.js');
+  await load.css('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+  await load.js('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
 
   addedResources = true;
 };
@@ -65,12 +65,8 @@ export default class ZipCodeMap extends Component {
 
     this.map = L.map(vnode.dom).setView([51.505, -0.09], 5);
 
-    L.control.scale().addTo(this.map);
-
-    L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png?lang=${app.data.locale}`, {
-      attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
-      minZoom: 1,
-      maxZoom: 19,
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
     L.marker([bounding[0], bounding[2]]).addTo(this.map).bindPopup(displayName).openPopup();

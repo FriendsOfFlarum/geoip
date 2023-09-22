@@ -23,3 +23,14 @@ fof-geoip:
   forum:
     alerts:
       ip_copied: Copied IP Address
+    map_button_label: "IP Info"
+    map_modal:
+      title: "IP Information"
+      ip_address: "IP Address"
+      country_code: "Country Code"
+      zip_code: "Zip Code"
+      isp: "ISP"
+      organization: "Organization"
+      threat_level: "Threat Level"
+      threat_types: "Threat Types"
+      error: "Error"
