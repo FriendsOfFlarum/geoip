@@ -3,7 +3,7 @@ import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import ZipCodeMap from './ZipCodeMap';
 import IPInfo from '../models/IPInfo';
 import { handleCopyIP } from '../helpers/ClipboardHelper';
-import LabelValue from './LabelValue';
+import LabelValue from 'flarum/common/components/LabelValue';
 import type Mithril from 'mithril';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 

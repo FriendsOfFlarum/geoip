@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": "^8.0",
-        "flarum/core": "^1.8.0",
+        "flarum/core": "^1.8.2",
         "guzzlehttp/guzzle": "^7.3"
     },
     "authors": [
@@ -43,7 +43,10 @@
                 "name": "fas fa-map-marker-alt",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "fof/ban-ips"
+            ]
         },
         "flagrow": {
             "discuss": "https://discuss.flarum.org/d/21493"
