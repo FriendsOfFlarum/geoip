@@ -15,6 +15,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use FoF\GeoIP\Concerns\ServiceInterface;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 abstract class BaseGeoService implements ServiceInterface
@@ -49,10 +50,10 @@ abstract class BaseGeoService implements ServiceInterface
 
         $body = json_decode($res->getBody());
 
-        if ($this->hasError($body)) {
+        if ($this->hasError($res, $body)) {
             $this->logger->error("Error detected in response from {$this->host}");
 
-            return $this->handleError($body);
+            return $this->handleError($res, $body);
         }
 
         $data = $this->parseResponse($body);
@@ -69,9 +70,9 @@ abstract class BaseGeoService implements ServiceInterface
 
     abstract protected function getRequestOptions(?string $apiKey): array;
 
-    abstract protected function hasError(object $body): bool;
+    abstract protected function hasError(ResponseInterface $response, object $body): bool;
 
-    abstract protected function handleError(object $body): ?ServiceResponse;
+    abstract protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse;
 
     abstract protected function parseResponse(object $body): ServiceResponse;
 }

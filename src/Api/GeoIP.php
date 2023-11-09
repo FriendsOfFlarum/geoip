@@ -23,7 +23,6 @@ class GeoIP
     public static $services = [
         'ipapi'      => Services\IPApi::class,
         'ipdata'     => Services\IPData::class,
-        'ipstack'    => Services\IPStack::class,
         'iplocation' => Services\IPLocation::class,
     ];
 
@@ -79,7 +78,7 @@ class GeoIP
         $lastErrorTime = $this->settings->get($timeKey);
 
         if ($lastErrorTime && Carbon::createFromTimestamp($lastErrorTime)->isAfter(Carbon::now()->subHour())) {
-            return $this->handleGeoIPError($this->settings->get($errorKey));
+            return $this->handleGeoIPError($service, $this->settings->get($errorKey));
         } elseif ($lastErrorTime) {
             $this->settings->delete($timeKey);
             $this->settings->delete($errorKey);
@@ -95,12 +94,12 @@ class GeoIP
         $settings->set("fof-geoip.services.$service.last_error_time", time());
         $settings->set("fof-geoip.services.$service.error", $error);
 
-        return self::getFakeResponse($error);
+        return self::getFakeResponse($service, $error);
     }
 
-    protected static function getFakeResponse(string $error)
+    protected static function getFakeResponse(string $service, string $error)
     {
-        return (new ServiceResponse(true))
+        return (new ServiceResponse($service, true))
             ->setError($error);
     }
 }

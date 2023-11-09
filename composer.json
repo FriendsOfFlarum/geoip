@@ -58,7 +58,8 @@
         }
     },
     "require-dev": {
-        "flarum/phpstan": "*"
+        "flarum/phpstan": "*",
+        "fof/drafts": "*"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",

@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
+use Psr\Http\Message\ResponseInterface;
 
 class IPApi extends BaseGeoService
 {
@@ -36,27 +37,39 @@ class IPApi extends BaseGeoService
             'delay'       => 100,
             'retries'     => 3,
             'query'       => [
-                'fields' => 'status,message,countryCode,zip,isp,org',
+                'fields' => 'status,message,countryCode,city,zip,lat,lon,isp,org,as,mobile',
             ],
         ];
     }
 
-    protected function hasError(object $body): bool
+    protected function hasError(ResponseInterface $response, object $body): bool
     {
-        return $body->status !== 'success';
+        $allowedFailures = ['reserved range', 'private range'];
+
+        return $body->status === 'fail' && !in_array($body->message, $allowedFailures);
     }
 
-    protected function handleError(object $body): ?ServiceResponse
+    protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse
     {
         return GeoIP::setError('ipapi', $body->message ?? json_encode($body));
     }
 
     protected function parseResponse(object $body): ServiceResponse
     {
-        return (new ServiceResponse())
-            ->setCountryCode($body->countryCode)
+        $response = new ServiceResponse($this->host);
+
+        if (property_exists($body, 'message') && !empty($body->message)) {
+            return $response->setIsp($body->message)
+                ->setOrganization($body->message);
+        }
+
+        return $response->setCountryCode($body->countryCode)
             ->setZipCode($body->zip)
+            ->setLatitude($body->lat)
+            ->setLongitude($body->lon)
             ->setIsp($body->isp)
-            ->setOrganization($body->org);
+            ->setOrganization($body->org)
+            ->setAs($body->as)
+            ->setMobile($body->mobile);
     }
 }

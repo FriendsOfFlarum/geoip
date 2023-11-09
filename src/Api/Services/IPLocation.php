@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
+use Psr\Http\Message\ResponseInterface;
 
 class IPLocation extends BaseGeoService
 {
@@ -38,19 +39,19 @@ class IPLocation extends BaseGeoService
         return false;
     }
 
-    protected function hasError(object $body): bool
+    protected function hasError(ResponseInterface $response, object $body): bool
     {
         return $body->response_code !== '200';
     }
 
-    protected function handleError(object $body): ?ServiceResponse
+    protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse
     {
         return GeoIP::setError('iplocation', sprintf('%s %s', $body->response_code, $body->response_message));
     }
 
     protected function parseResponse(object $body): ServiceResponse
     {
-        return (new ServiceResponse())
+        return (new ServiceResponse($this->host))
             ->setCountryCode($body->country_code2)
             ->setIsp($body->isp);
     }
