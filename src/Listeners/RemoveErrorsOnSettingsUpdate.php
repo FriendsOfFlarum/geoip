@@ -17,14 +17,8 @@ use Illuminate\Support\Str;
 
 class RemoveErrorsOnSettingsUpdate
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    private $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(protected SettingsRepositoryInterface $settings)
     {
-        $this->settings = $settings;
     }
 
     public function handle(Saving $event)

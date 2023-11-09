@@ -12,21 +12,23 @@
 namespace FoF\GeoIP;
 
 use Flarum\Api\Serializer\AbstractSerializer;
+use InvalidArgumentException;
 
 class IPInfoSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'ip_info';
 
     /**
-     * {@inheritdoc}
+     * @param IPInfo $ip
+     *
+     * @return array
      */
-    protected function getDefaultAttributes($ip)
+    protected function getDefaultAttributes($ip): array
     {
-        if (!$ip) {
-            return [];
+        if (!($ip instanceof IPInfo)) {
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.IPInfo::class
+            );
         }
 
         return [
@@ -35,13 +37,15 @@ class IPInfoSerializer extends AbstractSerializer
             'isp'               => $ip->isp,
             'organization'      => $ip->organization,
             'threatLevel'       => $ip->threat_level,
-            'threatType'        => $ip->threat_type,
+            'threatType'        => $ip->threat_types,
             'error'             => $ip->error,
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * @param IPInfo $model
+     *
+     * @return string
      */
     public function getId($model)
     {
