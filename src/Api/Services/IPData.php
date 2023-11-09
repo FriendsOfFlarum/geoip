@@ -57,8 +57,10 @@ class IPData extends BaseGeoService
 
         if (isset($body->asn->type)) {
             if ($body->asn->type == 'isp') {
+                /** @phpstan-ignore-next-line */
                 $response->setIsp($body->asn->name);
             } else {
+                /** @phpstan-ignore-next-line */
                 $response->setOrganization($body->asn->name);
             }
         }

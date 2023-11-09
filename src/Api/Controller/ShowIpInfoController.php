@@ -25,12 +25,8 @@ class ShowIpInfoController extends AbstractShowController
 {
     public $serializer = IPInfoSerializer::class;
 
-    protected $geoIP;
-
-    public function __construct(GeoIP $geoIP)
-    {
-        $this->geoIP = $geoIP;
-    }
+    public function __construct(protected GeoIP $geoIP)
+    {}
 
     /**
      * Get the IP information, either from the database or by performing a lookup.
