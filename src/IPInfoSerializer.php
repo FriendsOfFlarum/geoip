@@ -19,8 +19,6 @@ class IPInfoSerializer extends AbstractSerializer
     protected $type = 'ip_info';
 
     /**
-     * Undocumented function.
-     *
      * @param IPInfo $ip
      *
      * @return array
