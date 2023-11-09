@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\GeoIP\Api;
+namespace FoF\GeoIP\Concerns;
 
 interface ServiceInterface
 {

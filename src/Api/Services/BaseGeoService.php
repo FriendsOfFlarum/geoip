@@ -12,8 +12,8 @@
 namespace FoF\GeoIP\Api\Services;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\GeoIP\Api\ServiceInterface;
 use FoF\GeoIP\Api\ServiceResponse;
+use FoF\GeoIP\Concerns\ServiceInterface;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 

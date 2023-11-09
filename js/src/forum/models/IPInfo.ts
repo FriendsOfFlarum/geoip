@@ -37,4 +37,12 @@ export default class IPInfo extends Model {
   error() {
     return Model.attribute<string>('error').call(this);
   }
+
+  createdAt() {
+    return Model.attribute('createdAt', Model.transformDate).call(this);
+  }
+
+  updatedAt() {
+    return Model.attribute('updatedAt', Model.transformDate).call(this);
+  }
 }

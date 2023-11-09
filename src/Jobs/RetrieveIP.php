@@ -13,7 +13,7 @@ namespace FoF\GeoIP\Jobs;
 
 use Flarum\Queue\AbstractJob;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\IPInfo;
+use FoF\GeoIP\Model\IPInfo;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Arr;
 

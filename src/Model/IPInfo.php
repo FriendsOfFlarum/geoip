@@ -9,8 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\GeoIP;
+namespace FoF\GeoIP\Model;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 
 /**
@@ -22,6 +23,8 @@ use Flarum\Database\AbstractModel;
  * @property string|null $threat_level
  * @property string|null $threat_types
  * @property string|null $error
+ * @property Carbon      $created_at
+ * @property Carbon      $updated_at
  */
 class IPInfo extends AbstractModel
 {
@@ -33,4 +36,6 @@ class IPInfo extends AbstractModel
         'threat_level', 'threat_types',
         'error',
     ];
+
+    public $timestamps = true;
 }

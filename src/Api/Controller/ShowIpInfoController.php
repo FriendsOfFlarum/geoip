@@ -14,9 +14,10 @@ namespace FoF\GeoIP\Api\Controller;
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\IPInfo;
-use FoF\GeoIP\IPInfoSerializer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use FoF\GeoIP\Api\Serializer\IPInfoSerializer;
+use FoF\GeoIP\Command\FetchIPInfo;
+use FoF\GeoIP\Model\IPInfo;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -25,7 +26,7 @@ class ShowIpInfoController extends AbstractShowController
 {
     public $serializer = IPInfoSerializer::class;
 
-    public function __construct(protected GeoIP $geoIP)
+    public function __construct(protected GeoIP $geoIP, protected Dispatcher $bus)
     {
     }
 
@@ -39,55 +40,11 @@ class ShowIpInfoController extends AbstractShowController
      */
     public function data(ServerRequestInterface $request, Document $document): IPInfo
     {
-        RequestUtil::getActor($request)->assertRegistered();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertRegistered();
 
         $ip = urldecode(Arr::get($request->getQueryParams(), 'ip'));
 
-        $ipInfo = IPInfo::query()->where('address', $ip)->first();
-
-        if (!$ipInfo) {
-            $ipInfo = $this->lookup($ip);
-            $this->saveIpInfo($ip, $ipInfo);
-        }
-
-        return $ipInfo;
-    }
-
-    /**
-     * Lookup IP information using the GeoIP service.
-     *
-     * @param string $ip
-     *
-     * @throws ModelNotFoundException
-     *
-     * @return array
-     */
-    protected function lookup(string $ip): array
-    {
-        $response = $this->geoIP->get($ip);
-
-        if (!$response || $response->fake) {
-            throw new ModelNotFoundException("Unable to fetch IP information for IP: {$ip}");
-        }
-
-        return $response->toJson();
-    }
-
-    /**
-     * Save the IP information to the database.
-     *
-     * @param string $ip
-     * @param array  $data
-     *
-     * @return IPInfo
-     */
-    protected function saveIpInfo(string $ip, array $data): IPInfo
-    {
-        $ipInfo = new IPInfo();
-        $ipInfo->address = $ip;
-        $ipInfo->fill($data);
-        $ipInfo->save();
-
-        return $ipInfo;
+        return $this->bus->dispatch(new FetchIPInfo($ip, $actor));
     }
 }

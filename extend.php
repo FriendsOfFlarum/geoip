@@ -18,6 +18,8 @@ use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Api\Serializer\IPInfoSerializer;
+use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Repositories\GeoIPRepository;
 
 return [

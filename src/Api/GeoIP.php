@@ -13,7 +13,7 @@ namespace FoF\GeoIP\Api;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\GeoIP\IPInfo;
+use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Traits\HandlesGeoIPErrors;
 
 class GeoIP

@@ -13,8 +13,8 @@ namespace FoF\GeoIP\Repositories;
 
 use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\IPInfo;
 use FoF\GeoIP\Jobs\RetrieveIP;
+use FoF\GeoIP\Model\IPInfo;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 
