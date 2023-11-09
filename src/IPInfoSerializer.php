@@ -19,14 +19,15 @@ class IPInfoSerializer extends AbstractSerializer
     protected $type = 'ip_info';
 
     /**
-     * Undocumented function
+     * Undocumented function.
      *
      * @param IPInfo $ip
+     *
      * @return array
      */
     protected function getDefaultAttributes($ip): array
     {
-        if (! ($ip instanceof IPInfo)) {
+        if (!($ip instanceof IPInfo)) {
             throw new InvalidArgumentException(
                 get_class($this).' can only serialize instances of '.IPInfo::class
             );
@@ -45,6 +46,7 @@ class IPInfoSerializer extends AbstractSerializer
 
     /**
      * @param IPInfo $model
+     *
      * @return string
      */
     public function getId($model)

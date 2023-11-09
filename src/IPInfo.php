@@ -14,7 +14,7 @@ namespace FoF\GeoIP;
 use Flarum\Database\AbstractModel;
 
 /**
- * @property string $address
+ * @property string      $address
  * @property string|null $country_code
  * @property string|null $zip_code
  * @property string|null $isp
