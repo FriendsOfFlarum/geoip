@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Command;
 
 use FoF\GeoIP\Api\GeoIP;
@@ -10,8 +19,9 @@ class FetchIPInfoHandler
 {
     public function __construct(
         protected GeoIP $geoip
-    ) {}
-    
+    ) {
+    }
+
     public function handle(FetchIPInfo $command): IPInfo
     {
         $ipInfo = IPInfo::query()->firstOrNew(['address' => $command->ip]);
