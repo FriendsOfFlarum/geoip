@@ -67,7 +67,7 @@ class IPData extends BaseGeoService
 
         $response->setIsp($body->asn->name);
         $response->setOrganization($body->asn->name);
-        $response->setAs($body->asn->asn . ' ' . $body->asn->name);
+        $response->setAs($body->asn->asn.' '.$body->asn->name);
 
         if (isset($body->carrier) && !empty($body->carrier)) {
             $response->setMobile(true)

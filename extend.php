@@ -72,7 +72,7 @@ return [
 
     (new Extend\Routes('api'))
         ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class),
-    
+
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
 ];

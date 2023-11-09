@@ -12,7 +12,7 @@
 namespace FoF\GeoIP\Api;
 
 class ServiceResponse implements \JsonSerializable
-{   
+{
     /**
      * @var bool
      */

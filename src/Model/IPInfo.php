@@ -39,13 +39,13 @@ class IPInfo extends AbstractModel
         'country_code', 'zip_code', 'latitude', 'longitude',
         'isp', 'organization', 'as', 'mobile',
         'threat_level', 'threat_types',
-        'error', 'data_provider'
+        'error', 'data_provider',
     ];
 
     public $timestamps = true;
 
     public $casts = [
-        'mobile' => 'boolean',
+        'mobile'     => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
