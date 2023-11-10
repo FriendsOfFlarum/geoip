@@ -24,34 +24,34 @@ class IPApi extends BaseGeoService
 
     /**
      * 45 requests per minute.
-     * 
+     *
      * @see https://ip-api.com/docs/api:json
      *
-     * @var integer
+     * @var int
      */
     protected int $singleLookupsRemaining = 45;
 
     /**
      * 15 requests per minute.
-     * 
+     *
      * @see https://ip-api.com/docs/api:batch
      *
-     * @var integer
+     * @var int
      */
     protected int $batchLookupsRemaining = 15;
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
     {
-        /** 
+        /**
          * The number of requests remaining in the current time window.
-         * 
+         *
          * @var int
          */
         $remaining = (int) $response->getHeaderLine('X-Rl');
 
         /**
          * The number of seconds until the current time window resets.
-         * 
+         *
          * @var int
          */
         $ttl = Carbon::now()->addSeconds((int) $response->getHeaderLine('X-Ttl'));

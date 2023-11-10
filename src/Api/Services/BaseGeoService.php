@@ -58,7 +58,7 @@ abstract class BaseGeoService implements ServiceInterface
         /** @phpstan-ignore-next-line */
         if (!$this->isRateLimited() || ($this->isRateLimited() && $this->singleLookupsRemaining > 0)) {
             $response = $this->client->get($this->buildUrl($ip, $apiKey), $this->getRequestOptions($apiKey));
-            
+
             if ($this->isRateLimited()) {
                 $this->updateRateLimitsFromResponse($response);
             }
@@ -74,6 +74,7 @@ abstract class BaseGeoService implements ServiceInterface
             return $this->parseResponse($body);
         } else {
             $this->storeForLaterLookup($ip);
+
             return null;
         }
     }
@@ -105,7 +106,7 @@ abstract class BaseGeoService implements ServiceInterface
         /** @phpstan-ignore-next-line */
         if (!$this->isRateLimited() || ($this->isRateLimited() && $this->batchLookupsRemaining > 0)) {
             $response = $this->client->request('POST', $this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
-            
+
             if ($this->isRateLimited()) {
                 $this->updateRateLimitsFromResponse($response, 'batch');
             }
@@ -129,7 +130,7 @@ abstract class BaseGeoService implements ServiceInterface
         $this->batchLookupsRemaining = $this->cache->get("{$this->settingPrefix}.batch", $this->batchLookupsRemaining);
     }
 
-    abstract function isRateLimited(): bool;
+    abstract public function isRateLimited(): bool;
 
     abstract protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void;
 

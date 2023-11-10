@@ -25,18 +25,18 @@ class IPData extends BaseGeoService
 
     /**
      * 1500 lookups per day, on the free plan.
-     * 
+     *
      * @see https://ipdata.co/pricing.html
      *
-     * @var integer
+     * @var int
      */
     protected int $singleLookupsRemaining = 1500;
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
     {
-        /** 
+        /**
          * The number of requests remaining in the current time window.
-         * 
+         *
          * @var int
          */
         $remaining = 1500 - (int) Arr::get(json_decode($response->getBody(), true), 'count', $this->cache->get("$this->settingPrefix.$requestType"));
