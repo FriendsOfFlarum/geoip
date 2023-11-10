@@ -27,12 +27,12 @@ class GeoIPRepository
     /**
      * @param string|null $ip
      *
-     * @return IPInfo|void
+     * @return IPInfo|null
      */
-    public function get($ip)
+    public function get(?string $ip): ?IPInfo
     {
         if (!$ip) {
-            return;
+            return null;
         }
 
         return $this->geoIP->getSaved($ip);

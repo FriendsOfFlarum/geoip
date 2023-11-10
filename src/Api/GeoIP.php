@@ -65,25 +65,15 @@ class GeoIP
     /**
      * @param array $ips
      *
-     * @return ServiceResponse[]|void
+     * @return ServiceResponse[]
      */
     public function getBatch(array $ips)
     {
         return $this->getService()->getBatch($ips);
     }
 
-    public function getSaved(string $ip)
+    public function getSaved(string $ip): ?IPInfo
     {
-        $response = $this->checkErrors();
-
-        if ($response) {
-            $ipInfo = new IPInfo();
-            $ipInfo->address = $ip;
-            $ipInfo->fill($response->toJSON());
-
-            return $ipInfo;
-        }
-
         return IPInfo::where('address', $ip)->first();
     }
 

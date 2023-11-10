@@ -12,8 +12,9 @@
 namespace FoF\GeoIP\Jobs;
 
 use Flarum\Queue\AbstractJob;
-use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Command\FetchIPInfo;
 use FoF\GeoIP\Model\IPInfo;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Arr;
 
@@ -29,7 +30,7 @@ class RetrieveIP extends AbstractJob
         self::$queued[] = $ip;
     }
 
-    public function handle(GeoIP $geoIP, Repository $cache): void
+    public function handle(Repository $cache, Dispatcher $bus): void
     {
         $ip = $this->ip;
         $cacheKey = "fof-geoip.retrieving.$ip";
@@ -44,33 +45,10 @@ class RetrieveIP extends AbstractJob
         static::$retrieving[] = $ip;
         $cache->add($cacheKey, true, 60 * 60);
 
-        $response = $geoIP->get($ip);
+        /** @var IPInfo $ipInfo */
+        $ipInfo = $bus->dispatch(new FetchIPInfo($ip));
 
-        if ($response) {
-            $ipInfo = IPInfo::where('address', $ip)->first();
-
-            if (!$ipInfo) {
-                $ipInfo = new IPInfo();
-                $ipInfo->address = $ip;
-                $ipInfo->fill($response->toJson());
-
-                // If response is fake, it means an error occurred that was logged to the admin dashboard.
-                // We don't want to save fake responses.
-                if (!$response->fake) {
-                    $ipInfo->save();
-                }
-            }
-
-            if (!$response->fake) {
-                // If using sync queue driver, this will be immediately available.
-                // If using another driver (eg. redis), it will remember this IP has been retrieved until the process ends.
-                static::$retrieved[$ip] = $ipInfo;
-            }
-        }
-
-        // Only remove from cache if we didn't get a fake response
-        if (!$response || !$response->fake) {
-            // Remove from retrieving list and cache
+        if ($ipInfo->exists) {
             static::$retrieving = array_diff(static::$retrieving, [$ip]);
             $cache->forget("fof-geoip.retrieving.$ip");
         }
