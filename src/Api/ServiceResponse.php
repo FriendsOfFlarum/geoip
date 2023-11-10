@@ -17,7 +17,7 @@ class ServiceResponse implements \JsonSerializable
      * @var string
      */
     private $ip;
-    
+
     /**
      * @var bool
      */

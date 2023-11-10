@@ -64,6 +64,7 @@ class GeoIP
 
     /**
      * @param array $ips
+     *
      * @return ServiceResponse[]|void
      */
     public function getBatch(array $ips)

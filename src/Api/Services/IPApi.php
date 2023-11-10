@@ -28,7 +28,7 @@ class IPApi extends BaseGeoService
 
     protected function buildBatchUrl(array $ips, ?string $apiKey): string
     {
-        return '/batch?' . http_build_query(['fields' => $this->requestFields]);
+        return '/batch?'.http_build_query(['fields' => $this->requestFields]);
     }
 
     protected function requiresApiKey(): bool
@@ -41,10 +41,10 @@ class IPApi extends BaseGeoService
         if ($ips) {
             return [
                 'http_errors' => false,
-                'json' => $ips
+                'json'        => $ips,
             ];
         }
-        
+
         return [
             'http_errors' => false,
             'query'       => [
