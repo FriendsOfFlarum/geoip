@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Api;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\GeoIP\Concerns\ServiceInterface;
 use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Traits\HandlesGeoIPErrors;
 
@@ -32,6 +33,25 @@ class GeoIP
     {
     }
 
+    public function getService(): ?ServiceInterface
+    {
+        $serviceName = $this->settings->get('fof-geoip.service');
+        $service = self::$services[$serviceName] ?? null;
+
+        if (!$service) {
+            return null;
+        }
+
+        return resolve($service);
+    }
+
+    public function batchSupported(): bool
+    {
+        $service = $this->getService();
+
+        return $service && $service->batchSupported();
+    }
+
     /**
      * @param string $ip
      *
@@ -39,14 +59,16 @@ class GeoIP
      */
     public function get(string $ip)
     {
-        $serviceName = $this->settings->get('fof-geoip.service');
-        $service = self::$services[$serviceName] ?? null;
+        return $this->getService()->get($ip);
+    }
 
-        if (!$service) {
-            return;
-        }
-
-        return resolve($service)->get($ip);
+    /**
+     * @param array $ips
+     * @return ServiceResponse[]|void
+     */
+    public function getBatch(array $ips)
+    {
+        return $this->getService()->getBatch($ips);
     }
 
     public function getSaved(string $ip)

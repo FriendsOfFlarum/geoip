@@ -19,10 +19,16 @@ class IPApi extends BaseGeoService
 {
     protected $host = 'http://ip-api.com';
     protected $settingPrefix = 'fof-geoip.services.ipapi';
+    protected $requestFields = 'status,message,query,countryCode,city,zip,lat,lon,isp,org,as,mobile';
 
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
         return "/json/{$ip}";
+    }
+
+    protected function buildBatchUrl(array $ips, ?string $apiKey): string
+    {
+        return '/batch?' . http_build_query(['fields' => $this->requestFields]);
     }
 
     protected function requiresApiKey(): bool
@@ -30,14 +36,19 @@ class IPApi extends BaseGeoService
         return false;
     }
 
-    protected function getRequestOptions(?string $apiKey): array
+    protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
+        if ($ips) {
+            return [
+                'http_errors' => false,
+                'json' => $ips
+            ];
+        }
+        
         return [
             'http_errors' => false,
-            'delay'       => 100,
-            'retries'     => 3,
             'query'       => [
-                'fields' => 'status,message,countryCode,city,zip,lat,lon,isp,org,as,mobile',
+                'fields' => $this->requestFields,
             ],
         ];
     }
@@ -57,6 +68,7 @@ class IPApi extends BaseGeoService
     protected function parseResponse(object $body): ServiceResponse
     {
         $response = new ServiceResponse($this->host);
+        $response->setIP($body->query);
 
         if (property_exists($body, 'message') && !empty($body->message)) {
             return $response->setIsp($body->message)
@@ -71,5 +83,21 @@ class IPApi extends BaseGeoService
             ->setOrganization($body->org)
             ->setAs($body->as)
             ->setMobile($body->mobile);
+    }
+
+    public function batchSupported(): bool
+    {
+        return true;
+    }
+
+    protected function parseBatchResponse(array $responses): array
+    {
+        $ipDataCollection = [];
+
+        foreach ($responses as $response) {
+            $ipDataCollection[] = $this->parseResponse($response);
+        }
+
+        return $ipDataCollection;
     }
 }

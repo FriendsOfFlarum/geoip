@@ -17,6 +17,7 @@ use Flarum\Post\Post;
 use FoF\Drafts\Draft;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Command\FetchIPInfo;
+use FoF\GeoIP\Command\FetchIPInfoBatch;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Bus\Dispatcher;
 
@@ -50,6 +51,7 @@ class LookupUnknownIPsCommand extends Command
 
             /** @var AbstractModel $model */
             $query = $model::query()
+                ->select('id', $column)
                 ->whereNotNull($column)
                 ->whereNotIn($column, function ($query) use ($column) {
                     $query->select('address')
@@ -60,10 +62,17 @@ class LookupUnknownIPsCommand extends Command
 
             $query
                 ->chunkById(100, function ($models) use ($column) {
-                    $models->each(function ($model) use ($column) {
-                        $this->info("Looking up IP data for {$model->$column}");
-                        $this->bus->dispatch(new FetchIPInfo(ip: $model->$column, refresh: false));
-                    });
+                    if ($this->geoIP->batchSupported()) {
+                        $ips = $models->pluck($column)->toArray();
+                        $count = count($ips);
+                        $this->info("Looking up IP data for {$count} IPs");
+                        $this->bus->dispatch(new FetchIPInfoBatch(ips: $ips, refresh: false));
+                    } else {
+                        $models->each(function ($model) use ($column) {
+                            $this->info("Looking up IP data for {$model->$column}");
+                            $this->bus->dispatch(new FetchIPInfo(ip: $model->$column, refresh: false));
+                        });
+                    }
                 });
         }
     }

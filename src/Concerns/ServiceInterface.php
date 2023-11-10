@@ -14,4 +14,8 @@ namespace FoF\GeoIP\Concerns;
 interface ServiceInterface
 {
     public function get(string $ip);
+
+    public function getBatch(array $ips);
+
+    public function batchSupported(): bool;
 }

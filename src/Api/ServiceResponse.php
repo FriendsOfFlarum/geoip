@@ -14,6 +14,11 @@ namespace FoF\GeoIP\Api;
 class ServiceResponse implements \JsonSerializable
 {
     /**
+     * @var string
+     */
+    private $ip;
+    
+    /**
      * @var bool
      */
     public $fake;
@@ -82,6 +87,18 @@ class ServiceResponse implements \JsonSerializable
     {
         $this->setDataProvider($dataProvider);
         $this->fake = $fake;
+    }
+
+    public function setIP(string $ip)
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    public function getIP(): string
+    {
+        return $this->ip;
     }
 
     public function setCountryCode(?string $country_code)

@@ -26,7 +26,13 @@ class IPData extends BaseGeoService
         return "/{$ip}";
     }
 
-    protected function getRequestOptions(?string $apiKey): array
+    protected function buildBatchUrl(array $ips, ?string $apiKey): string
+    {
+        // Not currently implemented
+        return '';
+    }
+
+    protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
         return [
             'http_errors' => false,
@@ -77,5 +83,11 @@ class IPData extends BaseGeoService
         }
 
         return $response;
+    }
+
+    protected function parseBatchResponse(array $body): array
+    {
+        // Not currently implemented
+        return [];
     }
 }

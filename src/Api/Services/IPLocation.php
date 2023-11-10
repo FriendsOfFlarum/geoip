@@ -25,7 +25,13 @@ class IPLocation extends BaseGeoService
         return "/?ip={$ip}";
     }
 
-    protected function getRequestOptions(?string $apiKey): array
+    protected function buildBatchUrl(array $ips, ?string $apiKey): string
+    {
+        // Not supported by this provider
+        return '';
+    }
+
+    protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
         return [
             'http_errors' => false,
@@ -54,5 +60,11 @@ class IPLocation extends BaseGeoService
         return (new ServiceResponse($this->host))
             ->setCountryCode($body->country_code2)
             ->setIsp($body->isp);
+    }
+
+    protected function parseBatchResponse(array $body): array
+    {
+        // Not supported by this provider
+        return [];
     }
 }
