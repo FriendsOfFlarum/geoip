@@ -20,6 +20,11 @@ class IPLocation extends BaseGeoService
     protected $host = 'https://api.iplocation.net';
     protected $settingPrefix = 'fof-geoip.services.iplocation';
 
+    protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
+    {
+        // Not required for this provider.
+    }
+
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
         return "/?ip={$ip}";
@@ -41,6 +46,11 @@ class IPLocation extends BaseGeoService
     }
 
     protected function requiresApiKey(): bool
+    {
+        return false;
+    }
+
+    public function isRateLimited(): bool
     {
         return false;
     }

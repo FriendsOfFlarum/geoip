@@ -15,6 +15,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use FoF\GeoIP\Concerns\ServiceInterface;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -29,7 +30,10 @@ abstract class BaseGeoService implements ServiceInterface
     protected $settingPrefix;
     protected $requestFields;
 
-    public function __construct(protected SettingsRepositoryInterface $settings, protected LoggerInterface $logger)
+    protected int $singleLookupsRemaining = 1;
+    protected int $batchLookupsRemaining = 1;
+
+    public function __construct(protected SettingsRepositoryInterface $settings, protected LoggerInterface $logger, protected Cache $cache)
     {
         $this->client = new Client([
             'base_uri' => $this->host,
@@ -47,17 +51,31 @@ abstract class BaseGeoService implements ServiceInterface
             return null;
         }
 
-        $response = $this->client->get($this->buildUrl($ip, $apiKey), $this->getRequestOptions($apiKey));
-
-        $body = json_decode($response->getBody());
-
-        if ($this->hasError($response, $body)) {
-            $this->logger->error("Error detected in response from {$this->host}");
-
-            return $this->handleError($response, $body);
+        if ($this->isRateLimited()) {
+            $this->initRateLimitsFromCache();
         }
 
-        return $this->parseResponse($body);
+        /** @phpstan-ignore-next-line */
+        if (!$this->isRateLimited() || ($this->isRateLimited() && $this->singleLookupsRemaining > 0)) {
+            $response = $this->client->get($this->buildUrl($ip, $apiKey), $this->getRequestOptions($apiKey));
+            
+            if ($this->isRateLimited()) {
+                $this->updateRateLimitsFromResponse($response);
+            }
+
+            $body = json_decode($response->getBody());
+
+            if ($this->hasError($response, $body)) {
+                $this->logger->error("Error detected in response from {$this->host}");
+
+                return $this->handleError($response, $body);
+            }
+
+            return $this->parseResponse($body);
+        } else {
+            $this->storeForLaterLookup($ip);
+            return null;
+        }
     }
 
     protected function requiresApiKey(): bool
@@ -80,10 +98,40 @@ abstract class BaseGeoService implements ServiceInterface
             return null;
         }
 
-        $response = $this->client->request('POST', $this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
+        if ($this->isRateLimited()) {
+            $this->initRateLimitsFromCache();
+        }
 
-        return $this->parseBatchResponse(json_decode($response->getBody()->getContents()));
+        /** @phpstan-ignore-next-line */
+        if (!$this->isRateLimited() || ($this->isRateLimited() && $this->batchLookupsRemaining > 0)) {
+            $response = $this->client->request('POST', $this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
+            
+            if ($this->isRateLimited()) {
+                $this->updateRateLimitsFromResponse($response, 'batch');
+            }
+
+            return $this->parseBatchResponse(json_decode($response->getBody()->getContents()));
+        } else {
+            $this->storeForLaterLookup($ips);
+        }
     }
+
+    protected function storeForLaterLookup(string|array $ip): void
+    {
+        // TODO: implement this, and a way to process stored IPs when the rate limit is reset.
+
+        //dd($ip, 'Rate limit reached');
+    }
+
+    protected function initRateLimitsFromCache(): void
+    {
+        $this->singleLookupsRemaining = $this->cache->get("{$this->settingPrefix}.single", $this->singleLookupsRemaining);
+        $this->batchLookupsRemaining = $this->cache->get("{$this->settingPrefix}.batch", $this->batchLookupsRemaining);
+    }
+
+    abstract function isRateLimited(): bool;
+
+    abstract protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void;
 
     abstract protected function buildUrl(string $ip, ?string $apiKey): string;
 

@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Api\Services;
 
+use Carbon\Carbon;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +21,44 @@ class IPApi extends BaseGeoService
     protected $host = 'http://ip-api.com';
     protected $settingPrefix = 'fof-geoip.services.ipapi';
     protected $requestFields = 'status,message,query,countryCode,city,zip,lat,lon,isp,org,as,mobile';
+
+    /**
+     * 45 requests per minute.
+     * 
+     * @see https://ip-api.com/docs/api:json
+     *
+     * @var integer
+     */
+    protected int $singleLookupsRemaining = 45;
+
+    /**
+     * 15 requests per minute.
+     * 
+     * @see https://ip-api.com/docs/api:batch
+     *
+     * @var integer
+     */
+    protected int $batchLookupsRemaining = 15;
+
+    protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
+    {
+        /** 
+         * The number of requests remaining in the current time window.
+         * 
+         * @var int
+         */
+        $remaining = (int) $response->getHeaderLine('X-Rl');
+
+        /**
+         * The number of seconds until the current time window resets.
+         * 
+         * @var int
+         */
+        $ttl = Carbon::now()->addSeconds((int) $response->getHeaderLine('X-Ttl'));
+
+        // Cache the remaining requests for the current time window
+        $this->cache->put("$this->settingPrefix.$requestType", $remaining, $ttl);
+    }
 
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
@@ -86,6 +125,11 @@ class IPApi extends BaseGeoService
     }
 
     public function batchSupported(): bool
+    {
+        return true;
+    }
+
+    public function isRateLimited(): bool
     {
         return true;
     }

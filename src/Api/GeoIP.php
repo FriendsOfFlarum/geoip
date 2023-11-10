@@ -23,6 +23,7 @@ class GeoIP
 
     public static $services = [
         'ipapi'      => Services\IPApi::class,
+        'ipapi-pro'  => Services\IPApiPro::class,
         'ipdata'     => Services\IPData::class,
         'iplocation' => Services\IPLocation::class,
     ];

@@ -11,8 +11,10 @@
 
 namespace FoF\GeoIP\Api\Services;
 
+use Carbon\Carbon;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 
@@ -20,6 +22,41 @@ class IPData extends BaseGeoService
 {
     protected $host = 'https://api.ipdata.co';
     protected $settingPrefix = 'fof-geoip.services.ipdata';
+
+    /**
+     * 1500 lookups per day, on the free plan.
+     * 
+     * @see https://ipdata.co/pricing.html
+     *
+     * @var integer
+     */
+    protected int $singleLookupsRemaining = 1500;
+
+    protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
+    {
+        /** 
+         * The number of requests remaining in the current time window.
+         * 
+         * @var int
+         */
+        $remaining = 1500 - (int) Arr::get(json_decode($response->getBody(), true), 'count', $this->cache->get("$this->settingPrefix.$requestType"));
+
+        $ttlKey = "$this->settingPrefix.$requestType.ttl";
+        $ttl = $this->cache->get($ttlKey);
+
+        if (!$ttl) {
+            $ttl = Carbon::now()->addHours(24);
+            $this->cache->put($ttlKey, $ttl, $ttl);
+        }
+
+        // Cache the remaining requests for the current time window
+        $this->cache->put("$this->settingPrefix.$requestType", $remaining, $ttl);
+    }
+
+    public function isRateLimited(): bool
+    {
+        return true;
+    }
 
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
@@ -39,7 +76,7 @@ class IPData extends BaseGeoService
             'delay'       => 100,
             'retries'     => 3,
             'query'       => [
-                'fields'  => 'country_code,postal,asn,threat,carrier,latitude,longitude',
+                'fields'  => 'count,country_code,postal,asn,threat,carrier,latitude,longitude',
                 'api-key' => $apiKey,
             ],
         ];
