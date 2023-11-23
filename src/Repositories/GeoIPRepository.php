@@ -13,8 +13,8 @@ namespace FoF\GeoIP\Repositories;
 
 use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\IPInfo;
 use FoF\GeoIP\Jobs\RetrieveIP;
+use FoF\GeoIP\Model\IPInfo;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 
@@ -27,12 +27,12 @@ class GeoIPRepository
     /**
      * @param string|null $ip
      *
-     * @return IPInfo|void
+     * @return IPInfo|null
      */
-    public function get($ip)
+    public function get(?string $ip): ?IPInfo
     {
         if (!$ip) {
-            return;
+            return null;
         }
 
         return $this->geoIP->getSaved($ip);

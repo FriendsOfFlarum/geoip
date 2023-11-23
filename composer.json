@@ -28,6 +28,11 @@
             "name": "David Sevilla Martin",
             "email": "me+fof@datitisev.me",
             "role": "Developer"
+        },
+        {
+            "name": "IanM",
+            "email": "ian@flarum.org",
+            "role": "Developer"
         }
     ],
     "autoload": {
@@ -58,7 +63,8 @@
         }
     },
     "require-dev": {
-        "flarum/phpstan": "*"
+        "flarum/phpstan": "*",
+        "fof/drafts": "*"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",

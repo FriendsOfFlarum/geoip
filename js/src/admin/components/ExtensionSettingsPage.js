@@ -44,7 +44,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
               )
             : ''}
 
-          {['ipdata', 'ipstack'].includes(service)
+          {['ipdata', 'ipapi-pro'].includes(service)
             ? [
                 this.buildSettingComponent({
                   type: 'string',
@@ -54,11 +54,13 @@ export default class GeoipSettingsPage extends ExtensionPage {
                 }),
               ]
             : []}
-          {service === 'ipstack'
+          {service === 'ipdata'
             ? this.buildSettingComponent({
-                type: 'boolean',
-                setting: 'fof-geoip.services.ipstack.security',
-                label: app.translator.trans('fof-geoip.admin.settings.security_label'),
+                type: 'number',
+                setting: 'fof-geoip.services.ipdata.quota',
+                label: app.translator.trans('fof-geoip.admin.settings.quota_label'),
+                min: 1500,
+                placeholder: 1500,
               })
             : []}
           {this.submitButton()}

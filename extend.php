@@ -18,7 +18,7 @@ use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Repositories\GeoIPRepository;
+use FoF\GeoIP\Api\Serializer\IPInfoSerializer;
 
 return [
     (new Extend\Frontend('forum'))
@@ -31,12 +31,8 @@ return [
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
 
-    (new Extend\Model(Post::class))->relationship('ip_info', function (Post $model) {
-        return $model->hasOne(IPInfo::class, 'address', 'ip_address')
-        ->withDefault(function ($instance, $submodel) {
-            return resolve(GeoIPRepository::class)->retrieveForPost($submodel);
-        });
-    }),
+    (new Extend\Model(Post::class))
+        ->relationship('ip_info', Model\IPInfoRelationship::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
@@ -70,4 +66,7 @@ return [
 
     (new Extend\Routes('api'))
         ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class),
+
+    (new Extend\Console())
+        ->command(Console\LookupUnknownIPsCommand::class),
 ];

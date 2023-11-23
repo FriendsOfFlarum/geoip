@@ -13,7 +13,8 @@ namespace FoF\GeoIP\Api;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\GeoIP\IPInfo;
+use FoF\GeoIP\Concerns\ServiceInterface;
+use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Traits\HandlesGeoIPErrors;
 
 class GeoIP
@@ -22,8 +23,8 @@ class GeoIP
 
     public static $services = [
         'ipapi'      => Services\IPApi::class,
+        'ipapi-pro'  => Services\IPApiPro::class,
         'ipdata'     => Services\IPData::class,
-        'ipstack'    => Services\IPStack::class,
         'iplocation' => Services\IPLocation::class,
     ];
 
@@ -33,6 +34,25 @@ class GeoIP
     {
     }
 
+    public function getService(): ?ServiceInterface
+    {
+        $serviceName = $this->settings->get('fof-geoip.service');
+        $service = self::$services[$serviceName] ?? null;
+
+        if (!$service) {
+            return null;
+        }
+
+        return resolve($service);
+    }
+
+    public function batchSupported(): bool
+    {
+        $service = $this->getService();
+
+        return $service && $service->batchSupported();
+    }
+
     /**
      * @param string $ip
      *
@@ -40,28 +60,21 @@ class GeoIP
      */
     public function get(string $ip)
     {
-        $serviceName = $this->settings->get('fof-geoip.service');
-        $service = self::$services[$serviceName] ?? null;
-
-        if (!$service) {
-            return;
-        }
-
-        return resolve($service)->get($ip);
+        return $this->getService()->get($ip);
     }
 
-    public function getSaved(string $ip)
+    /**
+     * @param array $ips
+     *
+     * @return ServiceResponse[]
+     */
+    public function getBatch(array $ips)
     {
-        $response = $this->checkErrors();
+        return $this->getService()->getBatch($ips);
+    }
 
-        if ($response) {
-            $ipInfo = new IPInfo();
-            $ipInfo->address = $ip;
-            $ipInfo->fill($response->toJSON());
-
-            return $ipInfo;
-        }
-
+    public function getSaved(string $ip): ?IPInfo
+    {
         return IPInfo::where('address', $ip)->first();
     }
 
@@ -79,7 +92,7 @@ class GeoIP
         $lastErrorTime = $this->settings->get($timeKey);
 
         if ($lastErrorTime && Carbon::createFromTimestamp($lastErrorTime)->isAfter(Carbon::now()->subHour())) {
-            return $this->handleGeoIPError($this->settings->get($errorKey));
+            return $this->handleGeoIPError($service, $this->settings->get($errorKey));
         } elseif ($lastErrorTime) {
             $this->settings->delete($timeKey);
             $this->settings->delete($errorKey);
@@ -95,12 +108,12 @@ class GeoIP
         $settings->set("fof-geoip.services.$service.last_error_time", time());
         $settings->set("fof-geoip.services.$service.error", $error);
 
-        return self::getFakeResponse($error);
+        return self::getFakeResponse($service, $error);
     }
 
-    protected static function getFakeResponse(string $error)
+    protected static function getFakeResponse(string $service, string $error)
     {
-        return (new ServiceResponse(true))
+        return (new ServiceResponse($service, true))
             ->setError($error);
     }
 }

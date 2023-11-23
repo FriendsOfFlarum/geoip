@@ -17,9 +17,16 @@ export default class ZipCodeMap extends Component {
   oninit(vnode) {
     super.oninit(vnode);
 
+    this.ipInfo = this.attrs.ipInfo;
+
     this.data = null;
 
-    this.search();
+    // if (this.ipInfo.zipCode()) {
+    //   this.searchZip();
+    // } else {
+    //   this.searchLatLon();
+    // }
+    this.searchLatLon();
   }
 
   view() {
@@ -32,7 +39,7 @@ export default class ZipCodeMap extends Component {
     return <div id="geoip-map" oncreate={this.configMap.bind(this)} />;
   }
 
-  search() {
+  searchZip() {
     if (this.loading) return;
 
     this.loading = true;
@@ -43,14 +50,39 @@ export default class ZipCodeMap extends Component {
           url: `https://nominatim.openstreetmap.org/search`,
           method: 'GET',
           params: {
-            q: this.attrs.zip,
-            countrycodes: this.attrs.country,
+            q: this.inInfo.zipCode(),
+            countrycodes: this.inInfo.country(),
             limit: 1,
             format: 'json',
           },
         })
         .then((data) => {
           this.data = data[0];
+          this.loading = false;
+
+          m.redraw();
+        })
+    );
+  }
+
+  searchLatLon() {
+    if (this.loading) return;
+
+    this.loading = true;
+
+    return addResources().then(
+      app
+        .request({
+          url: `https://nominatim.openstreetmap.org/reverse`,
+          method: 'GET',
+          params: {
+            lat: this.ipInfo.latitude(),
+            lon: this.ipInfo.longitude(),
+            format: 'json',
+          },
+        })
+        .then((data) => {
+          this.data = data;
           this.loading = false;
 
           m.redraw();

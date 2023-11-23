@@ -13,12 +13,28 @@ export default class IPInfo extends Model {
     return Model.attribute<string>('zipCode').call(this);
   }
 
+  latitude() {
+    return Model.attribute<number>('latitude').call(this);
+  }
+
+  longitude() {
+    return Model.attribute<number>('longitude').call(this);
+  }
+
   isp() {
     return Model.attribute<string>('isp').call(this);
   }
 
   organization() {
     return Model.attribute<string>('organization').call(this);
+  }
+
+  as() {
+    return Model.attribute<string>('as').call(this);
+  }
+
+  mobile() {
+    return Model.attribute<boolean>('mobile').call(this);
   }
 
   threatLevel() {
@@ -36,5 +52,17 @@ export default class IPInfo extends Model {
 
   error() {
     return Model.attribute<string>('error').call(this);
+  }
+
+  dataProvider() {
+    return Model.attribute<string>('dataProvider').call(this);
+  }
+
+  createdAt() {
+    return Model.attribute('createdAt', Model.transformDate).call(this);
+  }
+
+  updatedAt() {
+    return Model.attribute('updatedAt', Model.transformDate).call(this);
   }
 }

@@ -14,6 +14,11 @@ namespace FoF\GeoIP\Api;
 class ServiceResponse implements \JsonSerializable
 {
     /**
+     * @var string
+     */
+    private $ip;
+
+    /**
      * @var bool
      */
     public $fake;
@@ -27,6 +32,16 @@ class ServiceResponse implements \JsonSerializable
      * @var string
      */
     private $zip_code;
+
+    /**
+     * @var string
+     */
+    private $latitude;
+
+    /**
+     * @var string
+     */
+    private $longitude;
 
     /**
      * @var string
@@ -53,9 +68,37 @@ class ServiceResponse implements \JsonSerializable
      */
     private $error;
 
-    public function __construct(bool $fake = false)
+    /**
+     * @var bool
+     */
+    private $mobile;
+
+    /**
+     * @var ?string
+     */
+    private $as;
+
+    /**
+     * @var ?string
+     */
+    private $data_provider;
+
+    public function __construct(?string $dataProvider, bool $fake = false)
     {
+        $this->setDataProvider($dataProvider);
         $this->fake = $fake;
+    }
+
+    public function setIP(string $ip)
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    public function getIP(): string
+    {
+        return $this->ip;
     }
 
     public function setCountryCode(?string $country_code)
@@ -80,6 +123,30 @@ class ServiceResponse implements \JsonSerializable
     public function getZipCode(): ?string
     {
         return $this->zip_code;
+    }
+
+    public function setLatitude(?string $latitude)
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function setLongitude(?string $longitude)
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
     }
 
     public function setIsp(?string $isp)
@@ -140,6 +207,42 @@ class ServiceResponse implements \JsonSerializable
     public function getError(): ?string
     {
         return $this->error;
+    }
+
+    public function setAs(?string $as)
+    {
+        $this->as = $as;
+
+        return $this;
+    }
+
+    public function getAs(): ?string
+    {
+        return $this->as;
+    }
+
+    public function setMobile(bool $mobile)
+    {
+        $this->mobile = $mobile;
+
+        return $this;
+    }
+
+    public function getMobile(): bool
+    {
+        return $this->mobile;
+    }
+
+    public function setDataProvider(?string $provider)
+    {
+        $this->data_provider = $provider;
+
+        return $this;
+    }
+
+    public function getDataProvider(): ?string
+    {
+        return $this->data_provider;
     }
 
     public function toJson()

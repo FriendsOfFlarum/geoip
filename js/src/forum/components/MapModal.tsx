@@ -71,6 +71,8 @@ export default class MapModal extends Modal<MapModalAttrs> {
           {ipInfo.organization() && (
             <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.organization')} value={ipInfo.organization()} />
           )}
+          {ipInfo.as() && <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.as')} value={ipInfo.as()} />}
+          {<LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.mobile')} value={ipInfo.mobile() ? 'yes' : 'no'} />}
           {ipInfo.threatLevel() && <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.threat_level')} value={ipInfo.threatLevel()} />}
           {ipInfo.threatTypes().length > 0 && (
             <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.threat_types')} value={ipInfo.threatTypes().join(', ')} />
@@ -79,7 +81,7 @@ export default class MapModal extends Modal<MapModalAttrs> {
         </div>
         <hr />
         <div id="mapContainer">
-          <ZipCodeMap zip={ipInfo.zipCode()} country={ipInfo.countryCode()} />
+          <ZipCodeMap ipInfo={ipInfo} />
         </div>
       </div>
     );

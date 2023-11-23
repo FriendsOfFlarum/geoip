@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\GeoIP;
+namespace FoF\GeoIP\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
+use FoF\GeoIP\Model\IPInfo;
 use InvalidArgumentException;
 
 class IPInfoSerializer extends AbstractSerializer
@@ -34,11 +35,18 @@ class IPInfoSerializer extends AbstractSerializer
         return [
             'countryCode'       => $ip->country_code,
             'zipCode'           => $ip->zip_code,
+            'latitude'          => $ip->latitude,
+            'longitude'         => $ip->longitude,
             'isp'               => $ip->isp,
             'organization'      => $ip->organization,
+            'as'                => $ip->as,
+            'mobile'            => $ip->mobile,
             'threatLevel'       => $ip->threat_level,
             'threatType'        => $ip->threat_types,
             'error'             => $ip->error,
+            'dataProvider'      => $ip->data_provider,
+            'createdAt'         => $this->formatDate($ip->created_at),
+            'updatedAt'         => $this->formatDate($ip->updated_at),
         ];
     }
 

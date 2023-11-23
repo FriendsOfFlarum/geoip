@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\GeoIP\Api;
+use Flarum\Database\Migration;
 
-interface ServiceInterface
-{
-    public function get(string $ip);
-}
+return Migration::addColumns('ip_info', [
+    'created_at' => ['timestamp', 'nullable' => false, 'useCurrent' => true],
+    'updated_at' => ['datetime', 'nullable' => true],
+]);
