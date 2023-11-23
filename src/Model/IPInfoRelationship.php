@@ -17,11 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class IPInfoRelationship
 {
-    protected $geoIP;
-
-    public function __construct(GeoIPRepository $geoIP)
+    public function __construct(protected GeoIPRepository $geoIP)
     {
-        $this->geoIP = $geoIP;
     }
 
     public function __invoke(Post $post): HasOne
