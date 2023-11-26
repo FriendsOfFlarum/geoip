@@ -21,12 +21,11 @@ export default class ZipCodeMap extends Component {
 
     this.data = null;
 
-    // if (this.ipInfo.zipCode()) {
-    //   this.searchZip();
-    // } else {
-    //   this.searchLatLon();
-    // }
-    this.searchLatLon();
+    if (this.ipInfo.zipCode()) {
+      this.searchZip();
+    } else {
+      this.searchLatLon();
+    }
   }
 
   view() {
@@ -50,8 +49,8 @@ export default class ZipCodeMap extends Component {
           url: `https://nominatim.openstreetmap.org/search`,
           method: 'GET',
           params: {
-            q: this.inInfo.zipCode(),
-            countrycodes: this.inInfo.country(),
+            q: this.ipInfo.zipCode(),
+            countrycodes: this.ipInfo.countryCode(),
             limit: 1,
             format: 'json',
           },
