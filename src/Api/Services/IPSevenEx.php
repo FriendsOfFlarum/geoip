@@ -44,8 +44,6 @@ class IPSevenEx extends BaseGeoService
     {
         return [
             'http_errors' => false,
-            'delay'       => 100,
-            'retries'     => 3,
             'query'       => [
                 'apikey' => $apiKey
             ],
