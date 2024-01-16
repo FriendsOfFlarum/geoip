@@ -26,7 +26,9 @@ class IPSevenEx extends BaseGeoService
     }
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
-    {}
+    {
+
+    }
 
 
     protected function buildUrl(string $ip, ?string $apiKey): string
@@ -45,7 +47,7 @@ class IPSevenEx extends BaseGeoService
         return [
             'http_errors' => false,
             'query'       => [
-                'apikey' => $apiKey
+                'apikey' => $apiKey,
             ],
         ];
     }
