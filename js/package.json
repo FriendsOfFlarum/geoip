@@ -5,17 +5,17 @@
   "prettier": "@flarum/prettier-config",
   "dependencies": {
     "@flarum/prettier-config": "^1.0.0",
-    "flarum-tsconfig": "^1.0.2",
-    "flarum-webpack-config": "^2.0.0",
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4",
     "country-code-emoji": "^1.0.0",
     "external-load": "^1.0.0",
+    "flarum-tsconfig": "^1.0.2",
+    "flarum-webpack-config": "^2.0.0",
     "linkify-lite": "^1.0.0",
-    "twemoji-basename": "^1.0.0"
+    "twemoji-basename": "^1.0.0",
+    "webpack": "^5.88.2"
   },
   "devDependencies": {
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "webpack-cli": "^5.1.4"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",

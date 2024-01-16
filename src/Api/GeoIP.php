@@ -26,6 +26,7 @@ class GeoIP
         'ipapi-pro'  => Services\IPApiPro::class,
         'ipdata'     => Services\IPData::class,
         'iplocation' => Services\IPLocation::class,
+        'ipsevenex'  => Services\IPSevenEx::class,
     ];
 
     private $prefix = 'fof-geoip.services';
