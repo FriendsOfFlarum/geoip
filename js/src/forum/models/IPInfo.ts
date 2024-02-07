@@ -6,43 +6,46 @@ export default class IPInfo extends Model {
   }
 
   countryCode() {
-    return Model.attribute<string>('countryCode').call(this);
+    return Model.attribute<string | null>('countryCode').call(this);
   }
 
   zipCode() {
-    return Model.attribute<string>('zipCode').call(this);
+    return Model.attribute<string | null>('zipCode').call(this);
   }
 
   latitude() {
-    return Model.attribute<number>('latitude').call(this);
+    return Model.attribute<number | null>('latitude').call(this);
   }
 
   longitude() {
-    return Model.attribute<number>('longitude').call(this);
+    return Model.attribute<number | null>('longitude').call(this);
   }
 
   isp() {
-    return Model.attribute<string>('isp').call(this);
+    return Model.attribute<string | null>('isp').call(this);
   }
 
   organization() {
-    return Model.attribute<string>('organization').call(this);
+    return Model.attribute<string | null>('organization').call(this);
   }
 
   as() {
-    return Model.attribute<string>('as').call(this);
+    return Model.attribute<string | null>('as').call(this);
   }
 
   mobile() {
-    return Model.attribute<boolean>('mobile').call(this);
+    return Model.attribute<boolean | null>('mobile').call(this);
   }
 
   threatLevel() {
-    return Model.attribute<string>('threatLevel').call(this);
+    return Model.attribute<string | null>('threatLevel').call(this);
   }
 
   threatTypes() {
-    const raw = Model.attribute<string>('threatTypes').call(this);
+    const raw = Model.attribute<string | null>('threatTypes').call(this);
+    if (!raw) {
+      return [];
+    }
     try {
       return JSON.parse(raw);
     } catch (error) {
@@ -51,11 +54,11 @@ export default class IPInfo extends Model {
   }
 
   error() {
-    return Model.attribute<string>('error').call(this);
+    return Model.attribute<string | null>('error').call(this);
   }
 
   dataProvider() {
-    return Model.attribute<string>('dataProvider').call(this);
+    return Model.attribute<string | null>('dataProvider').call(this);
   }
 
   createdAt() {

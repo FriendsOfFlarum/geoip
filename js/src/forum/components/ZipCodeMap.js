@@ -21,21 +21,50 @@ export default class ZipCodeMap extends Component {
 
     this.data = null;
 
-    if (this.ipInfo.zipCode()) {
+    if (this.ipInfo.latitude() && this.ipInfo.longitude()) {
+      this.searchLatLon();
+    } else if (this.ipInfo.zipCode()) {
       this.searchZip();
     } else {
-      this.searchLatLon();
+      this.data = { unknown: true };
     }
   }
 
   view() {
     if (this.loading) {
       return <LoadingIndicator size="medium" />;
+    } else if (this.data && this.data.unknown) {
+      return <div className="helpText">{app.translator.trans('fof-geoip.forum.map_modal.not_enough_data')}</div>;
     } else if (!this.data) {
       return <div />;
     }
 
     return <div id="geoip-map" oncreate={this.configMap.bind(this)} />;
+  }
+
+  searchLatLon() {
+    if (this.loading) return;
+
+    this.loading = true;
+
+    return addResources().then(
+      app
+        .request({
+          url: `https://nominatim.openstreetmap.org/reverse`,
+          method: 'GET',
+          params: {
+            lat: this.ipInfo.latitude(),
+            lon: this.ipInfo.longitude(),
+            format: 'json',
+          },
+        })
+        .then((data) => {
+          this.data = data;
+          this.loading = false;
+
+          m.redraw();
+        })
+    );
   }
 
   searchZip() {
@@ -64,31 +93,6 @@ export default class ZipCodeMap extends Component {
     );
   }
 
-  searchLatLon() {
-    if (this.loading) return;
-
-    this.loading = true;
-
-    return addResources().then(
-      app
-        .request({
-          url: `https://nominatim.openstreetmap.org/reverse`,
-          method: 'GET',
-          params: {
-            lat: this.ipInfo.latitude(),
-            lon: this.ipInfo.longitude(),
-            format: 'json',
-          },
-        })
-        .then((data) => {
-          this.data = data;
-          this.loading = false;
-
-          m.redraw();
-        })
-    );
-  }
-
   configMap(vnode) {
     if (!this.data) return;
 
@@ -100,6 +104,6 @@ export default class ZipCodeMap extends Component {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
-    L.marker([bounding[0], bounding[2]]).addTo(this.map).bindPopup(displayName).openPopup();
+    L.marker([bounding[0], bounding[2]]).addTo(this.map).openPopup();
   }
 }
