@@ -39,3 +39,4 @@ fof-geoip:
       threat_level: "Threat Level"
       threat_types: "Threat Types"
       error: "Error"
+      not_enough_data: "Not enough data to draw a map"

@@ -46,7 +46,7 @@ export default function extendPostMeta() {
     const ipAddr = post.data.attributes.ipAddress;
 
     if (ipInformation && ipAddr) {
-      const { description, threat, image, zip, country } = getIPData(ipInformation);
+      const { description, threat, image } = getIPData(ipInformation);
 
       items.add(
         'ipInfo',
@@ -59,20 +59,18 @@ export default function extendPostMeta() {
         100
       );
 
-      if (zip && country) {
-        items.add(
-          'mapButton',
-          <Tooltip text={app.translator.trans('fof-geoip.forum.map_button_label')}>
-            <Button
-              icon="fas fa-map-marker-alt"
-              className="Button Button--icon Button--link"
-              onclick={() => app.modal.show(MapModal, { ipInfo: ipInformation, ipAddr: ipAddr })}
-              aria-label={app.translator.trans('fof-geoip.forum.map_button_label')}
-            />
-          </Tooltip>,
-          90
-        );
-      }
+      items.add(
+        'mapButton',
+        <Tooltip text={app.translator.trans('fof-geoip.forum.map_button_label')}>
+          <Button
+            icon="fas fa-map-marker-alt"
+            className="Button Button--icon Button--link"
+            onclick={() => app.modal.show(MapModal, { ipInfo: ipInformation, ipAddr: ipAddr })}
+            aria-label={app.translator.trans('fof-geoip.forum.map_button_label')}
+          />
+        </Tooltip>,
+        90
+      );
     }
 
     return items;
