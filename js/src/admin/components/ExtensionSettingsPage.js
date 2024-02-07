@@ -27,7 +27,6 @@ export default class GeoipSettingsPage extends ExtensionPage {
               label: app.translator.trans('fof-geoip.admin.settings.service_label'),
               options: app.data['fof-geoip.services'].reduce((o, p) => {
                 o[p] = app.translator.trans(`fof-geoip.admin.settings.service_${p}_label`);
-
                 return o;
               }, {}),
               required: true,
@@ -44,7 +43,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
               )
             : ''}
 
-          {['ipdata', 'ipapi-pro'].includes(service)
+          {['ipdata', 'ipapi-pro', 'ipsevenex'].includes(service)
             ? [
                 this.buildSettingComponent({
                   type: 'string',
