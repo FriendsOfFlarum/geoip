@@ -23,6 +23,17 @@ Moderators play a crucial role in maintaining the health and quality of forums. 
 ##### Information modal with location map
 ![image](https://user-images.githubusercontent.com/16573496/269137411-ae7657f1-38b5-46ba-9bd7-df802696a882.png)
 
+### CLI Usage
+
+The following CLI commands are provided:
+
+#### `lookup`
+
+Although IP addresses will be looked up when they are requested, this command will lookup all IP's that do not already have an entry in the `ip_info` table, using the currently selected provider.
+
+```sh
+php flarum fof:geoip:lookup
+```
 
 ### Installation
 
