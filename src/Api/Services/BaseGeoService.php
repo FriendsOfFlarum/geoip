@@ -63,7 +63,7 @@ abstract class BaseGeoService implements ServiceInterface
                 $this->updateRateLimitsFromResponse($response);
             }
 
-            $body = json_decode($response->getBody());
+            $body = json_decode($response->getBody()->getContents());
 
             if ($this->hasError($response, $body)) {
                 $this->logger->error("Error detected in response from {$this->host}");
@@ -140,7 +140,7 @@ abstract class BaseGeoService implements ServiceInterface
 
     abstract protected function getRequestOptions(?string $apiKey, array $ips = null): array;
 
-    abstract protected function hasError(ResponseInterface $response, object $body): bool;
+    abstract protected function hasError(ResponseInterface $response, mixed $body): bool;
 
     abstract protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse;
 
