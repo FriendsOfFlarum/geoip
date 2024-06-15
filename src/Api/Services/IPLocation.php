@@ -55,9 +55,9 @@ class IPLocation extends BaseGeoService
         return false;
     }
 
-    protected function hasError(ResponseInterface $response, object $body): bool
+    protected function hasError(ResponseInterface $response, mixed $body): bool
     {
-        return $body->response_code !== '200';
+        return $body?->response_code !== '200';
     }
 
     protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse

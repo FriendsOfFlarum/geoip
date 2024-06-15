@@ -50,7 +50,7 @@ class IPSevenEx extends BaseGeoService
         ];
     }
 
-    protected function hasError(ResponseInterface $response, object $body): bool
+    protected function hasError(ResponseInterface $response, mixed $body): bool
     {
         return $response->getStatusCode() > 200;
     }

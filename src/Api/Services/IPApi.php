@@ -92,11 +92,11 @@ class IPApi extends BaseGeoService
         ];
     }
 
-    protected function hasError(ResponseInterface $response, object $body): bool
+    protected function hasError(ResponseInterface $response, mixed $body): bool
     {
         $allowedFailures = ['reserved range', 'private range'];
 
-        return $body->status === 'fail' && !in_array($body->message, $allowedFailures);
+        return $body?->status === 'fail' && !in_array($body->message, $allowedFailures);
     }
 
     protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse
