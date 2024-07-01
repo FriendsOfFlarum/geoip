@@ -81,7 +81,7 @@ class IPApi extends BaseGeoService
         if ($ips && is_array($ips)) {
             // array is key => value, we only want values, then encode to json
             $ips = array_values($ips);
-            
+
             return [
                 'http_errors' => false,
                 'json'        => $ips,

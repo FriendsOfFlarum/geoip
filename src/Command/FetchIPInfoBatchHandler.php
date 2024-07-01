@@ -21,13 +21,14 @@ class FetchIPInfoBatchHandler
     public function __construct(
         protected GeoIP $geoip,
         protected GeoIPRepository $repository
-    ) { }
+    ) {
+    }
 
     public function handle(FetchIPInfoBatch $command)
     {
         // remove any duplicates or invalid addresses from the ips array
         $command->ips = array_unique(array_filter($command->ips, fn ($ip) => $this->repository->isValidIP($ip)));
-        
+
         // query the IPInfo model for all the ips in the command
         // if the ip doesn't exist, create a new IPInfo model
 

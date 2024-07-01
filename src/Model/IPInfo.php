@@ -51,5 +51,4 @@ class IPInfo extends AbstractModel
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
 }

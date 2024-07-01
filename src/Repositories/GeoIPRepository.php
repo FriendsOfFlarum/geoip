@@ -23,7 +23,8 @@ class GeoIPRepository
     public function __construct(
         protected GeoIP $geoIP,
         protected Queue $queue
-    ) { }
+    ) {
+    }
 
     /**
      * @param string|null $ip
@@ -62,11 +63,10 @@ class GeoIPRepository
 
     /**
      * Determine if the given value is a valid IP address.
-     * 
+     *
      * @param string $ip
      *
      * @return bool
-     * 
      */
     public function isValidIP(?string $ip): bool
     {

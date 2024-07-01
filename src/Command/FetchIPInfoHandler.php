@@ -22,7 +22,8 @@ class FetchIPInfoHandler
     public function __construct(
         protected GeoIP $geoip,
         protected GeoIPRepository $repository
-    ) { }
+    ) {
+    }
 
     public function handle(FetchIPInfo $command): IPInfo
     {
