@@ -35,6 +35,14 @@ Although IP addresses will be looked up when they are requested, this command wi
 php flarum fof:geoip:lookup
 ```
 
+#### `lookup --force`
+
+You may also force a refresh of IP data using the currently selected provider.
+
+```sh
+php flarum fof:geoip:lookup --force
+```
+
 ### Installation
 
 Install manually with composer:

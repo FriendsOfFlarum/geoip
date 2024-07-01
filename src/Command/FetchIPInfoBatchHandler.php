@@ -13,17 +13,21 @@ namespace FoF\GeoIP\Command;
 
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
+use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Support\Arr;
 
 class FetchIPInfoBatchHandler
 {
     public function __construct(
-        protected GeoIP $geoip
-    ) {
-    }
+        protected GeoIP $geoip,
+        protected GeoIPRepository $repository
+    ) { }
 
     public function handle(FetchIPInfoBatch $command)
     {
+        // remove any duplicates or invalid addresses from the ips array
+        $command->ips = array_unique(array_filter($command->ips, fn ($ip) => $this->repository->isValidIP($ip)));
+        
         // query the IPInfo model for all the ips in the command
         // if the ip doesn't exist, create a new IPInfo model
 
@@ -37,8 +41,9 @@ class FetchIPInfoBatchHandler
             $responses = $this->geoip->getBatch($ipsToQuery);
 
             foreach ($responses as $response) {
-                $ipInfo = new IPInfo();
-                $ipInfo->address = $response->getIP();
+                $ip = $response->getIP();
+                $ipInfo = IPInfo::query()->firstOrNew(['address' => $ip]);
+                $ipInfo->address = $ip;
                 $ipInfo->fill($response->toJSON());
                 $ipInfo->save();
 

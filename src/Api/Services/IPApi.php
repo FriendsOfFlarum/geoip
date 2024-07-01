@@ -20,7 +20,8 @@ class IPApi extends BaseGeoService
 {
     protected $host = 'http://ip-api.com';
     protected $settingPrefix = 'fof-geoip.services.ipapi';
-    protected $requestFields = 'status,message,query,countryCode,city,zip,lat,lon,isp,org,as,mobile';
+    protected $requestFields = 'status,message,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,mobile,query';
+    protected $r2 = '126718';
 
     /**
      * 45 requests per minute.
@@ -67,7 +68,7 @@ class IPApi extends BaseGeoService
 
     protected function buildBatchUrl(array $ips, ?string $apiKey): string
     {
-        return '/batch?'.http_build_query(['fields' => $this->requestFields]);
+        return '/batch?'.http_build_query(['fields' => $this->r2]);
     }
 
     protected function requiresApiKey(): bool
@@ -77,7 +78,10 @@ class IPApi extends BaseGeoService
 
     protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
-        if ($ips) {
+        if ($ips && is_array($ips)) {
+            // array is key => value, we only want values, then encode to json
+            $ips = array_values($ips);
+            
             return [
                 'http_errors' => false,
                 'json'        => $ips,

@@ -20,9 +20,10 @@ use Illuminate\Support\Arr;
 
 class GeoIPRepository
 {
-    public function __construct(protected GeoIP $geoIP, protected Queue $queue)
-    {
-    }
+    public function __construct(
+        protected GeoIP $geoIP,
+        protected Queue $queue
+    ) { }
 
     /**
      * @param string|null $ip
@@ -57,5 +58,18 @@ class GeoIPRepository
 
         // If using the sync queue driver (default), the job will be executed immediately
         return Arr::get(RetrieveIP::$retrieved, $ip);
+    }
+
+    /**
+     * Determine if the given value is a valid IP address.
+     * 
+     * @param string $ip
+     *
+     * @return bool
+     * 
+     */
+    public function isValidIP(?string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false;
     }
 }

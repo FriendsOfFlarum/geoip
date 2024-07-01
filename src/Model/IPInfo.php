@@ -35,6 +35,8 @@ class IPInfo extends AbstractModel
 {
     protected $table = 'ip_info';
 
+    protected $primaryKey = 'address';
+
     protected $fillable = [
         'country_code', 'zip_code', 'latitude', 'longitude',
         'isp', 'organization', 'as', 'mobile',
@@ -49,4 +51,5 @@ class IPInfo extends AbstractModel
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
 }
