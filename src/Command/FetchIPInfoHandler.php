@@ -13,17 +13,24 @@ namespace FoF\GeoIP\Command;
 
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
+use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use RuntimeException;
 
 class FetchIPInfoHandler
 {
     public function __construct(
-        protected GeoIP $geoip
+        protected GeoIP $geoip,
+        protected GeoIPRepository $repository
     ) {
     }
 
     public function handle(FetchIPInfo $command): IPInfo
     {
+        if (!$this->repository->isValidIP($command->ip)) {
+            throw new RuntimeException("Invalid IP address: {$command->ip}");
+        }
+
         $ipInfo = IPInfo::query()->firstOrNew(['address' => $command->ip]);
 
         if (!$ipInfo->exists || $command->refresh) {

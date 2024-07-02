@@ -38,6 +38,9 @@ abstract class BaseGeoService implements ServiceInterface
         $this->client = new Client([
             'base_uri' => $this->host,
             'verify'   => false,
+            'headers'  => [
+                'Accept'     => 'application/json',
+            ],
         ]);
     }
 
@@ -105,7 +108,11 @@ abstract class BaseGeoService implements ServiceInterface
 
         /** @phpstan-ignore-next-line */
         if (!$this->isRateLimited() || ($this->isRateLimited() && $this->batchLookupsRemaining > 0)) {
-            $response = $this->client->request('POST', $this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
+            $response = $this->client->post($this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents()]);
+            }
 
             if ($this->isRateLimited()) {
                 $this->updateRateLimitsFromResponse($response, 'batch');

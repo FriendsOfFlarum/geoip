@@ -32,7 +32,7 @@ class LookupUnknownIPsCommand extends Command
         Draft::class       => 'ip_address',
     ];
 
-    protected $signature = 'fof:geoip:lookup';
+    protected $signature = 'fof:geoip:lookup {--force}';
 
     protected $description = 'Look up IP addresses which have not been looked up before.';
 
@@ -47,33 +47,53 @@ class LookupUnknownIPsCommand extends Command
             if (!class_exists($model)) {
                 continue;
             }
-            $this->info("Looking up IP data for {$model}");
 
             /** @var AbstractModel $model */
-            $query = $model::query()
-                ->select('id', $column)
+            $query = $model::query();
+
+            $force = (bool) $this->option('force');
+
+            if ($force) {
+                $this->info("Forcing lookup for {$model}");
+                $query->select('id', $column);
+            } else {
+                $query->select('id', $column)
                 ->whereNotNull($column)
                 ->whereNotIn($column, function ($query) use ($column) {
                     $query->select('address')
                         ->from('ip_info')
                         ->whereColumn('address', $column);
-                })
-                ->groupBy($column);
-
-            $query
-                ->chunkById(100, function ($models) use ($column) {
-                    if ($this->geoIP->batchSupported()) {
-                        $ips = $models->pluck($column)->toArray();
-                        $count = count($ips);
-                        $this->info("Looking up IP data for {$count} IPs");
-                        $this->bus->dispatch(new FetchIPInfoBatch(ips: $ips, refresh: false));
-                    } else {
-                        $models->each(function ($model) use ($column) {
-                            $this->info("Looking up IP data for {$model->$column}");
-                            $this->bus->dispatch(new FetchIPInfo(ip: $model->$column, refresh: false));
-                        });
-                    }
                 });
+            }
+
+            $query->groupBy($column);
+
+            if ($query->count() > 0) {
+                $this->info("Looking up IP data for {$model}");
+
+                $this->output->progressStart($query->count());
+                $chunkSize = 100;
+
+                $query
+                    ->chunkById($chunkSize, function ($models) use ($column, $chunkSize, $force) {
+                        if ($this->geoIP->batchSupported()) {
+                            $ips = $models->pluck($column)->toArray();
+                            $count = count($ips);
+                            $this->bus->dispatch(new FetchIPInfoBatch(ips: $ips, refresh: $force));
+                            $this->output->progressAdvance($chunkSize === $count ? $chunkSize : $count);
+                        } else {
+                            $models->each(function ($model) use ($column, $force) {
+                                $this->info("Looking up IP data for {$model->$column}");
+                                $this->bus->dispatch(new FetchIPInfo(ip: $model->$column, refresh: $force));
+                                $this->output->progressAdvance();
+                            });
+                        }
+                    });
+
+                $this->output->progressFinish();
+            } else {
+                $this->info("Nothing to look up for {$model}");
+            }
         }
     }
 }
