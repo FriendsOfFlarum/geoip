@@ -20,6 +20,8 @@ use Illuminate\Support\Arr;
 
 class RetrieveIP extends AbstractJob
 {
+    public static ?string $onQueue = null;
+    
     // Keep track of IPs we're retrieving & have already retrieved to avoid duplicate requests in the same request/queue worker
     public static array $queued = [];
     public static array $retrieving = [];
@@ -28,6 +30,8 @@ class RetrieveIP extends AbstractJob
     public function __construct(protected string $ip)
     {
         self::$queued[] = $ip;
+        
+        if (static::$onQueue) $this->onQueue(static::$onQueue);
     }
 
     public function handle(Repository $cache, Dispatcher $bus): void
