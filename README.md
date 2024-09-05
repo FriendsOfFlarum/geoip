@@ -43,6 +43,16 @@ You may also force a refresh of IP data using the currently selected provider.
 php flarum fof:geoip:lookup --force
 ```
 
+### Queue offloading
+
+The IP lookup can be time consuming, so the lookup of an unknown IP address is dispatched in a job, if you have a queue running this will run on a worker thread, rather than the main thread.
+
+All IP address lookup jobs are dispatched to the `default` queue by default. If you have multiple queues, you can specify which queue to use for these jobs in your `extend.php`:
+
+```
+FoF\GeoIP\Jobs\RetrieveIP::$onQueue = 'my-other-queue';
+```
+
 ### Installation
 
 Install manually with composer:
