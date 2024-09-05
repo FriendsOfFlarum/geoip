@@ -98,12 +98,25 @@ export default class ZipCodeMap extends Component {
 
     const { boundingbox: bounding, display_name: displayName } = this.data;
 
-    this.map = L.map(vnode.dom).setView([51.505, -0.09], 5);
+    // Extract the latitude and longitude from the bounding box
+    const lat1 = parseFloat(bounding[0]); // South bound latitude
+    const lat2 = parseFloat(bounding[1]); // North bound latitude
+    const lon1 = parseFloat(bounding[2]); // West bound longitude
+    const lon2 = parseFloat(bounding[3]); // East bound longitude
+
+    // Calculate the center of the bounding box
+    const centerLat = (lat1 + lat2) / 2;
+    const centerLon = (lon1 + lon2) / 2;
+
+    const zoomLevel = 5; // Set your preferred zoom level here
+
+    this.map = L.map(vnode.dom).setView([centerLat, centerLon], zoomLevel);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
-    L.marker([bounding[0], bounding[2]]).addTo(this.map).openPopup();
+    // Set a marker at the center of the bounding box
+    L.marker([centerLat, centerLon]).addTo(this.map).bindPopup(displayName).openPopup();
   }
 }
