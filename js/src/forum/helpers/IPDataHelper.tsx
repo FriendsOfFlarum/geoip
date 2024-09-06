@@ -11,7 +11,7 @@ export const getThreat = (ipInfo: IPInfo) => {
 };
 
 export const getFlagImage = (ipInfo: IPInfo) => {
-  if (ipInfo.countryCode() && ipInfo.countryCode().length > 1) {
+  if (ipInfo && ipInfo.countryCode() && ipInfo.countryCode().length > 1) {
     const url = getFlagEmojiUrl(ipInfo.countryCode());
     if (url) {
       return (

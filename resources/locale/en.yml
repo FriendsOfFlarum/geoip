@@ -23,6 +23,9 @@ fof-geoip:
       access_key_label: Access Key
       quota_label: Lookup quota
 
+      show_flag_label: Show country flag for each post
+      show_flag_help: Without disclosing the IP address, show the country flag of the IP address of the post author.
+
   forum:
     alerts:
       ip_copied: Copied IP Address
