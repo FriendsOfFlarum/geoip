@@ -11,9 +11,7 @@
 
 namespace FoF\GeoIP\Api\Serializer;
 
-use Flarum\Api\Serializer\AbstractSerializer;
 use FoF\GeoIP\Model\IPInfo;
-use InvalidArgumentException;
 
 class IPInfoSerializer extends BasicIPInfoSerializer
 {
