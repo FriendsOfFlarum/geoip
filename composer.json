@@ -64,7 +64,8 @@
     },
     "require-dev": {
         "flarum/phpstan": "*",
-        "fof/drafts": "*"
+        "fof/drafts": "*",
+        "fof/default-user-preferences": "*"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",
