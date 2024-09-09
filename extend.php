@@ -18,7 +18,6 @@ use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Api\Serializer\IPInfoSerializer;
 
 return [
     (new Extend\Frontend('forum'))
@@ -40,11 +39,7 @@ return [
         ->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class),
 
     (new Extend\ApiSerializer(PostSerializer::class))
-        ->relationship('ip_info', function (PostSerializer $serializer, Post $model) {
-            if ($serializer->getActor()->can('viewIps', $model)) {
-                return $serializer->hasOne($model, IPInfoSerializer::class, 'ip_info');
-            }
-        }),
+        ->relationship('ip_info', Api\AttachRelation::class),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude('ip_info'),
@@ -62,7 +57,9 @@ return [
         ->addInclude('posts.ip_info'),
 
     (new Extend\Settings())
-        ->default('fof-geoip.service', 'ipapi'),
+        ->default('fof-geoip.service', 'ipapi')
+        ->default('fof-geoip.showFlag', false)
+        ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval'),
 
     (new Extend\Routes('api'))
         ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class),

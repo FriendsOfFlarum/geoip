@@ -62,6 +62,12 @@ export default class GeoipSettingsPage extends ExtensionPage {
                 placeholder: 1500,
               })
             : []}
+          {this.buildSettingComponent({
+            setting: 'fof-geoip.showFlag',
+            type: 'boolean',
+            label: app.translator.trans('fof-geoip.admin.settings.show_flag_label'),
+            help: app.translator.trans('fof-geoip.admin.settings.show_flag_help'),
+          })}
           {this.submitButton()}
         </div>
       </div>,

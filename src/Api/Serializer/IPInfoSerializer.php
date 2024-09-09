@@ -11,14 +11,10 @@
 
 namespace FoF\GeoIP\Api\Serializer;
 
-use Flarum\Api\Serializer\AbstractSerializer;
 use FoF\GeoIP\Model\IPInfo;
-use InvalidArgumentException;
 
-class IPInfoSerializer extends AbstractSerializer
+class IPInfoSerializer extends BasicIPInfoSerializer
 {
-    protected $type = 'ip_info';
-
     /**
      * @param IPInfo $ip
      *
@@ -26,14 +22,9 @@ class IPInfoSerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($ip): array
     {
-        if (!($ip instanceof IPInfo)) {
-            throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.IPInfo::class
-            );
-        }
+        $attrs = parent::getDefaultAttributes($ip);
 
-        return [
-            'countryCode'       => $ip->country_code,
+        $moreAttrs = [
             'zipCode'           => $ip->zip_code,
             'latitude'          => $ip->latitude,
             'longitude'         => $ip->longitude,
@@ -48,15 +39,7 @@ class IPInfoSerializer extends AbstractSerializer
             'createdAt'         => $this->formatDate($ip->created_at),
             'updatedAt'         => $this->formatDate($ip->updated_at),
         ];
-    }
 
-    /**
-     * @param IPInfo $model
-     *
-     * @return string
-     */
-    public function getId($model)
-    {
-        return $model->address;
+        return array_merge($attrs, $moreAttrs);
     }
 }
