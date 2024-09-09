@@ -12,6 +12,7 @@
 namespace FoF\GeoIP;
 
 use Flarum\Api\Controller;
+use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Frontend\Document;
@@ -69,6 +70,11 @@ return [
 
     (new Extend\User())
         ->registerPreference('showIPCountry', 'boolval', false),
+
+    (new Extend\ApiSerializer(BasicUserSerializer::class))
+        ->attribute('showIPCountry', function (BasicUserSerializer $serializer, $user) {
+            return (bool) $user->getPreference('showIPCountry');
+        }),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
