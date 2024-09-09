@@ -66,4 +66,7 @@ return [
 
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
+
+    (new Extend\User())
+        ->registerPreference('showIPCountry', 'boolval', false),
 ];

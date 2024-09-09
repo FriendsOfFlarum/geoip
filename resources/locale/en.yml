@@ -43,3 +43,6 @@ fof-geoip:
       threat_types: "Threat Types"
       error: "Error"
       not_enough_data: "Not enough data to draw a map"
+    user:
+      settings:
+        ip_country: Show the flag of the country I post from, based on my IP address
