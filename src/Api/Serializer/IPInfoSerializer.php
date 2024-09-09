@@ -42,14 +42,4 @@ class IPInfoSerializer extends BasicIPInfoSerializer
 
         return array_merge($attrs, $moreAttrs);
     }
-
-    /**
-     * @param IPInfo $model
-     *
-     * @return string
-     */
-    public function getId($model)
-    {
-        return $model->address;
-    }
 }
