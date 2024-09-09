@@ -34,9 +34,6 @@ class BasicIPInfoSerializer extends AbstractSerializer
 
         return [
             'countryCode'       => $ip->country_code,
-            'dataProvider'      => $ip->data_provider,
-            'createdAt'         => $this->formatDate($ip->created_at),
-            'updatedAt'         => $this->formatDate($ip->updated_at),
         ];
     }
 

@@ -35,6 +35,9 @@ class IPInfoSerializer extends BasicIPInfoSerializer
             'threatLevel'       => $ip->threat_level,
             'threatType'        => $ip->threat_types,
             'error'             => $ip->error,
+            'dataProvider'      => $ip->data_provider,
+            'createdAt'         => $this->formatDate($ip->created_at),
+            'updatedAt'         => $this->formatDate($ip->updated_at),
         ];
 
         return array_merge($attrs, $moreAttrs);
