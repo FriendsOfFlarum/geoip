@@ -66,4 +66,13 @@ return [
 
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
+
+    (new Extend\User())
+        ->registerPreference('showIPCountry', 'boolval', false),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
+            (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
+                ->default('showIPCountry', false, 'bool'),
+        ]),
 ];
