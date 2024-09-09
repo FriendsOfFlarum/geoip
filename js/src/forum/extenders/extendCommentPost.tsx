@@ -9,7 +9,6 @@ export default function extendCommentPost() {
   extend(CommentPost.prototype, 'headerItems', function (items: ItemList<Mithril.Children>) {
     if (app.forum.attribute<boolean>('fof-geoip.showFlag')) {
       const ipInfo = this.attrs.post.ip_info?.();
-      console.log(ipInfo);
       if (ipInfo) {
         const { image } = getIPData(ipInfo);
         if (image) {
