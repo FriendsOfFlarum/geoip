@@ -13,7 +13,7 @@ namespace FoF\GeoIP\Api\Services;
 
 class IPApiPro extends IPApi
 {
-    protected $host = 'https://ip-api.com';
+    protected $host = 'https://pro.ip-api.com';
     protected $settingPrefix = 'fof-geoip.services.ipapi-pro';
 
     protected function requiresApiKey(): bool
@@ -24,5 +24,17 @@ class IPApiPro extends IPApi
     public function isRateLimited(): bool
     {
         return false;
+    }
+
+    protected function buildUrl(string $ip, ?string $apiKey): string
+    {
+        return "/json/{$ip}?" . http_build_query(['key' => $apiKey]);
+    }
+
+    protected function buildBatchUrl(array $ips, ?string $apiKey): string
+    {
+        $url = '/batch?'.http_build_query(['key' => $apiKey, 'fields' => $this->r2]);
+
+        return $url;
     }
 }
