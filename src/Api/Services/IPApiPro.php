@@ -28,7 +28,7 @@ class IPApiPro extends IPApi
 
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
-        return "/json/{$ip}?" . http_build_query(['key' => $apiKey]);
+        return "/json/{$ip}?".http_build_query(['key' => $apiKey]);
     }
 
     protected function buildBatchUrl(array $ips, ?string $apiKey): string
