@@ -39,7 +39,7 @@ class IPApiPro extends IPApi
     {
         $options = parent::getRequestOptions($apiKey, $ips);
         $options['query']['key'] = $apiKey;
-        
+
         return $options;
     }
 }

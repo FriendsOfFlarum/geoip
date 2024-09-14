@@ -14,9 +14,7 @@ namespace FoF\GeoIP\Command;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Repositories\GeoIPRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 class FetchIPInfoHandler
 {
