@@ -18,6 +18,7 @@ use Flarum\Extend;
 use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
+use Flarum\User\User;
 use FoF\GeoIP\Api\GeoIP;
 
 return [
@@ -37,7 +38,8 @@ return [
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\Event())
-        ->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class),
+        ->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class)
+        ->subscribe(Listeners\RetrieveIP::class),
 
     (new Extend\ApiSerializer(PostSerializer::class))
         ->relationship('ip_info', Api\AttachRelation::class),
@@ -72,7 +74,7 @@ return [
         ->registerPreference('showIPCountry', 'boolval', false),
 
     (new Extend\ApiSerializer(BasicUserSerializer::class))
-        ->attribute('showIPCountry', function (BasicUserSerializer $serializer, $user) {
+        ->attribute('showIPCountry', function (BasicUserSerializer $serializer, User $user) {
             return (bool) $user->getPreference('showIPCountry');
         }),
 

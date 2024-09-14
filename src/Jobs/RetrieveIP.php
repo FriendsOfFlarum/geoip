@@ -49,7 +49,7 @@ class RetrieveIP extends AbstractJob
         // Add to retrieving list and cache (don't attempt again for 1 hour if job fails)
         // Errors from the API do not count as job failures.
         static::$retrieving[] = $ip;
-        $cache->add($cacheKey, true, 60 * 60);
+        $cache->add($cacheKey, true, 60);
 
         /** @var IPInfo $ipInfo */
         $ipInfo = $bus->dispatch(new FetchIPInfo($ip));

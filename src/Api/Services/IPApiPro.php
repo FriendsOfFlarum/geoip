@@ -11,6 +11,10 @@
 
 namespace FoF\GeoIP\Api\Services;
 
+use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Api\ServiceResponse;
+use Psr\Http\Message\ResponseInterface;
+
 class IPApiPro extends IPApi
 {
     protected $host = 'https://pro.ip-api.com';
@@ -26,15 +30,16 @@ class IPApiPro extends IPApi
         return false;
     }
 
-    protected function buildUrl(string $ip, ?string $apiKey): string
+    protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse
     {
-        return "/json/{$ip}?".http_build_query(['key' => $apiKey]);
+        return GeoIP::setError('ipapi-pro', $body->message ?? json_encode($body));
     }
 
-    protected function buildBatchUrl(array $ips, ?string $apiKey): string
+    protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
-        $url = '/batch?'.http_build_query(['key' => $apiKey, 'fields' => $this->r2]);
+        $options = parent::getRequestOptions($apiKey, $ips);
+        $options['query']['key'] = $apiKey;
 
-        return $url;
+        return $options;
     }
 }

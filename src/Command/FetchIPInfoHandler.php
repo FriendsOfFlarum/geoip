@@ -14,21 +14,21 @@ namespace FoF\GeoIP\Command;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Repositories\GeoIPRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
 
 class FetchIPInfoHandler
 {
     public function __construct(
         protected GeoIP $geoip,
-        protected GeoIPRepository $repository
+        protected GeoIPRepository $repository,
+        protected LoggerInterface $log
     ) {
     }
 
     public function handle(FetchIPInfo $command): IPInfo
     {
         if (!$this->repository->isValidIP($command->ip)) {
-            throw new RuntimeException("Invalid IP address: {$command->ip}");
+            $this->log->info('Invalid IP address: '.$command->ip);
         }
 
         $ipInfo = IPInfo::query()->firstOrNew(['address' => $command->ip]);
@@ -37,7 +37,7 @@ class FetchIPInfoHandler
             $response = $this->geoip->get($command->ip);
 
             if (!$response || $response->fake) {
-                throw new ModelNotFoundException("Unable to fetch IP information for IP: {$command->ip}");
+                $this->log->error("Unable to fetch IP information for IP: {$command->ip}", $response->toJSON());
             }
 
             if ($response) {
