@@ -48,6 +48,11 @@ abstract class BaseGeoService implements ServiceInterface
     {
         $apiKey = $this->settings->get("{$this->settingPrefix}.access_key");
 
+        if (!empty($apiKey)) {
+            // ensure that we don't have any whitespace, etc in the key
+            $apiKey = trim($apiKey);
+        }
+
         if ($this->requiresApiKey() && !$apiKey) {
             $this->logger->error("No API key found for {$this->host}");
 
@@ -60,7 +65,13 @@ abstract class BaseGeoService implements ServiceInterface
 
         /** @phpstan-ignore-next-line */
         if (!$this->isRateLimited() || ($this->isRateLimited() && $this->singleLookupsRemaining > 0)) {
-            $response = $this->client->get($this->buildUrl($ip, $apiKey), $this->getRequestOptions($apiKey));
+            $url = $this->buildUrl($ip, $apiKey);
+            $options = $this->getRequestOptions($apiKey);
+            $response = $this->client->get($url, $options);
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents(), 'requestUrl' => $url, 'requestOptions' => $options]);
+            }
 
             if ($this->isRateLimited()) {
                 $this->updateRateLimitsFromResponse($response);
@@ -108,10 +119,12 @@ abstract class BaseGeoService implements ServiceInterface
 
         /** @phpstan-ignore-next-line */
         if (!$this->isRateLimited() || ($this->isRateLimited() && $this->batchLookupsRemaining > 0)) {
-            $response = $this->client->post($this->buildBatchUrl($ips, $apiKey), $this->getRequestOptions($apiKey, $ips));
+            $url = $this->buildBatchUrl($ips, $apiKey);
+            $options = $this->getRequestOptions($apiKey, $ips);
+            $response = $this->client->post($url, $this->getRequestOptions($apiKey, $ips));
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents()]);
+                $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents(), 'requestUrl' => $url, 'requestOptions' => $options]);
             }
 
             if ($this->isRateLimited()) {

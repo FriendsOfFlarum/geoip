@@ -68,7 +68,7 @@ class IPApi extends BaseGeoService
 
     protected function buildBatchUrl(array $ips, ?string $apiKey): string
     {
-        return '/batch?'.http_build_query(['fields' => $this->r2]);
+        return '/batch';
     }
 
     protected function requiresApiKey(): bool
@@ -78,22 +78,21 @@ class IPApi extends BaseGeoService
 
     protected function getRequestOptions(?string $apiKey, array $ips = null): array
     {
+        $options = [];
+
+        $options['http_errors'] = false;
+        $options['query'] = [
+            'fields' => $this->requestFields,
+        ];
+        
         if ($ips && is_array($ips)) {
             // array is key => value, we only want values, then encode to json
             $ips = array_values($ips);
 
-            return [
-                'http_errors' => false,
-                'json'        => $ips,
-            ];
+            $options['json'] = $ips;
         }
 
-        return [
-            'http_errors' => false,
-            'query'       => [
-                'fields' => $this->requestFields,
-            ],
-        ];
+        return $options;
     }
 
     protected function hasError(ResponseInterface $response, mixed $body): bool

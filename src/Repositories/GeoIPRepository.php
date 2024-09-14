@@ -72,4 +72,9 @@ class GeoIPRepository
     {
         return filter_var($ip, FILTER_VALIDATE_IP) !== false;
     }
+
+    public function recordExistsForIP(string $ip): bool
+    {
+        return IPInfo::where('address', $ip)->exists();
+    }
 }
