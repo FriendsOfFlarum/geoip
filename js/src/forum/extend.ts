@@ -11,5 +11,6 @@ export default [
     .hasOne('ip_info'),
 
   new Extend.Model(User) //
-    .attribute('showIPCountry'),
+    .attribute('showIPCountry')
+    .attribute('canSeeCountry'),
 ];

@@ -10,7 +10,7 @@ export default function extendCommentPost() {
     if (app.forum.attribute<boolean>('fof-geoip.showFlag')) {
       const ipInfo = this.attrs.post.ip_info?.();
       const postUser = this.attrs.post.user();
-      if (postUser && postUser.showIPCountry() && ipInfo) {
+      if ((ipInfo && postUser && postUser.showIPCountry()) || app.session.user?.canSeeCountry?.()) {
         const { image } = getIPData(ipInfo);
         if (image) {
           items.add('country', image, 100);
