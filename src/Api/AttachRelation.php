@@ -24,7 +24,7 @@ class AttachRelation
         protected SettingsRepositoryInterface $settings
     ) {
     }
-    
+
     public function __invoke(PostSerializer $serializer, Post $post): ?Relationship
     {
         $viewIPs = $serializer->getActor()->can('viewIps', $post);
