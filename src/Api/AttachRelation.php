@@ -35,7 +35,7 @@ class AttachRelation
 
         $viewCountry = $serializer->getActor()->can('fof-geoip.canSeeCountry');
         $showFlagsFeatureEnabled = $this->settings->get('fof-geoip.showFlag');
-        $userPreference = $post->user->getPreference('showIPCountry');
+        $userPreference = $post->user?->getPreference('showIPCountry');
 
         if ($viewCountry || ($showFlagsFeatureEnabled && $userPreference)) {
             return $serializer->hasOne($post, BasicIPInfoSerializer::class, 'ip_info');
