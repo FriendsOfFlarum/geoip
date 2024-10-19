@@ -9,7 +9,7 @@
     "external-load": "^1.0.0",
     "flarum-tsconfig": "^1.0.2",
     "flarum-webpack-config": "^2.0.0",
-    "linkify-lite": "^1.0.0",
+    "linkify-lite": "^2.0.0",
     "twemoji-basename": "^1.0.0",
     "webpack": "^5.94.0"
   },
