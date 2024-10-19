@@ -1791,10 +1791,10 @@ kind-of@^6.0.2:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
-linkify-lite@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/linkify-lite/-/linkify-lite-1.0.0.tgz#04b122280128475cacef01f8ca1f5e9d2b9c8213"
-  integrity sha512-ZCvbdDUcvM+d9uiPS772ESSYwL42yu4yWjB20DpZfQGvbhyKOMX5+Gq5iH6IiSxzv8qJ6kQYJDtyATfgqRgJ8w==
+linkify-lite@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/linkify-lite/-/linkify-lite-2.0.1.tgz#8a84253f0e7a5603e9cd8f57f8548be918344c4e"
+  integrity sha512-/VYMIfkN+rCuSGQnXM8TriPfs7cKXf6Rrbu5orHvrENbh6paR2r1DF42wQwtPRkGV4Zjd1DGFsFNcQdmusRtYQ==
 
 loader-runner@^4.2.0:
   version "4.3.0"

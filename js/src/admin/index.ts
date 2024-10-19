@@ -1,5 +1,7 @@
 import app from 'flarum/admin/app';
-import GeoipSettingsPage from './components/ExtensionSettingsPage';
+import GeoipSettingsPage from './components/GeoipSettingsPage';
+
+export * from './components';
 
 app.initializers.add('fof/geoip', () => {
   app.extensionData
