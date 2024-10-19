@@ -25,6 +25,7 @@ class IPInfoSerializer extends BasicIPInfoSerializer
         $attrs = parent::getDefaultAttributes($ip);
 
         $moreAttrs = [
+            'ip'                => $ip->address,
             'zipCode'           => $ip->zip_code,
             'latitude'          => $ip->latitude,
             'longitude'         => $ip->longitude,

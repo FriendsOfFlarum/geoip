@@ -50,5 +50,6 @@ class IPInfo extends AbstractModel
         'mobile'     => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'address'    => 'string',
     ];
 }

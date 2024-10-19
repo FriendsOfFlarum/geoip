@@ -5,6 +5,10 @@ export default class IPInfo extends Model {
     return Model.attribute<string>('id').call(this);
   }
 
+  ip() {
+    return Model.attribute<string | undefined>('ip').call(this);
+  }
+
   countryCode() {
     return Model.attribute<string | null>('countryCode').call(this);
   }

@@ -12,3 +12,10 @@ declare module 'flarum/common/models/User' {
     canSeeCountry: () => boolean;
   }
 }
+
+declare module 'flarum/common/components/IPAddress' {
+  export default interface IPAddress {
+    ipInfo?: IPInfo;
+    loadIpInfo: () => void;
+  }
+}

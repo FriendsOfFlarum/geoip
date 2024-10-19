@@ -18,25 +18,10 @@ export default class MapModal extends Modal<MapModalAttrs> {
   oninit(vnode: Mithril.Vnode<MapModalAttrs, this>) {
     super.oninit(vnode);
     this.ipInfo = this.attrs.ipInfo;
-    if (this.ipInfo === undefined) {
-      this.loadIpInfo();
-    }
   }
 
   className() {
     return 'MapModal Modal--medium';
-  }
-
-  loadIpInfo() {
-    app.store
-      .find<IPInfo>('ip_info', encodeURIComponent(this.attrs.ipAddr))
-      .then((ipInfo) => {
-        this.ipInfo = ipInfo;
-        m.redraw();
-      })
-      .catch((error) => {
-        console.error('Failed to load IP information from the store', error);
-      });
   }
 
   title() {

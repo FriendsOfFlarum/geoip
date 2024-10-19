@@ -1,28 +1,6 @@
 .PostMeta {
-  .ip-container {
-      display: flex;            
-      align-items: center;      
-      white-space: nowrap;      
-      overflow: hidden;         
-
-      > span {
-          overflow: hidden;         
-          text-overflow: ellipsis;  
-          max-width: 90%;           
-      }
-
-      img {
-          margin-right: 10px;
-          vertical-align: middle; // This ensures the image is vertically centered
-      }
-  }
-
   .PostMeta-ip, .Modal div label[for="ban-option-only"] {
       img {
-          // Remove the relative positioning
-          // position: relative;
-          // top: 3px;
-          // left: 5px;
           margin-right: 10px;
       }
 
@@ -47,6 +25,32 @@
 
   .Dropdown-menu {
       width: 450px;
+  }
+}
+
+.ip-container {
+  display: flex;            
+  align-items: center;      
+  white-space: nowrap;      
+  overflow: hidden;         
+
+  > span {
+      overflow: hidden;         
+      text-overflow: ellipsis;  
+      max-width: 90%;           
+  }
+
+  img {
+      margin-right: 10px;
+      vertical-align: text-top;
+  }
+}
+
+.Post-header {
+  .item-country {
+    img {
+      vertical-align: text-top;
+    }
   }
 }
 
