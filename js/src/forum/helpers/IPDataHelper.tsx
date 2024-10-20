@@ -12,7 +12,7 @@ export const getThreat = (ipInfo: IPInfo) => {
 };
 
 export const getFlagImage = (ipInfo: IPInfo) => {
-  if (ipInfo && ipInfo.countryCode() && ipInfo.countryCode().length > 1) {
+  if ((ipInfo?.countryCode() ?? '').length > 1) {
     const url = getFlagEmojiUrl(ipInfo.countryCode());
 
     const currentLocale = app.translator.getLocale() as string;
@@ -21,7 +21,7 @@ export const getFlagImage = (ipInfo: IPInfo) => {
     const displayNames = new Intl.DisplayNames([currentLocale], { type: 'region' });
 
     // Get the full country name using the country code
-    const countryName = displayNames.of(ipInfo.countryCode());
+    const countryName = displayNames.of(ipInfo.countryCode() || '');
 
     if (url) {
       return (

@@ -35,6 +35,7 @@ fof-geoip:
   forum:
     alerts:
       ip_copied: Copied IP Address
+    copy_ip_label: Copy IP to clipboard
     map_button_label: "IP Info"
     map_modal:
       title: "IP Information"

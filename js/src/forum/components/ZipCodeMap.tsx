@@ -1,23 +1,30 @@
 import app from 'flarum/forum/app';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+// @ts-expect-error
 import load from 'external-load';
+import type Mithril from 'mithril';
+import IPInfo from '../models/IPInfo';
 
-let addedResources = false;
-const addResources = async () => {
-  if (addedResources) return;
+const leafletCDN = 'https://unpkg.com/leaflet@1.9.4/dist/';
 
-  await load.css('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-  await load.js('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
+export interface ZipCodeMapAttrs extends ComponentAttrs {
+  ipInfo: IPInfo;
+}
 
-  addedResources = true;
-};
+export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
+  ipInfo!: IPInfo;
+  loading = false;
+  map: any;
+  data: any;
+  addedResources = false;
 
-export default class ZipCodeMap extends Component {
-  oninit(vnode) {
+  oninit(vnode: Mithril.Vnode<ZipCodeMapAttrs, this>) {
     super.oninit(vnode);
 
     this.ipInfo = this.attrs.ipInfo;
+
+    this.addResources();
 
     this.data = null;
 
@@ -28,6 +35,15 @@ export default class ZipCodeMap extends Component {
     } else {
       this.data = { unknown: true };
     }
+  }
+
+  async addResources() {
+    if (this.addedResources) return;
+
+    await load.css(leafletCDN + 'leaflet.css');
+    await load.js(leafletCDN + 'leaflet.js');
+
+    this.addedResources = true;
   }
 
   view() {
@@ -42,58 +58,50 @@ export default class ZipCodeMap extends Component {
     return <div id="geoip-map" oncreate={this.configMap.bind(this)} />;
   }
 
-  searchLatLon() {
+  async searchLatLon() {
     if (this.loading) return;
 
     this.loading = true;
 
-    return addResources().then(
-      app
-        .request({
-          url: `https://nominatim.openstreetmap.org/reverse`,
-          method: 'GET',
-          params: {
-            lat: this.ipInfo.latitude(),
-            lon: this.ipInfo.longitude(),
-            format: 'json',
-          },
-        })
-        .then((data) => {
-          this.data = data;
-          this.loading = false;
+    const data = await app.request<any>({
+      url: `https://nominatim.openstreetmap.org/reverse`,
+      method: 'GET',
+      params: {
+        lat: this.ipInfo.latitude(),
+        lon: this.ipInfo.longitude(),
+        format: 'json',
+      },
+    });
 
-          m.redraw();
-        })
-    );
+    this.data = data;
+    this.loading = false;
+
+    m.redraw();
   }
 
-  searchZip() {
+  async searchZip() {
     if (this.loading) return;
 
     this.loading = true;
 
-    return addResources().then(
-      app
-        .request({
-          url: `https://nominatim.openstreetmap.org/search`,
-          method: 'GET',
-          params: {
-            q: this.ipInfo.zipCode(),
-            countrycodes: this.ipInfo.countryCode(),
-            limit: 1,
-            format: 'json',
-          },
-        })
-        .then((data) => {
-          this.data = data[0];
-          this.loading = false;
+    const data = await app.request<any>({
+      url: `https://nominatim.openstreetmap.org/search`,
+      method: 'GET',
+      params: {
+        q: this.ipInfo.zipCode(),
+        countrycodes: this.ipInfo.countryCode(),
+        limit: 1,
+        format: 'json',
+      },
+    });
 
-          m.redraw();
-        })
-    );
+    this.data = data[0];
+    this.loading = false;
+
+    m.redraw();
   }
 
-  configMap(vnode) {
+  configMap(vnode: Mithril.VnodeDOM) {
     if (!this.data) return;
 
     const { boundingbox: bounding, display_name: displayName } = this.data;
@@ -110,13 +118,16 @@ export default class ZipCodeMap extends Component {
 
     const zoomLevel = 5; // Set your preferred zoom level here
 
+    // @ts-expect-error
     this.map = L.map(vnode.dom).setView([centerLat, centerLon], zoomLevel);
 
+    // @ts-expect-error
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
     // Set a marker at the center of the bounding box
+    // @ts-expect-error
     L.marker([centerLat, centerLon]).addTo(this.map).bindPopup(displayName).openPopup();
   }
 }
