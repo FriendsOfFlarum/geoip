@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Tests\integration\Api;
 
 use Carbon\Carbon;
@@ -9,7 +18,7 @@ use Flarum\Testing\integration\TestCase;
 class NullIPTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    
+
     public function setUp(): void
     {
         parent::setUp();
@@ -29,17 +38,18 @@ class NullIPTest extends TestCase
         ]);
     }
 
-    public function userTypes() : array
+    public function userTypes(): array
     {
         return [
             [null],
             [1],
-            [2]
+            [2],
         ];
     }
 
     /**
      * @test
+     *
      * @dataProvider userTypes
      */
     public function can_show_discussion_with_null_ip(?int $userId)
@@ -81,10 +91,10 @@ class NullIPTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/posts/1', [
                 'authenticatedAs' => 1,
-                'json' => [
+                'json'            => [
                     'data' => [
-                        'type' => 'posts',
-                        'id' => '1',
+                        'type'       => 'posts',
+                        'id'         => '1',
                         'attributes' => [
                             'content' => 'foo bar - edited',
                         ],
