@@ -40,9 +40,9 @@ class RetrieveIP
         $events->listen(PostSaving::class, [$this, 'handlePost']);
     }
 
-    public function retrieveIP(string $ip): void
+    public function retrieveIP(?string $ip): void
     {
-        if ($this->geo->isValidIP($ip) && !$this->geo->recordExistsForIP($ip)) {
+        if ($ip !== null && $this->geo->isValidIP($ip) && !$this->geo->recordExistsForIP($ip)) {
             $this->queue->push(new Jobs\RetrieveIP($ip));
         }
     }
