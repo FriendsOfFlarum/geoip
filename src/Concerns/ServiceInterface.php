@@ -11,9 +11,11 @@
 
 namespace FoF\GeoIP\Concerns;
 
+use FoF\GeoIP\Api\ServiceResponse;
+
 interface ServiceInterface
 {
-    public function get(string $ip);
+    public function get(string $ip): ?ServiceResponse;
 
     public function getBatch(array $ips);
 

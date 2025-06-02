@@ -59,7 +59,7 @@ class GeoIP
      *
      * @return ServiceResponse|void
      */
-    public function get(string $ip)
+    public function get(string $ip): ?ServiceResponse
     {
         return $this->getService()->get($ip);
     }
