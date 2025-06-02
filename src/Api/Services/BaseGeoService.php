@@ -73,6 +73,7 @@ abstract class BaseGeoService implements ServiceInterface
 
             if ($response->getStatusCode() !== 200) {
                 $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents(), 'requestUrl' => $url, 'requestOptions' => $options]);
+
                 return null;
             }
 
@@ -161,7 +162,7 @@ abstract class BaseGeoService implements ServiceInterface
 
     abstract protected function buildBatchUrl(array $ips, ?string $apiKey): string;
 
-    abstract protected function getRequestOptions(?string $apiKey, array $ips = null): array;
+    abstract protected function getRequestOptions(?string $apiKey, ?array $ips = null): array;
 
     abstract protected function hasError(ResponseInterface $response, mixed $body): bool;
 
