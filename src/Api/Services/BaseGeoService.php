@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Api\Services;
 
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\ServiceResponse;
 use FoF\GeoIP\Concerns\ServiceInterface;
@@ -33,13 +34,14 @@ abstract class BaseGeoService implements ServiceInterface
     protected int $singleLookupsRemaining = 1;
     protected int $batchLookupsRemaining = 1;
 
-    public function __construct(protected SettingsRepositoryInterface $settings, protected LoggerInterface $logger, protected Cache $cache)
+    public function __construct(protected SettingsRepositoryInterface $settings, protected LoggerInterface $logger, protected Cache $cache, protected UrlGenerator $url)
     {
         $this->client = new Client([
             'base_uri' => $this->host,
             'verify'   => false,
             'headers'  => [
                 'Accept'     => 'application/json',
+                'Origin'     => $this->url->to('forum')->base(),
             ],
         ]);
     }
@@ -71,6 +73,8 @@ abstract class BaseGeoService implements ServiceInterface
 
             if ($response->getStatusCode() !== 200) {
                 $this->logger->error("Error detected in response from {$this->host}", ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents(), 'requestUrl' => $url, 'requestOptions' => $options]);
+
+                return null;
             }
 
             if ($this->isRateLimited()) {
@@ -158,7 +162,7 @@ abstract class BaseGeoService implements ServiceInterface
 
     abstract protected function buildBatchUrl(array $ips, ?string $apiKey): string;
 
-    abstract protected function getRequestOptions(?string $apiKey, array $ips = null): array;
+    abstract protected function getRequestOptions(?string $apiKey, ?array $ips = null): array;
 
     abstract protected function hasError(ResponseInterface $response, mixed $body): bool;
 

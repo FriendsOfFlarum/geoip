@@ -35,7 +35,7 @@ class IPApiPro extends IPApi
         return GeoIP::setError('ipapi-pro', $body->message ?? json_encode($body));
     }
 
-    protected function getRequestOptions(?string $apiKey, array $ips = null): array
+    protected function getRequestOptions(?string $apiKey, ?array $ips = null): array
     {
         $options = parent::getRequestOptions($apiKey, $ips);
         $options['query']['key'] = $apiKey;

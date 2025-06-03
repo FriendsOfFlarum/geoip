@@ -69,7 +69,7 @@ class IPData extends BaseGeoService
         return '';
     }
 
-    protected function getRequestOptions(?string $apiKey, array $ips = null): array
+    protected function getRequestOptions(?string $apiKey, ?array $ips = null): array
     {
         return [
             'http_errors' => false,

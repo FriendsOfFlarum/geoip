@@ -37,7 +37,7 @@ class FetchIPInfoHandler
             $response = $this->geoip->get($command->ip);
 
             if (!$response || $response->fake) {
-                $this->log->error("Unable to fetch IP information for IP: {$command->ip}", $response->toJSON());
+                $this->log->error("Unable to fetch IP information for IP: {$command->ip}", $response ? $response->toJSON() : []);
             }
 
             if ($response) {

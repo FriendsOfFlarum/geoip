@@ -76,7 +76,7 @@ class IPApi extends BaseGeoService
         return false;
     }
 
-    protected function getRequestOptions(?string $apiKey, array $ips = null): array
+    protected function getRequestOptions(?string $apiKey, ?array $ips = null): array
     {
         $options = [];
 
