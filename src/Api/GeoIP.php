@@ -57,7 +57,7 @@ class GeoIP
     /**
      * @param string $ip
      *
-     * @return ServiceResponse|void
+     * @return ServiceResponse|null
      */
     public function get(string $ip): ?ServiceResponse
     {
