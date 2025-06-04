@@ -34,11 +34,11 @@ class GeoIP
 
     public const SERVICES = self::FREE_SERVICES + self::PRO_SERVICES;
 
-    public static array $freeServices  = self::FREE_SERVICES;
+    public static array $freeServices = self::FREE_SERVICES;
 
-    public static array $proServices   = self::PRO_SERVICES;
+    public static array $proServices = self::PRO_SERVICES;
 
-    public static array $services      = self::SERVICES;
+    public static array $services = self::SERVICES;
 
     private $prefix = 'fof-geoip.services';
 

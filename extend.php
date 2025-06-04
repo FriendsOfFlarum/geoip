@@ -16,10 +16,8 @@ use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
-use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
-use FoF\GeoIP\Api\GeoIP;
 
 return [
     (new Extend\Frontend('forum'))
