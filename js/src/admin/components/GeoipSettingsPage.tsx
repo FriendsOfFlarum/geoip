@@ -78,6 +78,10 @@ export default class GeoipSettingsPage extends ExtensionPage {
     const items = new ItemList<Mithril.Children>();
     const service = this.setting('fof-geoip.service')();
 
+    const envFlags = (app.data.fofGeoipEnv || {}) as Record<string, boolean>;
+
+    const proServices = (app.data['fof-geoip.proServices'] as string[]) || [];
+
     items.add(
       'service',
       this.buildSettingComponent({
@@ -93,16 +97,28 @@ export default class GeoipSettingsPage extends ExtensionPage {
       })
     );
 
-    ['ipdata', 'ipapi-pro', 'ipsevenex'].includes(service) &&
-      items.add(
-        'api-key',
-        this.buildSettingComponent({
-          type: 'string',
-          setting: `fof-geoip.services.${service}.access_key`,
-          label: app.translator.trans('fof-geoip.admin.settings.access_key_label'),
-          required: true,
-        })
-      );
+    if (proServices.includes(service)) {
+      if (!envFlags[service]) {
+        items.add(
+          'api-key',
+          this.buildSettingComponent({
+            type: 'string',
+            setting: `fof-geoip.services.${service}.access_key`,
+            label: app.translator.trans('fof-geoip.admin.settings.access_key_label'),
+            required: true,
+          })
+        );
+      } else {
+        items.add(
+          'api-key-info',
+          <div className="Form-group">
+            <div className="helpText" style="margin: -12px 0 0 0;">
+              {app.translator.trans('fof-geoip.admin.settings.env_var_used')}
+            </div>
+          </div>
+        );
+      }
+    }
 
     service === 'ipdata' &&
       items.add(
