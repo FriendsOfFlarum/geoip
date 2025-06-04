@@ -10,6 +10,7 @@ class AdminPayload
     public function __invoke(Document $document)
     {
         $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
+        $document->payload['fof-geoip.proServices'] = array_keys(GeoIP::$proServices);
 
         $envFlags = [];
 
