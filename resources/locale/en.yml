@@ -32,6 +32,41 @@ fof-geoip:
       show_flag_label: Show country flag for each post
       show_flag_help: Without disclosing the IP address, show the country flag of the IP address of the post author, when the user opts in via their preferences.
 
+      test:
+        heading: Test Service Configuration
+        help: Test your IP lookup service configuration with a sample IP address. Make sure to save your settings first before testing.
+      test_service_label: Test IP Lookup Service
+      test_service_help: Enter an IPv4 or IPv6 address to test your current service configuration.
+      test_button: Test Service
+      testing: Testing...
+      test_result_title: Test Result
+      test_ip_required: Please enter an IP address to test.
+      test_error: An error occurred while testing the service.
+      
+      # Test result labels
+      test_service_label_result: "Service:"
+      test_status_label: "Status:"
+      test_response_time_label: "Response Time:"
+      test_timestamp_label: "Timestamp:"
+      test_http_status_code_label: "HTTP Status Code:"
+      test_error_details_label: "Error Details:"
+      test_processed_service_response_label: "Processed Service Response:"
+      
+      # Status messages
+      status_success: "✓ Success"
+      status_error: "✗ Error"
+      status_unknown: "Unknown"
+      
+      # Collapsible section labels
+      response_headers_label: "Response Headers"
+      raw_http_response_label: "Raw HTTP Response Body"
+      request_url_label: "Request URL"
+      request_options_label: "Request Options"
+      
+      # Error prefix
+      error_prefix: "Error:"
+      error_code_prefix: "Code:"
+
   forum:
     alerts:
       ip_copied: Copied IP Address

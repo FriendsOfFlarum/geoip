@@ -7,7 +7,7 @@
     }
   
     .GeoipSettingsTabPage {
-      background: @control-bg;
+      background: @code-bg;
       padding: 20px;
       border-radius: @border-radius;
       box-shadow: 0 2px 4px @shadow-color;
@@ -46,4 +46,52 @@
         margin: 0;
       }
     }
+}
+
+// Test result styling
+
+.GeoipTest-codeBlock {
+  background: @control-bg;
+  border: 1px solid @primary-color;
+  border-left: 3px solid @primary-color;
+  padding: 10px;
+  border-radius: @border-radius;
+  overflow-x: auto;
+  margin-bottom: 10px;
+  font-family: Monaco, Consolas, "Lucida Console", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: @text-color;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.GeoipTest-details {
+  margin-bottom: 10px;
+}
+
+.GeoipTest-detailsSummary {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px 0;
+}
+
+.GeoipTest-testSection {
+  margin-top: 30px;
+  border-top: 1px solid @muted-more-color;
+  padding-top: 20px;
+}
+
+.GeoipTest-inputGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.GeoipTest-alert {
+  margin-top: 10px;
+}
+
+.GeoipTest-resultHeader {
+  margin-bottom: 10px;
 }

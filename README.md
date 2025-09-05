@@ -53,6 +53,29 @@ All IP address lookup jobs are dispatched to the `default` queue by default. If 
 FoF\GeoIP\Jobs\RetrieveIP::$onQueue = 'my-other-queue';
 ```
 
+### Testing Your Configuration
+
+The extension includes a built-in service tester in the admin settings interface. After configuring your chosen IP lookup provider:
+
+1. **Save your settings first** - The tester uses your currently saved configuration
+2. **Navigate to the test section** - Located at the bottom of the GeoIP settings page
+3. **Enter an IP address** - Use any valid IPv4 or IPv6 address (defaults to 8.8.8.8)
+4. **Click "Test Service"** - This will make a real request to your configured provider
+
+The test results will show:
+- **Service response status** - Success or error indication
+- **Response time** - How long the lookup took
+- **HTTP status code** - The actual HTTP response code from the service
+- **Processed data** - The clean, formatted IP information
+- **Raw response details** - Complete HTTP headers and response body for debugging
+- **Request details** - The exact URL and options used for the request
+
+This testing feature is invaluable for:
+- Verifying API keys are working correctly
+- Checking service availability and response times
+- Debugging configuration issues
+- Understanding what data your chosen provider returns
+
 ### Installation
 
 Install manually with composer:
