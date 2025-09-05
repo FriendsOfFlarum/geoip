@@ -1,10 +1,18 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
-use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 
 class IPInfo extends BaseGeoService
@@ -20,6 +28,7 @@ class IPInfo extends BaseGeoService
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
         $ip = urlencode($ip);
+
         return "/{$ip}";
     }
 
@@ -62,7 +71,6 @@ class IPInfo extends BaseGeoService
             $isp = $organization;
         }
 
-
         $response
             ->setIP($body->ip)
             ->setCountryCode($body->country)
@@ -76,7 +84,7 @@ class IPInfo extends BaseGeoService
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
     {
-        return;
+
     }
 
     protected function getRequestOptions(?string $apiKey, ?array $ips = null): array
@@ -91,6 +99,7 @@ class IPInfo extends BaseGeoService
     protected function hasError(ResponseInterface $response, mixed $body): bool
     {
         $code = $response->getStatusCode();
+
         return $code < 200 || $code >= 300 || isset($body?->error);
     }
 

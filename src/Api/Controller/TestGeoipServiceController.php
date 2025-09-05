@@ -194,7 +194,7 @@ class TestGeoipServiceController extends AbstractShowController
             $getRequestOptionsMethod->setAccessible(true);
             $options = $getRequestOptionsMethod->invoke($service, $apiKey);
 
-            $uri = new Uri($host . $url);
+            $uri = new Uri($host.$url);
             $uri->withQuery(http_build_query($options['query'] ?? []));
 
             // Get the HTTP client

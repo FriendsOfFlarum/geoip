@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Api\Services;
 
 use FoF\GeoIP\Api\GeoIP;
@@ -10,7 +19,7 @@ class IPInfoLite extends IPInfo
 {
     protected $host = 'https://api.ipinfo.io';
     protected $settingPrefix = 'fof-geoip.services.ipinfo-lite';
-    
+
     protected function requiresApiKey(): bool
     {
         return true;
@@ -19,6 +28,7 @@ class IPInfoLite extends IPInfo
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
         $ip = urlencode($ip);
+
         return "/lite/{$ip}";
     }
 
