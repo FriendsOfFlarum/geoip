@@ -30,7 +30,7 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
       <div className="Form-group">
         <label>{app.translator.trans('fof-geoip.admin.settings.test_service_label')}</label>
         <div className="helpText">{app.translator.trans('fof-geoip.admin.settings.test_service_help')}</div>
-        
+
         <div className="GeoipTest-inputGroup">
           <input
             type="text"
@@ -41,34 +41,33 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
               this.testIP = (e.target as HTMLInputElement).value;
             }}
           />
-          <button
-            type="button"
-            className="Button Button--primary"
-            disabled={this.testLoading}
-            onclick={this.testService.bind(this)}
-          >
-            {this.testLoading 
-              ? app.translator.trans('fof-geoip.admin.settings.testing') 
-              : app.translator.trans('fof-geoip.admin.settings.test_button')
-            }
+          <button type="button" className="Button Button--primary" disabled={this.testLoading} onclick={this.testService.bind(this)}>
+            {this.testLoading
+              ? app.translator.trans('fof-geoip.admin.settings.testing')
+              : app.translator.trans('fof-geoip.admin.settings.test_button')}
           </button>
         </div>
 
-        {this.testError && (
-          <div className="Alert Alert--error GeoipTest-alert">
-            {this.testError}
-          </div>
-        )}
+        {this.testError && <div className="Alert Alert--error GeoipTest-alert">{this.testError}</div>}
 
         {this.testResult && (
           <div className={`Alert ${this.testResult.success ? 'Alert--success' : 'Alert--error'} GeoipTest-alert`}>
             <h4>{app.translator.trans('fof-geoip.admin.settings.test_result_title')}</h4>
-            
+
             <div className="GeoipTest-resultHeader">
-              <strong>{app.translator.trans('fof-geoip.admin.settings.test_service_label_result')}</strong> {this.testResult.service || app.translator.trans('fof-geoip.admin.settings.status_unknown')}<br/>
-              <strong>{app.translator.trans('fof-geoip.admin.settings.test_status_label')}</strong> {this.testResult.success ? app.translator.trans('fof-geoip.admin.settings.status_success') : app.translator.trans('fof-geoip.admin.settings.status_error')}<br/>
+              <strong>{app.translator.trans('fof-geoip.admin.settings.test_service_label_result')}</strong>{' '}
+              {this.testResult.service || app.translator.trans('fof-geoip.admin.settings.status_unknown')}
+              <br />
+              <strong>{app.translator.trans('fof-geoip.admin.settings.test_status_label')}</strong>{' '}
+              {this.testResult.success
+                ? app.translator.trans('fof-geoip.admin.settings.status_success')
+                : app.translator.trans('fof-geoip.admin.settings.status_error')}
+              <br />
               {this.testResult.response_time_ms && (
-                <span><strong>{app.translator.trans('fof-geoip.admin.settings.test_response_time_label')}</strong> {this.testResult.response_time_ms}ms<br/></span>
+                <span>
+                  <strong>{app.translator.trans('fof-geoip.admin.settings.test_response_time_label')}</strong> {this.testResult.response_time_ms}ms
+                  <br />
+                </span>
               )}
               <strong>{app.translator.trans('fof-geoip.admin.settings.test_timestamp_label')}</strong> {this.testResult.timestamp}
             </div>
@@ -84,7 +83,8 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
                   <h5>{app.translator.trans('fof-geoip.admin.settings.test_error_details_label')}</h5>
                   <pre className="GeoipTest-codeBlock">
                     {app.translator.trans('fof-geoip.admin.settings.error_prefix')} {this.testResult.error}
-                    {this.testResult.error_code && `\n${app.translator.trans('fof-geoip.admin.settings.error_code_prefix')} ${this.testResult.error_code}`}
+                    {this.testResult.error_code &&
+                      `\n${app.translator.trans('fof-geoip.admin.settings.error_code_prefix')} ${this.testResult.error_code}`}
                   </pre>
                 </div>
               )}
@@ -92,9 +92,7 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
               {this.testResult.response_headers && (
                 <details className="GeoipTest-details">
                   <summary className="GeoipTest-detailsSummary">{app.translator.trans('fof-geoip.admin.settings.response_headers_label')}</summary>
-                  <pre className="GeoipTest-codeBlock">
-                    {JSON.stringify(this.testResult.response_headers, null, 2)}
-                  </pre>
+                  <pre className="GeoipTest-codeBlock">{JSON.stringify(this.testResult.response_headers, null, 2)}</pre>
                 </details>
               )}
 
@@ -119,29 +117,21 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
               {this.testResult.request_url && (
                 <details className="GeoipTest-details">
                   <summary className="GeoipTest-detailsSummary">{app.translator.trans('fof-geoip.admin.settings.request_url_label')}</summary>
-                  <pre className="GeoipTest-codeBlock">
-                    {this.testResult.request_url}
-                  </pre>
+                  <pre className="GeoipTest-codeBlock">{this.testResult.request_url}</pre>
                 </details>
               )}
 
               {this.testResult.request_options && (
                 <details className="GeoipTest-details">
                   <summary className="GeoipTest-detailsSummary">{app.translator.trans('fof-geoip.admin.settings.request_options_label')}</summary>
-                  <pre className="GeoipTest-codeBlock">
-                    {JSON.stringify(this.testResult.request_options, null, 2)}
-                  </pre>
+                  <pre className="GeoipTest-codeBlock">{JSON.stringify(this.testResult.request_options, null, 2)}</pre>
                 </details>
               )}
-
-              
 
               {this.testResult.service_response && (
                 <div>
                   <h5>{app.translator.trans('fof-geoip.admin.settings.test_processed_service_response_label')}</h5>
-                  <pre className="GeoipTest-codeBlock">
-                    {JSON.stringify(this.testResult.service_response, null, 2)}
-                  </pre>
+                  <pre className="GeoipTest-codeBlock">{JSON.stringify(this.testResult.service_response, null, 2)}</pre>
                 </div>
               )}
             </div>
@@ -178,7 +168,7 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
         success: false,
         error: error?.message || 'Unknown error',
         httpStatus: error?.status || null,
-        responseText: error?.responseText || null
+        responseText: error?.responseText || null,
       };
     } finally {
       this.testLoading = false;

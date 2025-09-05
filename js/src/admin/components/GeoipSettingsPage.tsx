@@ -10,7 +10,6 @@ import GeoipTestComponent from './GeoipTestComponent';
 import linkify from 'linkify-lite';
 
 export default class GeoipSettingsPage extends ExtensionPage {
-
   content() {
     const service = this.setting('fof-geoip.service')();
     const errorTime = Number(app.data.settings[`fof-geoip.services.${service}.last_error_time`]) * 1000;
@@ -121,5 +120,4 @@ export default class GeoipSettingsPage extends ExtensionPage {
 
     return items;
   }
-
 }
