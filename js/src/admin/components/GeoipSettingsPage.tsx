@@ -5,6 +5,7 @@ import humanTime from 'flarum/common/helpers/humanTime';
 import extractText from 'flarum/common/utils/extractText';
 import Mithril from 'mithril';
 import ItemList from 'flarum/common/utils/ItemList';
+import GeoipTestComponent from './GeoipTestComponent';
 // @ts-expect-error
 import linkify from 'linkify-lite';
 
@@ -27,6 +28,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
               )}
               {this.settingsItems().toArray()}
               <div className="Form-group">{this.submitButton()}</div>
+              <GeoipTestComponent />
             </div>
           </div>
         </div>

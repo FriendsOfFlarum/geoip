@@ -47,6 +47,11 @@ class GeoIP
         return resolve($service);
     }
 
+    public function getServiceName(): ?string
+    {
+        return $this->settings->get('fof-geoip.service');
+    }
+
     public function batchSupported(): bool
     {
         $service = $this->getService();

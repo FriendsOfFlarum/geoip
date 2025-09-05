@@ -66,7 +66,8 @@ return [
         ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval'),
 
     (new Extend\Routes('api'))
-        ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class),
+        ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class)
+        ->get('/geoip/test', 'fof-geoip.api.test', Api\Controller\TestGeoipServiceController::class),
 
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
