@@ -4,14 +4,102 @@
 
 A [Flarum](http://flarum.org) extension.
 
-## Empower Your Flarum Moderators with GeoIP
+## IP Geolocation & Security Insights for Flarum
 
-Moderators play a crucial role in maintaining the health and quality of forums. With GeoIP, give them the geolocation tools they need to better understand users, make informed decisions, and maintain a safe environment. Only moderators have access to IP-based geolocation, ensuring user privacy and data security.
+Provide moderators with powerful IP geolocation tools for better forum management, while giving users visibility into their account access patterns and security. Moderators get comprehensive IP insights for moderation decisions, while users can monitor where their accounts are being accessed from for enhanced security awareness.
 
 ### 🌎 Key Features
 - **Location Insights**: Enable moderators to identify the country and region of users.
 - **Interactive Mapping**: Let moderators visualize user locations with an integrated map view.
 - **Threat Detection**: Equip moderators with the ability to highlight potentially malicious IP addresses through threat level indicators. (Via supported IP location data providers)
+
+### 🔌 Supported IP Data Providers
+
+GeoIP supports multiple IP lookup services, each with different features, rate limits, and data coverage:
+
+**Default Provider**: The extension comes pre-configured with **IP-API** as the default provider since it requires no API key and allows you to get started immediately with up to 45 lookups per minute.
+
+#### **IPData** (`ipdata`)
+- **Service**: [https://ipdata.co](https://ipdata.co)
+- **Free Tier**: Up to 1,500 lookups daily
+- **Paid Plans**: Available for higher usage limits
+- **Requirements**: API key required
+- **Data Provided**:
+  - ✅ Country Code
+  - ✅ Zip/Postal Code
+  - ✅ Latitude/Longitude
+  - ✅ ISP
+  - ✅ Organization
+  - ✅ ASN (Autonomous System Number)
+  - ✅ Mobile/Cellular Detection
+  - ✅ Threat Level Detection
+  - ✅ Threat Type Classification (attacker/abuser)
+
+#### **IP-API** (`ipapi`) - *Default*
+- **Service**: [http://ip-api.com](http://ip-api.com)
+- **Free Tier**: Up to 45 lookups per minute
+- **Rate Limiting**: Requests exceeding the limit are automatically queued and processed when the limit resets
+- **Batch Support**: Yes (up to 15 batch requests per minute)
+- **Automatic Retry**: Built-in retry logic for failed requests
+- **Requirements**: No API key needed
+- **Data Provided**:
+  - ✅ Country Code
+  - ✅ Zip/Postal Code
+  - ✅ Latitude/Longitude
+  - ✅ ISP
+  - ✅ Organization
+  - ✅ ASN (Autonomous System Number)
+  - ✅ Mobile/Cellular Detection
+
+#### **IP-API Pro** (`ipapi-pro`)
+- **Service**: [https://members.ip-api.com/#pricing](https://members.ip-api.com/#pricing)
+- **Usage**: Unlimited lookups (paid service)
+- **Requirements**: API key required
+- **Data Provided**: Same as IP-API (inherits all features)
+  - ✅ Country Code
+  - ✅ Zip/Postal Code
+  - ✅ Latitude/Longitude
+  - ✅ ISP
+  - ✅ Organization
+  - ✅ ASN (Autonomous System Number)
+  - ✅ Mobile/Cellular Detection
+
+#### **IP Location** (`iplocation`)
+- **Service**: [https://www.iplocation.net/](https://www.iplocation.net/)
+- **Rate Limits**: Unknown/undocumented
+- **Requirements**: No API key needed
+- **Data Provided** (Limited):
+  - ✅ Country Code
+  - ✅ ISP
+  - ❌ No zip code, coordinates, or threat data
+
+#### **7x Geolocation API** (`ipsevenex`)
+- **Service**: [https://7x.ax](https://7x.ax)
+- **Free Tier**: Up to 20 requests per minute with API key
+- **Paid Plans**: Available for higher usage limits
+- **Requirements**: API key required (free registration available)
+- **Data Provided**:
+  - ✅ Country Code
+  - ✅ Zip/Postal Code
+  - ✅ Latitude/Longitude
+  - ✅ ISP
+  - ✅ Organization
+
+Choose the provider that best fits your forum's traffic volume, data requirements, and budget.
+
+### 🔐 Permissions
+
+The extension provides the following permission:
+- **Always display the country of the IP address** - Allows users to always see country flags, regardless of the post author's privacy settings
+
+By default, only administrators and moderators can see IP addresses and detailed geolocation information.
+
+### 👤 User Privacy Controls
+
+Users have control over their location visibility:
+- **Show country flag**: Users can opt-in to display their country flag on posts via their user preferences
+- **IP addresses**: Only visible to administrators and moderators
+- **Detailed location data**: Only accessible to administrators and moderators through the IP info modal
 
 ### Screenshots
 ##### Redesigned meta info (visible to admins/mods)
@@ -75,6 +163,49 @@ This testing feature is invaluable for:
 - Checking service availability and response times
 - Debugging configuration issues
 - Understanding what data your chosen provider returns
+
+### 🔧 Troubleshooting
+
+#### Common Issues
+
+**IP lookups not working**
+1. Check your service configuration in the admin panel
+2. Use the built-in service tester to verify your setup
+3. Ensure your API key is valid (for services that require one)
+4. Check the Flarum logs for error messages
+
+**Rate limit exceeded**
+- IP-API: Requests are automatically queued, wait for the next minute
+- IPData: Check your daily quota usage
+- Consider upgrading to a paid plan for higher limits
+
+**No country flags showing**
+1. Ensure "Show country flag for each post" is enabled in settings
+2. Users must opt-in via their preferences (unless admin permission overrides this)
+3. Check that the IP lookup returned valid country data
+
+**Queue not processing**
+- Ensure your queue worker is running: `php flarum queue:work`
+- Check queue configuration in your hosting environment
+
+### ⚡ Performance Considerations
+
+- **Queue Processing**: IP lookups are processed in background jobs to avoid blocking page loads
+- **Caching**: Results are cached to avoid repeated API calls for the same IP
+- **Rate Limiting**: Built-in rate limiting prevents API quota exhaustion
+- **Batch Processing**: Some providers support batch lookups for better efficiency
+
+For high-traffic forums, consider:
+- Using a paid provider with higher rate limits
+- Ensuring your queue worker is properly configured
+- Monitoring your API usage through provider dashboards
+
+### 📊 Data Storage
+
+- IP geolocation data is stored locally in your database after lookup
+- Data includes: country, coordinates, ISP, organization, and threat information (where available)
+- No personal user data is sent to IP lookup providers
+- Only IP addresses are transmitted for geolocation lookup
 
 ### Installation
 

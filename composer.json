@@ -1,6 +1,6 @@
 {
     "name": "fof/geoip",
-    "description": "Geolocation for your Flarum forum",
+    "description": "IP Geolocation & Security Insights",
     "keywords": [
         "flarum"
     ],
