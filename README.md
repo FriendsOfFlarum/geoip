@@ -85,6 +85,17 @@ GeoIP supports multiple IP lookup services, each with different features, rate l
   - ✅ ISP
   - ✅ Organization
 
+#### **IPInfo Lite** (`ipinfo-lite`)
+- **Service**: [https://ipinfo.io](https://ipinfo.io)
+- **Usage**: No rate limiting or restrictions
+- **Requirements**: API key required (free registration available)
+- **Data Provided**:
+  - ✅ Country Code
+  - ✅ Organization (AS Name)
+  - ✅ ISP (AS Domain)
+  - ✅ ASN (Autonomous System Number)
+  - ❌ No zip code, coordinates, mobile detection, or threat data
+
 Choose the provider that best fits your forum's traffic volume, data requirements, and budget.
 
 ### 🔐 Permissions
