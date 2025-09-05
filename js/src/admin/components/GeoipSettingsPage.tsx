@@ -95,7 +95,7 @@ export default class GeoipSettingsPage extends ExtensionPage {
       })
     );
 
-    ['ipdata', 'ipapi-pro', 'ipsevenex'].includes(service) &&
+    ['ipdata', 'ipapi-pro', 'ipsevenex', 'ipinfo-lite'].includes(service) &&
       items.add(
         'api-key',
         this.buildSettingComponent({

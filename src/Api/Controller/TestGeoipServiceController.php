@@ -18,6 +18,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\Serializer\TestGeoipServiceSerializer;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -34,7 +35,7 @@ class TestGeoipServiceController extends AbstractShowController
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
 
-        $ip = urldecode(Arr::get($request->getQueryParams(), 'ip'));
+        $ip = trim(urldecode(Arr::get($request->getQueryParams(), 'ip', '')));
 
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             throw new \InvalidArgumentException('Invalid IP address provided');
@@ -185,12 +186,16 @@ class TestGeoipServiceController extends AbstractShowController
             // Get the buildUrl method
             $buildUrlMethod = $reflection->getMethod('buildUrl');
             $buildUrlMethod->setAccessible(true);
+            $host = $reflection->getProperty('host')->getValue($service);
             $url = $buildUrlMethod->invoke($service, $ip, $apiKey);
 
             // Get the request options
             $getRequestOptionsMethod = $reflection->getMethod('getRequestOptions');
             $getRequestOptionsMethod->setAccessible(true);
             $options = $getRequestOptionsMethod->invoke($service, $apiKey);
+
+            $uri = new Uri($host . $url);
+            $uri->withQuery(http_build_query($options['query'] ?? []));
 
             // Get the HTTP client
             $clientProperty = $reflection->getProperty('client');
@@ -204,7 +209,7 @@ class TestGeoipServiceController extends AbstractShowController
                 'status_code'     => $httpResponse->getStatusCode(),
                 'headers'         => $httpResponse->getHeaders(),
                 'body'            => $httpResponse->getBody()->getContents(),
-                'url'             => $url,
+                'url'             => $uri->__toString(),
                 'request_options' => $options,
             ];
         } catch (\Exception $e) {

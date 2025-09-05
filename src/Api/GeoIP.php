@@ -24,6 +24,8 @@ class GeoIP
     public static $services = [
         'ipapi'      => Services\IPApi::class,
         'ipapi-pro'  => Services\IPApiPro::class,
+        //'ipinfo'     => Services\IPInfo::class, // Not yet fully implemented
+        'ipinfo-lite' => Services\IPInfoLite::class,
         'ipdata'     => Services\IPData::class,
         'iplocation' => Services\IPLocation::class,
         'ipsevenex'  => Services\IPSevenEx::class,
