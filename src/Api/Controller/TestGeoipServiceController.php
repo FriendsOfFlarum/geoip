@@ -117,8 +117,10 @@ class TestGeoipServiceController extends AbstractShowController
                         return false;
                     }
                 }
+            /** @phpstan-ignore-next-line */
             } catch (\Exception $e) {
                 // If we can't parse the JSON, we can't determine error status from body
+                // We purposely ignore this error in PHPStan
             }
         }
 
