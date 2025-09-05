@@ -16,10 +16,8 @@ use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
-use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
-use FoF\GeoIP\Api\GeoIP;
 
 return [
     (new Extend\Frontend('forum'))
@@ -29,9 +27,7 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/resources/less/admin.less')
-        ->content(function (Document $document) {
-            $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
-        }),
+        ->content(Content\AdminPayload::class),
 
     (new Extend\Model(Post::class))
         ->relationship('ip_info', Model\IPInfoRelationship::class),

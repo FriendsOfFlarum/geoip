@@ -13,6 +13,15 @@ Moderators play a crucial role in maintaining the health and quality of forums. 
 - **Interactive Mapping**: Let moderators visualize user locations with an integrated map view.
 - **Threat Detection**: Equip moderators with the ability to highlight potentially malicious IP addresses through threat level indicators. (Via supported IP location data providers)
 
+### Use with Environment Varliables
+To override a GeoIP service’s “Access Key” setting, define an environment variable named after its setting key, replacing dots/non-alphanumeric characters with underscores and using uppercase.
+
+Example with IP API PRO:
+
+`FOF_GEOIP_SERVICES_IPAPI_PRO_ACCESS_KEY=ABCDEFGHIJK`
+
+When this env-var is set, the admin UI hides the Access Key field for that service and the code uses its value. If it’s unset, the input reappears and the stored database setting is used.
+
 ### Screenshots
 ##### Redesigned meta info (visible to admins/mods)
 ![image](https://user-images.githubusercontent.com/16573496/269216977-b8814964-dfe7-4af9-b519-628506fbc109.png)

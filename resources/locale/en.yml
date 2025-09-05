@@ -29,6 +29,8 @@ fof-geoip:
       access_key_label: Access Key
       quota_label: Lookup quota
 
+      env_var_used: Access key is configured via environment variable.
+
       show_flag_label: Show country flag for each post
       show_flag_help: Without disclosing the IP address, show the country flag of the IP address of the post author, when the user opts in via their preferences.
 

@@ -48,11 +48,16 @@ abstract class BaseGeoService implements ServiceInterface
 
     public function get(string $ip): ?ServiceResponse
     {
-        $apiKey = $this->settings->get("{$this->settingPrefix}.access_key");
+        $envName = strtoupper(str_replace('.', '_', "{$this->settingPrefix}.access_key"));
 
-        if (!empty($apiKey)) {
-            // ensure that we don't have any whitespace, etc in the key
-            $apiKey = trim($apiKey);
+        $envName = preg_replace('/[^A-Z0-9_]/', '_', $envName);
+
+        $envApiKey = env($envName) ?: env("env.$envName") ?: null;
+
+        if ($envApiKey) {
+            $apiKey = trim($envApiKey);
+        } else {
+            $apiKey = trim((string) $this->settings->get("{$this->settingPrefix}.access_key"));
         }
 
         if ($this->requiresApiKey() && !$apiKey) {

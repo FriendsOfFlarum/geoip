@@ -21,13 +21,24 @@ class GeoIP
 {
     use HandlesGeoIPErrors;
 
-    public static $services = [
+    public const FREE_SERVICES = [
         'ipapi'      => Services\IPApi::class,
+        'iplocation' => Services\IPLocation::class,
+    ];
+
+    public const PRO_SERVICES = [
         'ipapi-pro'  => Services\IPApiPro::class,
         'ipdata'     => Services\IPData::class,
-        'iplocation' => Services\IPLocation::class,
         'ipsevenex'  => Services\IPSevenEx::class,
     ];
+
+    public const SERVICES = self::FREE_SERVICES + self::PRO_SERVICES;
+
+    public static array $freeServices = self::FREE_SERVICES;
+
+    public static array $proServices = self::PRO_SERVICES;
+
+    public static array $services = self::SERVICES;
 
     private $prefix = 'fof-geoip.services';
 
