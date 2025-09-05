@@ -26,6 +26,9 @@ fof-geoip:
       service_ipsevenex_label: 7x Geolocation API
       service_ipsevenex_description: Use <b>https://7x.ax</b> to get a free API key for up to 20 requests per minute. Paid plans for higher usage limits are also available.
 
+      service_ipinfo-lite_label: IPInfo Lite
+      service_ipinfo-lite_description: Use <b>https://ipinfo.io</b> to retrieve IP information without any rate limiting or restrictions. Requires registration for a free API key.
+
       access_key_label: Access Key
       quota_label: Lookup quota
 

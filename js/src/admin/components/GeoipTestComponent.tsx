@@ -56,7 +56,8 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
 
             <div className="GeoipTest-resultHeader">
               <strong>{app.translator.trans('fof-geoip.admin.settings.test_service_label_result')}</strong>{' '}
-              {this.testResult.service || app.translator.trans('fof-geoip.admin.settings.status_unknown')}
+              {app.translator.trans(`fof-geoip.admin.settings.service_${this.testResult.service}_label`) ||
+                app.translator.trans('fof-geoip.admin.settings.status_unknown')}
               <br />
               <strong>{app.translator.trans('fof-geoip.admin.settings.test_status_label')}</strong>{' '}
               {this.testResult.success
