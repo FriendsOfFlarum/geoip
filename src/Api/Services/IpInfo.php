@@ -84,7 +84,6 @@ class IPInfo extends BaseGeoService
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
     {
-
     }
 
     protected function getRequestOptions(?string $apiKey, ?array $ips = null): array
