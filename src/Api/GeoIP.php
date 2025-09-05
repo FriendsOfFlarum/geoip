@@ -22,8 +22,8 @@ class GeoIP
     use HandlesGeoIPErrors;
 
     public static $services = [
-        'ipapi'      => Services\IPApi::class,
-        'ipapi-pro'  => Services\IPApiPro::class,
+        'ipapi'       => Services\IPApi::class,
+        'ipapi-pro'   => Services\IPApiPro::class,
         'ipinfo-lite' => Services\IPInfoLite::class,
         'ipdata'      => Services\IPData::class,
         'iplocation'  => Services\IPLocation::class,
