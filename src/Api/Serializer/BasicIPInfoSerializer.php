@@ -44,6 +44,6 @@ class BasicIPInfoSerializer extends AbstractSerializer
      */
     public function getId($model)
     {
-        return hash('sha256', $model->address);
+        return hash('sha256', (string)$model->address);
     }
 }
