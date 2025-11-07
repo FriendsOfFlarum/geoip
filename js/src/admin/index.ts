@@ -5,7 +5,7 @@ export * from './components';
 export { default as extend } from './extend';
 
 app.initializers.add('fof/geoip', () => {
-  app.extensionData
+  app.registry
     .for('fof-geoip')
     .registerPage(GeoipSettingsPage)
     .registerPermission(

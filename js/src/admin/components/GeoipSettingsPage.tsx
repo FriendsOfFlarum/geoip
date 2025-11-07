@@ -1,3 +1,4 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/admin/app';
 import Alert from 'flarum/common/components/Alert';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
@@ -19,17 +20,24 @@ export default class GeoipSettingsPage extends ExtensionPage {
       <div className="GeoipSettingsPage">
         <div className="container">
           <div className="GeoipSettingsTabPage GeoipSettingsPage--settings">
-            <div className="Form">
+            <Form>
               {error && (
                 <Alert className="Form-group" dismissable={false}>
-                  <b style={{ textTransform: 'uppercase', marginRight: '5px' }}>{humanTime(new Date(errorTime))}</b>
+                  <b
+                    style={{
+                      textTransform: 'uppercase',
+                      marginRight: '5px',
+                    }}
+                  >
+                    {humanTime(new Date(errorTime))}
+                  </b>
                   {error}
                 </Alert>
               )}
               {this.settingsItems().toArray()}
               <div className="Form-group">{this.submitButton()}</div>
               <GeoipTestComponent />
-            </div>
+            </Form>
           </div>
         </div>
       </div>
