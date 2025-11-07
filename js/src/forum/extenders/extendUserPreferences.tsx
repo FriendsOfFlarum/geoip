@@ -1,10 +1,9 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 
 export default function extendUserPreferences() {
-  extend(SettingsPage.prototype, 'privacyItems', function (items) {
+  extend('flarum/forum/components/SettingsPage', 'privacyItems', function (items) {
     if (app.forum.attribute<boolean>('fof-geoip.showFlag')) {
       items.add(
         'ip-country',
