@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/geoip.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\GeoIP\Tests\integration\Api;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -20,7 +29,7 @@ class ShowIPEndpontTest extends TestCase
 
         $this->prepareDatabase([
             User::class => [
-                $this->normalUser()
+                $this->normalUser(),
             ],
             'group_user' => [
                 ['user_id' => 2, 'group_id' => 4], // Make normal user a moderator
@@ -28,14 +37,14 @@ class ShowIPEndpontTest extends TestCase
             'group_permission' => [
                 ['group_id' => 4, 'permission' => 'viewIps'], // Give moderators permission to view IP info
             ],
-            ]);
+        ]);
     }
 
     public static function userIpProvider(): array
     {
         return [
-            'IPv4 - Google DNS' => [1, '8.8.8.8'],
-            'IPv6 - Google DNS' => [1, '2001:4860:4860::8888'],
+            'IPv4 - Google DNS'     => [1, '8.8.8.8'],
+            'IPv6 - Google DNS'     => [1, '2001:4860:4860::8888'],
             'IPv4 - Cloudflare DNS' => [2, '1.1.1.1'],
             'IPv6 - Cloudflare DNS' => [2, '2606:4700:4700::1111'],
         ];

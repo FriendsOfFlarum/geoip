@@ -16,7 +16,6 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
-use Flarum\Post\Post;
 use Flarum\User\Exception\PermissionDeniedException;
 use FoF\GeoIP\Command\FetchIPInfo;
 use FoF\GeoIP\Model\IPInfo;
@@ -93,8 +92,8 @@ class IPInfoResource extends Resource\AbstractDatabaseResource
             // Full details - only for users who can view IPs
             Schema\Str::make('ip')
                 ->property('address')
-                ->visible(fn (IPInfo $ipInfo, Context $context) =>
-                    $context->getActor()->can('viewIps')
+                ->visible(
+                    fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')
                 ),
             Schema\Str::make('zipCode'),
             Schema\Str::make('latitude'),

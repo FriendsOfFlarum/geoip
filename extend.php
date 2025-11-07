@@ -93,13 +93,14 @@ return [
             Schema\Boolean::make('showIPCountry')
                 ->visible(function () {
                     $settings = resolve(SettingsRepositoryInterface::class);
+
                     return (bool) $settings->get('fof-geoip.showFlag');
                 })
                 ->get(fn (\Flarum\User\User $user) => (bool) $user->getPreference('showIPCountry')),
             Schema\Boolean::make('canSeeCountry')
                 ->visible(fn (\Flarum\User\User $user, Context $context) => $user->id === $context->getActor()->id)
-                ->get(fn (mixed $_, Context $context) =>
-                    $context->getActor()->can('fof-geoip.canSeeCountry')
+                ->get(
+                    fn (mixed $_, Context $context) => $context->getActor()->can('fof-geoip.canSeeCountry')
                 ),
         ]),
 

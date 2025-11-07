@@ -42,7 +42,7 @@ class TestGeoipController implements RequestHandlerInterface
                 'errors' => [
                     [
                         'status' => '400',
-                        'title' => 'Bad Request',
+                        'title'  => 'Bad Request',
                         'detail' => 'Invalid IP address provided',
                     ],
                 ],
@@ -57,7 +57,7 @@ class TestGeoipController implements RequestHandlerInterface
                 'errors' => [
                     [
                         'status' => '500',
-                        'title' => 'Internal Server Error',
+                        'title'  => 'Internal Server Error',
                         'detail' => 'No GeoIP service configured',
                     ],
                 ],
@@ -80,8 +80,8 @@ class TestGeoipController implements RequestHandlerInterface
 
             return new JsonResponse([
                 'data' => [
-                    'type' => 'geoip-test',
-                    'id' => 'test',
+                    'type'       => 'geoip-test',
+                    'id'         => 'test',
                     'attributes' => [
                         'success'            => $isSuccess,
                         'service'            => $serviceName,
@@ -102,8 +102,8 @@ class TestGeoipController implements RequestHandlerInterface
         } catch (\Exception $e) {
             return new JsonResponse([
                 'data' => [
-                    'type' => 'geoip-test',
-                    'id' => 'test',
+                    'type'       => 'geoip-test',
+                    'id'         => 'test',
                     'attributes' => [
                         'success'    => false,
                         'service'    => $serviceName,

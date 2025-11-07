@@ -37,7 +37,7 @@ class TestGeoipControllerTest extends TestCase
     public static function nonAdminUsers(): array
     {
         return [
-            'guest' => [null],
+            'guest'       => [null],
             'normal user' => [2],
         ];
     }

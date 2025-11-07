@@ -20,7 +20,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Uri;
-use Tobyz\JsonApiServer\Context as OriginalContext;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
 
