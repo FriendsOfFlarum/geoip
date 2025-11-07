@@ -19,20 +19,8 @@ use Illuminate\Contracts\Queue\Queue;
 
 class RetrieveIP
 {
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
-     * @var GeoIPRepository
-     */
-    protected $geo;
-
-    public function __construct(Queue $queue, GeoIPRepository $geo)
+    public function __construct(protected Queue $queue, protected GeoIPRepository $geo)
     {
-        $this->queue = $queue;
-        $this->geo = $geo;
     }
 
     public function subscribe(Dispatcher $events)

@@ -1,10 +1,10 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 // @ts-expect-error
 import load from 'external-load';
 import type Mithril from 'mithril';
-import IPInfo from '../models/IPInfo';
+import IPInfo from '../model/IPInfo';
 
 const leafletCDN = 'https://unpkg.com/leaflet@1.9.4/dist/';
 

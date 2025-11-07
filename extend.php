@@ -11,14 +11,15 @@
 
 namespace FoF\GeoIP;
 
-use Flarum\Api\Controller;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Frontend\Document;
 use Flarum\Post\Post;
 use Flarum\Settings\Event\Saving;
+use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
 
 return [
@@ -36,38 +37,50 @@ return [
     (new Extend\Model(Post::class))
         ->relationship('ip_info', Model\IPInfoRelationship::class),
 
+    (new Extend\ModelVisibility(Model\IPInfo::class))
+        ->scope(Access\ScopeIPInfoVisibility::class),
+
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\Event())
         ->listen(Saving::class, Listeners\RemoveErrorsOnSettingsUpdate::class)
         ->subscribe(Listeners\RetrieveIP::class),
 
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->relationship('ip_info', Api\AttachRelation::class),
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(fn () => [
+            Schema\Relationship\ToOne::make('ipInfo')
+                ->type('ip_info')
+                ->property('ip_info')
+                ->includable()
+                ->visible(function (Post $post, Context $context) {
+                    $actor = $context->getActor();
 
-    (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude('ip_info'),
+                    // Full IP info for users with viewIps permission
+                    if ($actor->can('viewIps', $post)) {
+                        return true;
+                    }
 
-    (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude('ip_info'),
+                    // Basic country info for users with canSeeCountry permission or user preference
+                    $viewCountry = $actor->can('fof-geoip.canSeeCountry');
+                    $showFlagsFeatureEnabled = resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag');
+                    $userPreference = $post->user?->getPreference('showIPCountry');
 
-    (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude('ip_info'),
+                    return $viewCountry || ($showFlagsFeatureEnabled && $userPreference);
+                }),
+        ])
+        ->endpoint(['show', 'index', 'update'], function (Endpoint\Show|Endpoint\Index|Endpoint\Update $endpoint): Endpoint\Show|Endpoint\Index|Endpoint\Update {
+            return $endpoint->addDefaultInclude(['ipInfo']);
+        }),
 
-    (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude('ip_info'),
-
-    (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude('posts.ip_info'),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(['show', 'index'], function (Endpoint\Show|Endpoint\Index $endpoint): Endpoint\Show|Endpoint\Index {
+            return $endpoint->addDefaultInclude(['firstPost.ipInfo']);
+        }),
 
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi')
         ->default('fof-geoip.showFlag', false)
         ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval'),
-
-    (new Extend\Routes('api'))
-        ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class)
-        ->get('/geoip/test', 'fof-geoip.api.test', Api\Controller\TestGeoipServiceController::class),
 
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
@@ -75,15 +88,30 @@ return [
     (new Extend\User())
         ->registerPreference('showIPCountry', 'boolval', false),
 
-    (new Extend\ApiSerializer(BasicUserSerializer::class))
-        ->attributes(Api\BasicUserAttributes::class),
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('showIPCountry')
+                ->visible(function () {
+                    $settings = resolve(SettingsRepositoryInterface::class);
 
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(Api\CurrentUserAttributes::class),
+                    return (bool) $settings->get('fof-geoip.showFlag');
+                })
+                ->get(fn (\Flarum\User\User $user) => (bool) $user->getPreference('showIPCountry')),
+            Schema\Boolean::make('canSeeCountry')
+                ->visible(fn (\Flarum\User\User $user, Context $context) => $user->id === $context->getActor()->id)
+                ->get(
+                    fn (mixed $_, Context $context) => $context->getActor()->can('fof-geoip.canSeeCountry')
+                ),
+        ]),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
             (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
                 ->default('showIPCountry', false, 'bool'),
         ]),
+
+    new Extend\ApiResource(Api\Resource\IPInfoResource::class),
+
+    (new Extend\Routes('api'))
+        ->get('/geoip/test', 'fof-geoip.test', Api\Controller\TestGeoipController::class),
 ];

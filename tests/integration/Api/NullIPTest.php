@@ -12,8 +12,13 @@
 namespace FoF\GeoIP\Tests\integration\Api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class NullIPTest extends TestCase
 {
@@ -26,19 +31,19 @@ class NullIPTest extends TestCase
         $this->extension('fof-geoip');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
+            Discussion::class => [
+                ['id' => 1, 'title' => __CLASS__, 'slug' => 'geoip-null-ip-test', 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class=> [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'ip_address' => null],
             ],
         ]);
     }
 
-    public function userTypes(): array
+    public static function userTypes(): array
     {
         return [
             [null],
@@ -47,11 +52,8 @@ class NullIPTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider userTypes
-     */
+    #[Test]
+    #[DataProvider('userTypes')]
     public function can_show_discussion_with_null_ip(?int $userId)
     {
         $response = $this->send(
@@ -83,9 +85,7 @@ class NullIPTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_edit_post_with_null_ip()
     {
         $response = $this->send(

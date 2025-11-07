@@ -1,13 +1,12 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import ZipCodeMap from '../components/ZipCodeMap';
+import ZipCodeMap from '../../common/components/ZipCodeMap';
 import Tooltip from 'flarum/common/components/Tooltip';
-import { getIPData } from '../helpers/IPDataHelper';
-import { handleCopyIP } from '../helpers/ClipboardHelper';
+import { getIPData } from '../../common/helpers/IPDataHelper';
+import { handleCopyIP } from '../../common/helpers/ClipboardHelper';
+import BanIPModal from 'ext:fof/ban-ips/components/BanIPModal';
 
 export default function extendBanIPModal() {
-  const BanIPModal = flarum.core.compat['fof/ban-ips/components/BanIPModal'];
-
   if (BanIPModal) {
     extend(BanIPModal.prototype, 'content', function (vdom) {
       if (!this.post || !this.post.ipAddress()) return;

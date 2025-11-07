@@ -19,11 +19,6 @@ class ServiceResponse implements \JsonSerializable
     private $ip;
 
     /**
-     * @var bool
-     */
-    public $fake;
-
-    /**
      * @var string
      */
     private $country_code;
@@ -83,10 +78,9 @@ class ServiceResponse implements \JsonSerializable
      */
     private $data_provider;
 
-    public function __construct(?string $dataProvider, bool $fake = false)
+    public function __construct(?string $dataProvider, public bool $fake = false)
     {
         $this->setDataProvider($dataProvider);
-        $this->fake = $fake;
     }
 
     public function setIP(string $ip)

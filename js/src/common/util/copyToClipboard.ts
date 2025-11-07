@@ -1,4 +1,4 @@
-export default (str: string): void => {
+export default function copyToClipboard(str: string): void {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(str).then(() => {});
     return;
@@ -23,4 +23,4 @@ export default (str: string): void => {
     selection.removeAllRanges();
     selection.addRange(selected);
   }
-};
+}
