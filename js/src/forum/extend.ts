@@ -3,16 +3,13 @@ import User from 'flarum/common/models/User';
 
 import { default as commonExtend } from '../common/extend';
 import Post from 'flarum/common/models/Post';
-import IPInfo from './models/IPInfo';
+import IPInfo from '../common/model/IPInfo';
 
 export default [
   ...commonExtend,
 
-  new Extend.Store() //
-    .add('ip_info', IPInfo),
-
   new Extend.Model(Post) //
-    .hasOne<IPInfo>('ip_info'),
+    .hasOne<IPInfo>('ipInfo'),
 
   new Extend.Model(User) //
     .attribute('showIPCountry')

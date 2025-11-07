@@ -46,7 +46,7 @@ export default class IPInfo extends Model {
   }
 
   threatTypes() {
-    const raw = Model.attribute<string | null>('threatTypes').call(this);
+    const raw = Model.attribute<string | null>('threatType').call(this);
     if (!raw) {
       return [];
     }

@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Model;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 
 /**
  * @property string      $address
@@ -33,9 +34,15 @@ use Flarum\Database\AbstractModel;
  */
 class IPInfo extends AbstractModel
 {
+    use ScopeVisibilityTrait;
+
     protected $table = 'ip_info';
 
     protected $primaryKey = 'address';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'country_code', 'zip_code', 'latitude', 'longitude',

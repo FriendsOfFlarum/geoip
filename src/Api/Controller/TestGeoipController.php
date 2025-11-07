@@ -12,31 +12,25 @@
 namespace FoF\GeoIP\Api\Controller;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Api\Serializer\TestGeoipServiceSerializer;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Uri;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * @TODO: Remove this in favor of one of the API resource classes that were added.
- *      Or extend an existing API Resource to add this to.
- *      Or use a vanilla RequestHandlerInterface controller.
- *      @link https://docs.flarum.org/2.x/extend/api#endpoints
- */
-class TestGeoipServiceController extends AbstractShowController
+class TestGeoipController implements RequestHandlerInterface
 {
-    public $serializer = TestGeoipServiceSerializer::class;
-
-    public function __construct(protected GeoIP $geoIP, protected SettingsRepositoryInterface $settings)
-    {
+    public function __construct(
+        protected GeoIP $geoIP,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function data(ServerRequestInterface $request, Document $document): array
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
@@ -44,14 +38,30 @@ class TestGeoipServiceController extends AbstractShowController
         $ip = trim(urldecode(Arr::get($request->getQueryParams(), 'ip', '')));
 
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new \InvalidArgumentException('Invalid IP address provided');
+            return new JsonResponse([
+                'errors' => [
+                    [
+                        'status' => '400',
+                        'title' => 'Bad Request',
+                        'detail' => 'Invalid IP address provided',
+                    ],
+                ],
+            ], 400);
         }
 
         $service = $this->geoIP->getService();
         $serviceName = $this->geoIP->getServiceName();
 
         if (!$service) {
-            throw new \Exception('No GeoIP service configured');
+            return new JsonResponse([
+                'errors' => [
+                    [
+                        'status' => '500',
+                        'title' => 'Internal Server Error',
+                        'detail' => 'No GeoIP service configured',
+                    ],
+                ],
+            ], 500);
         }
 
         try {
@@ -60,7 +70,7 @@ class TestGeoipServiceController extends AbstractShowController
             // Get the raw HTTP response directly from the service
             $rawHttpResponse = $this->getRawServiceResponse($service, $ip);
 
-            // Also get the processed response (but don't time this since we already made the request above)
+            // Also get the processed response
             $response = $service->get($ip);
             $endTime = microtime(true);
 
@@ -68,30 +78,42 @@ class TestGeoipServiceController extends AbstractShowController
             $isSuccess = $this->isResponseSuccessful($rawHttpResponse, $response);
             $errorMessage = $this->getErrorMessage($rawHttpResponse, $response);
 
-            return [
-                'success'            => $isSuccess,
-                'service'            => $serviceName,
-                'ip'                 => $ip,
-                'response_time_ms'   => round(($endTime - $startTime) * 1000, 2),
-                'processed_response' => $response ? $response->toJSON() : null,
-                'service_response'   => $response ? $response->jsonSerialize() : null,
-                'raw_http_response'  => $rawHttpResponse['body'] ?? $rawHttpResponse['error'] ?? null,
-                'response_headers'   => $rawHttpResponse['headers'] ?? [],
-                'http_status_code'   => $rawHttpResponse['status_code'] ?? null,
-                'request_url'        => $rawHttpResponse['url'] ?? null,
-                'request_options'    => $rawHttpResponse['request_options'] ?? null,
-                'error'              => $errorMessage,
-                'timestamp'          => Carbon::now()->toISOString(),
-            ];
+            return new JsonResponse([
+                'data' => [
+                    'type' => 'geoip-test',
+                    'id' => 'test',
+                    'attributes' => [
+                        'success'            => $isSuccess,
+                        'service'            => $serviceName,
+                        'ip'                 => $ip,
+                        'response_time_ms'   => round(($endTime - $startTime) * 1000, 2),
+                        'processed_response' => $response ? $response->toJSON() : null,
+                        'service_response'   => $response ? $response->jsonSerialize() : null,
+                        'raw_http_response'  => $rawHttpResponse['body'] ?? $rawHttpResponse['error'] ?? null,
+                        'response_headers'   => $rawHttpResponse['headers'] ?? [],
+                        'http_status_code'   => $rawHttpResponse['status_code'] ?? null,
+                        'request_url'        => $rawHttpResponse['url'] ?? null,
+                        'request_options'    => $rawHttpResponse['request_options'] ?? null,
+                        'error'              => $errorMessage,
+                        'timestamp'          => Carbon::now()->toISOString(),
+                    ],
+                ],
+            ]);
         } catch (\Exception $e) {
-            return [
-                'success'    => false,
-                'service'    => $serviceName,
-                'ip'         => $ip,
-                'error'      => $e->getMessage(),
-                'error_code' => $e->getCode(),
-                'timestamp'  => Carbon::now()->toISOString(),
-            ];
+            return new JsonResponse([
+                'data' => [
+                    'type' => 'geoip-test',
+                    'id' => 'test',
+                    'attributes' => [
+                        'success'    => false,
+                        'service'    => $serviceName,
+                        'ip'         => $ip,
+                        'error'      => $e->getMessage(),
+                        'error_code' => $e->getCode(),
+                        'timestamp'  => Carbon::now()->toISOString(),
+                    ],
+                ],
+            ]);
         }
     }
 
@@ -113,7 +135,6 @@ class TestGeoipServiceController extends AbstractShowController
             try {
                 $body = json_decode($rawHttpResponse['body'], true);
                 if ($body) {
-                    // Check for common error status fields
                     if (isset($body['status']) && $body['status'] === 'fail') {
                         return false;
                     }
@@ -126,8 +147,7 @@ class TestGeoipServiceController extends AbstractShowController
                 }
                 /** @phpstan-ignore-next-line */
             } catch (\Exception $e) {
-                // If we can't parse the JSON, we can't determine error status from body
-                // We purposely ignore this error in PHPStan
+                // Ignore JSON parsing errors
             }
         }
 
@@ -159,7 +179,7 @@ class TestGeoipServiceController extends AbstractShowController
                     }
                 }
             } catch (\Exception $e) {
-                // If we can't parse JSON, fall through to other checks
+                // Ignore JSON parsing errors
             }
         }
 

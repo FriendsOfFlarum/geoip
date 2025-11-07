@@ -1,18 +1,20 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import { extend, override } from 'flarum/common/extend';
-import IPAddress from 'flarum/common/components/IPAddress';
-import IPInfo from '../models/IPInfo';
+import IPInfo from '../model/IPInfo';
 import { getIPData } from '../helpers/IPDataHelper';
 import Tooltip from 'flarum/common/components/Tooltip';
 import Button from 'flarum/common/components/Button';
 import { handleCopyIP } from '../helpers/ClipboardHelper';
 import MapModal from '../components/MapModal';
+import type Mithril from 'mithril';
+import ItemList from 'flarum/common/utils/ItemList';
 
 export default function extendIpAddress() {
-  extend(IPAddress.prototype, 'viewItems', function (items) {
+  extend('flarum/common/components/IPAddress', 'viewItems', function (items: ItemList<Mithril.Children>) {
     if (!this.ipInfo) {
       this.loadIpInfo();
     }
+
     if (this.ipInfo && items.has('ip')) {
       items.remove('ip');
 
@@ -60,14 +62,27 @@ export default function extendIpAddress() {
     }
   });
 
-  override(IPAddress.prototype, 'view', function () {
+  override('flarum/common/components/IPAddress', 'view', function () {
     return <span className="IPAddress IPAddress--enhanced ip-container">{this.viewItems().toArray()}</span>;
   });
 
-  IPAddress.prototype.loadIpInfo = async function () {
-    if (this.ip.length === 0) return;
-    const ipInfo = app.store.getBy<IPInfo>('ip_info', 'ip', this.ip) || (await app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip)));
-    this.ipInfo = ipInfo;
-    m.redraw();
-  };
+  extend('flarum/common/components/IPAddress', 'oninit', function () {
+    this.loadIpInfo = async function () {
+      if (this.ip.length === 0) return;
+      try {
+        // Try to get from store first
+        let ipInfo = app.store.getBy<IPInfo>('ip_info', 'ip', this.ip);
+
+        // If not in store, fetch from API
+        if (!ipInfo) {
+          ipInfo = await app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip));
+        }
+
+        this.ipInfo = ipInfo;
+        m.redraw();
+      } catch (error) {
+        console.error('Failed to load IP info:', error);
+      }
+    };
+  });
 }

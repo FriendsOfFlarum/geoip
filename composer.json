@@ -19,7 +19,6 @@
         }
     ],
     "require": {
-        "php": "^8.2",
         "flarum/core": "^2.0.0-beta",
         "guzzlehttp/guzzle": "^7.3"
     },
@@ -45,7 +44,7 @@
             "title": "FoF GeoIP",
             "category": "feature",
             "icon": {
-                "name": "fas fa-map-marker-alt",
+                "name": "fa-solid fa-location-crosshairs",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
             },
@@ -65,8 +64,8 @@
     },
     "require-dev": {
         "flarum/phpstan": "^2.0.0-beta",
-        "fof/drafts": "*",
-        "fof/default-user-preferences": "*",
+        "fof/drafts": "^2.0.0-beta",
+        "fof/default-user-preferences": "^2.0.0-beta",
         "flarum/testing": "^2.0.0-beta"
     },
     "scripts": {

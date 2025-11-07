@@ -1,4 +1,4 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import copyToClipboard from '../util/copyToClipboard';
 
 export const handleCopyIP = (ip: string) => {

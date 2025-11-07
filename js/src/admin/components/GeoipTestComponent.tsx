@@ -157,19 +157,22 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
     m.redraw();
 
     try {
+      // Make request to the test endpoint
+      // The route is defined in extend.php using Extend\Routes('api')
       const response = await app.request<any>({
         method: 'GET',
         url: `${app.forum.attribute('apiUrl')}/geoip/test?ip=${encodeURIComponent(this.testIP)}`,
       });
 
-      this.testResult = response.data.attributes;
+      // Extract attributes from the JSON:API response
+      this.testResult = response.data?.attributes || response.data || {};
     } catch (error: any) {
-      this.testError = error?.message || app.translator.trans('fof-geoip.admin.settings.test_error');
+      this.testError = error?.message || extractText(app.translator.trans('fof-geoip.admin.settings.test_error'));
       this.testResult = {
         success: false,
         error: error?.message || 'Unknown error',
-        httpStatus: error?.status || null,
-        responseText: error?.responseText || null,
+        http_status_code: error?.status || null,
+        raw_http_response: error?.responseText || null,
       };
     } finally {
       this.testLoading = false;

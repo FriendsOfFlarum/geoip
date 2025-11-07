@@ -4,7 +4,7 @@ import Alert from 'flarum/common/components/Alert';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import humanTime from 'flarum/common/helpers/humanTime';
 import extractText from 'flarum/common/utils/extractText';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import ItemList from 'flarum/common/utils/ItemList';
 import GeoipTestComponent from './GeoipTestComponent';
 // @ts-expect-error

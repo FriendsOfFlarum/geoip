@@ -1,35 +1,35 @@
 .GeoipSettingsPage {
     padding-top: 20px;
-  
+
     .Button {
       margin-right: 10px;
       margin-bottom: 10px;
     }
-  
+
     .GeoipSettingsTabPage {
-      background: @code-bg;
+      background: var(--control-bg);
       padding: 20px;
       border-radius: @border-radius;
-      box-shadow: 0 2px 4px @shadow-color;
-  
+      box-shadow: 0 2px 4px var(--shadow-color);
+
       h3 {
         color: @primary-color;
         margin-bottom: 10px;
       }
-  
+
       .Section {
-        background: @body-bg;
+        background: var(--body-bg);
         border-radius: @border-radius;
-        box-shadow: 0 1px 3px @shadow-color;
+        box-shadow: 0 1px 3px var(--shadow-color);
         padding: 15px;
         margin-bottom: 20px;
       }
-  
+
       .Form {
         .control {
-          background: @body-bg;
-          border: 1px solid @muted-color;
-          color: @text-color;
+          background: var(--body-bg);
+          border: 1px solid var(--muted-color);
+          color: var(--text-color);
           padding: 6px 12px;
           border-radius: @border-radius;
         }
@@ -51,7 +51,7 @@
 // Test result styling
 
 .GeoipTest-codeBlock {
-  background: @control-bg;
+  background: var(--control-bg);
   border: 1px solid @primary-color;
   border-left: 3px solid @primary-color;
   padding: 10px;
@@ -61,7 +61,7 @@
   font-family: Monaco, Consolas, "Lucida Console", monospace;
   font-size: 12px;
   line-height: 1.4;
-  color: @text-color;
+  color: var(--text-color);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -78,7 +78,7 @@
 
 .GeoipTest-testSection {
   margin-top: 30px;
-  border-top: 1px solid @muted-more-color;
+  border-top: 1px solid var(--muted-more-color);
   padding-top: 20px;
 }
 
