@@ -83,7 +83,7 @@ class ServiceResponse implements \JsonSerializable
         $this->setDataProvider($dataProvider);
     }
 
-    public function setIP(string $ip)
+    public function setIP(string $ip): self
     {
         $this->ip = $ip;
 
@@ -95,7 +95,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->ip;
     }
 
-    public function setCountryCode(?string $country_code)
+    public function setCountryCode(?string $country_code): self
     {
         $this->country_code = $country_code;
 
@@ -107,7 +107,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->country_code;
     }
 
-    public function setZipCode(?string $zip_code)
+    public function setZipCode(?string $zip_code): self
     {
         $this->zip_code = $zip_code;
 
@@ -119,7 +119,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->zip_code;
     }
 
-    public function setLatitude(?string $latitude)
+    public function setLatitude(?string $latitude): self
     {
         $this->latitude = $latitude;
 
@@ -131,7 +131,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->latitude;
     }
 
-    public function setLongitude(?string $longitude)
+    public function setLongitude(?string $longitude): self
     {
         $this->longitude = $longitude;
 
@@ -143,7 +143,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->longitude;
     }
 
-    public function setIsp(?string $isp)
+    public function setIsp(?string $isp): self
     {
         $this->isp = $isp;
 
@@ -155,7 +155,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->isp;
     }
 
-    public function setOrganization(?string $organization)
+    public function setOrganization(?string $organization): self
     {
         $this->organization = $organization;
 
@@ -167,7 +167,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->organization;
     }
 
-    public function setThreatLevel(?string $level)
+    public function setThreatLevel(?string $level): self
     {
         $this->threat_level = $level;
 
@@ -179,7 +179,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->threat_level;
     }
 
-    public function setThreatType(?string $types)
+    public function setThreatType(?string $types): self
     {
         $this->threat_type = $types;
 
@@ -191,7 +191,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->threat_type;
     }
 
-    public function setError(?string $error)
+    public function setError(?string $error): self
     {
         $this->error = $error;
 
@@ -203,7 +203,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->error;
     }
 
-    public function setAs(?string $as)
+    public function setAs(?string $as): self
     {
         $this->as = $as;
 
@@ -215,7 +215,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->as;
     }
 
-    public function setMobile(bool $mobile)
+    public function setMobile(bool $mobile): self
     {
         $this->mobile = $mobile;
 
@@ -227,7 +227,7 @@ class ServiceResponse implements \JsonSerializable
         return $this->mobile;
     }
 
-    public function setDataProvider(?string $provider)
+    public function setDataProvider(?string $provider): self
     {
         $this->data_provider = $provider;
 
@@ -239,7 +239,10 @@ class ServiceResponse implements \JsonSerializable
         return $this->data_provider;
     }
 
-    public function toJson()
+    /**
+     * @return array<string, mixed>
+     */
+    public function toJson(): array
     {
         return json_decode(json_encode($this), true);
     }

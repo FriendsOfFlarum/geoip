@@ -24,7 +24,7 @@ class FetchIPInfoBatchHandler
     ) {
     }
 
-    public function handle(FetchIPInfoBatch $command)
+    public function handle(FetchIPInfoBatch $command): \Illuminate\Support\Collection
     {
         // remove any duplicates or invalid addresses from the ips array
         $command->ips = array_unique(array_filter($command->ips, fn ($ip) => $this->repository->isValidIP($ip)));

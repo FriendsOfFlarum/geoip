@@ -60,12 +60,12 @@ class RetrieveIP extends AbstractJob
         }
     }
 
-    public static function isRetrieving($ip): bool
+    public static function isRetrieving(string $ip): bool
     {
         return in_array($ip, static::$retrieving);
     }
 
-    public static function isQueued($ip): bool
+    public static function isQueued(string $ip): bool
     {
         return in_array($ip, static::$queued) || self::isRetrieving($ip);
     }

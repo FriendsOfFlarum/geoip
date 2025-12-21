@@ -18,10 +18,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPApi extends BaseGeoService
 {
-    protected $host = 'http://ip-api.com';
-    protected $settingPrefix = 'fof-geoip.services.ipapi';
-    protected $requestFields = 'status,message,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,mobile,query';
-    protected $r2 = '126718';
+    protected string $host = 'http://ip-api.com';
+    protected string $settingPrefix = 'fof-geoip.services.ipapi';
+    protected mixed $requestFields = 'status,message,countryCode,region,regionName,city,zip,lat,lon,isp,org,as,mobile,query';
+    protected string $r2 = '126718';
 
     /**
      * 45 requests per minute.

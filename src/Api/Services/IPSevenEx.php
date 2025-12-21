@@ -17,8 +17,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPSevenEx extends BaseGeoService
 {
-    protected $host = 'https://api.7x.ax';
-    protected $settingPrefix = 'fof-geoip.services.ipsevenex';
+    protected string $host = 'https://api.7x.ax';
+    protected string $settingPrefix = 'fof-geoip.services.ipsevenex';
 
     public function isRateLimited(): bool
     {

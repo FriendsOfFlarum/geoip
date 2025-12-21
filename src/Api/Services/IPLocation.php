@@ -17,8 +17,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPLocation extends BaseGeoService
 {
-    protected $host = 'https://api.iplocation.net';
-    protected $settingPrefix = 'fof-geoip.services.iplocation';
+    protected string $host = 'https://api.iplocation.net';
+    protected string $settingPrefix = 'fof-geoip.services.iplocation';
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void
     {

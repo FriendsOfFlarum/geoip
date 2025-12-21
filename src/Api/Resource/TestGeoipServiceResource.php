@@ -131,7 +131,7 @@ class TestGeoipServiceResource extends Resource\AbstractResource
         ];
     }
 
-    private function isResponseSuccessful(array $rawHttpResponse, $serviceResponse): bool
+    private function isResponseSuccessful(array $rawHttpResponse, ?\FoF\GeoIP\Api\ServiceResponse $serviceResponse): bool
     {
         // Check HTTP status code first
         $httpStatus = $rawHttpResponse['status_code'] ?? null;
@@ -173,7 +173,7 @@ class TestGeoipServiceResource extends Resource\AbstractResource
         return true;
     }
 
-    private function getErrorMessage(array $rawHttpResponse, $serviceResponse): ?string
+    private function getErrorMessage(array $rawHttpResponse, ?\FoF\GeoIP\Api\ServiceResponse $serviceResponse): ?string
     {
         // First check service response error
         if ($serviceResponse && $serviceResponse->getError()) {
@@ -211,7 +211,7 @@ class TestGeoipServiceResource extends Resource\AbstractResource
         return null;
     }
 
-    private function getRawServiceResponse($service, string $ip): array
+    private function getRawServiceResponse(\FoF\GeoIP\Concerns\ServiceInterface $service, string $ip): array
     {
         try {
             $apiKey = $this->settings->get("fof-geoip.services.{$this->geoIP->getServiceName()}.access_key");

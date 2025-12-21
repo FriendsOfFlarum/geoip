@@ -15,7 +15,7 @@ use FoF\GeoIP\Api\ServiceResponse;
 
 trait HandlesGeoIPErrors
 {
-    protected function handleGeoIPError($service, $error): ServiceResponse
+    protected function handleGeoIPError(string $service, string $error): ServiceResponse
     {
         return (new ServiceResponse($service, true))
             ->setError($error);
