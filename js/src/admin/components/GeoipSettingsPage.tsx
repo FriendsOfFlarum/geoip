@@ -11,6 +11,40 @@ import GeoipTestComponent from './GeoipTestComponent';
 import linkify from 'linkify-lite';
 
 export default class GeoipSettingsPage extends ExtensionPage {
+  static register() {
+    app.registry.for('fof-geoip');
+
+    // Register settings for searchability
+    app.registry.registerSetting({
+      type: 'boolean',
+      setting: 'fof-geoip.showFlag',
+      label: app.translator.trans('fof-geoip.admin.settings.show_flag_label'),
+      help: app.translator.trans('fof-geoip.admin.settings.show_flag_help'),
+    });
+
+    app.registry.registerSetting({
+      type: 'select',
+      setting: 'fof-geoip.service',
+      label: app.translator.trans('fof-geoip.admin.settings.service_label'),
+    });
+
+    // Register access key settings for services that require them
+    ['ipdata', 'ipapi-pro', 'ipsevenex', 'ipinfo-lite'].forEach((service) => {
+      app.registry.registerSetting({
+        type: 'string',
+        setting: `fof-geoip.services.${service}.access_key`,
+        label: app.translator.trans('fof-geoip.admin.settings.access_key_label'),
+      });
+    });
+
+    // Register ipdata quota setting
+    app.registry.registerSetting({
+      type: 'number',
+      setting: 'fof-geoip.services.ipdata.quota',
+      label: app.translator.trans('fof-geoip.admin.settings.quota_label'),
+    });
+  }
+
   content() {
     const service = this.setting('fof-geoip.service')();
     const errorTime = Number(app.data.settings[`fof-geoip.services.${service}.last_error_time`]) * 1000;
