@@ -45,6 +45,7 @@ class IPInfo extends AbstractModel
     protected $keyType = 'string';
 
     protected $fillable = [
+        'address',
         'country_code', 'zip_code', 'latitude', 'longitude',
         'isp', 'organization', 'as', 'mobile',
         'threat_level', 'threat_types',

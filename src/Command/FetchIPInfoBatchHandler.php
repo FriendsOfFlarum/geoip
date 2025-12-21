@@ -14,7 +14,6 @@ namespace FoF\GeoIP\Command;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Repositories\GeoIPRepository;
-use Illuminate\Support\Arr;
 
 class FetchIPInfoBatchHandler
 {
@@ -36,17 +35,20 @@ class FetchIPInfoBatchHandler
 
         // for any ips that don't exist, create a new IPInfo model, create an array of ips to query and call the getBatch() method
 
-        $ipsToQuery = Arr::except($command->ips, $ipInfos->pluck('address')->toArray());
+        $ipsToQuery = array_diff($command->ips, $ipInfos->pluck('address')->toArray());
 
         if (count($ipsToQuery) > 0) {
             $responses = $this->geoip->getBatch($ipsToQuery);
 
             foreach ($responses as $response) {
                 $ip = $response->getIP();
-                $ipInfo = IPInfo::query()->firstOrNew(['address' => $ip]);
-                $ipInfo->address = $ip;
-                $ipInfo->fill($response->toJSON());
-                $ipInfo->save();
+                $data = $response->toJSON();
+                $data['address'] = $ip;
+
+                $ipInfo = IPInfo::query()->updateOrCreate(
+                    ['address' => $ip],
+                    $data
+                );
 
                 // add the new IPInfo model to the collection
                 $ipInfos->push($ipInfo);
