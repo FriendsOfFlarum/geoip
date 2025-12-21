@@ -20,8 +20,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPData extends BaseGeoService
 {
-    protected $host = 'https://api.ipdata.co';
-    protected $settingPrefix = 'fof-geoip.services.ipdata';
+    protected string $host = 'https://api.ipdata.co';
+    protected string $settingPrefix = 'fof-geoip.services.ipdata';
 
     /**
      * 1500 lookups per day, on the free plan.

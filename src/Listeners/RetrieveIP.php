@@ -23,7 +23,7 @@ class RetrieveIP
     {
     }
 
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
         $events->listen(PostSaving::class, [$this, 'handlePost']);
     }
@@ -35,7 +35,7 @@ class RetrieveIP
         }
     }
 
-    public function handlePost(PostSaving $event)
+    public function handlePost(PostSaving $event): void
     {
         $this->retrieveIP($event->post->ip_address);
     }

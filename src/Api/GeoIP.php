@@ -21,7 +21,10 @@ class GeoIP
 {
     use HandlesGeoIPErrors;
 
-    public static $services = [
+    /**
+     * @var array<string, class-string>
+     */
+    public static array $services = [
         'ipapi'       => Services\IPApi::class,
         'ipapi-pro'   => Services\IPApiPro::class,
         'ipinfo-lite' => Services\IPInfoLite::class,
@@ -30,7 +33,7 @@ class GeoIP
         'ipsevenex'   => Services\IPSevenEx::class,
     ];
 
-    private $prefix = 'fof-geoip.services';
+    private string $prefix = 'fof-geoip.services';
 
     public function __construct(protected SettingsRepositoryInterface $settings)
     {
@@ -108,7 +111,7 @@ class GeoIP
         return null;
     }
 
-    public static function setError(string $service, string $error)
+    public static function setError(string $service, string $error): ServiceResponse
     {
         $settings = resolve('flarum.settings');
 
@@ -118,7 +121,7 @@ class GeoIP
         return self::getFakeResponse($service, $error);
     }
 
-    protected static function getFakeResponse(string $service, string $error)
+    protected static function getFakeResponse(string $service, string $error): ServiceResponse
     {
         return (new ServiceResponse($service, true))
             ->setError($error);

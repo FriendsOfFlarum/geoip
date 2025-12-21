@@ -17,8 +17,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPInfoLite extends BaseGeoService
 {
-    protected $host = 'https://api.ipinfo.io';
-    protected $settingPrefix = 'fof-geoip.services.ipinfo-lite';
+    protected string $host = 'https://api.ipinfo.io';
+    protected string $settingPrefix = 'fof-geoip.services.ipinfo-lite';
 
     protected function requiresApiKey(): bool
     {

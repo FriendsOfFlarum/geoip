@@ -27,9 +27,9 @@ abstract class BaseGeoService implements ServiceInterface
      */
     protected $client;
 
-    protected $host;
-    protected $settingPrefix;
-    protected $requestFields;
+    protected string $host;
+    protected string $settingPrefix;
+    protected mixed $requestFields;
 
     protected int $singleLookupsRemaining = 1;
     protected int $batchLookupsRemaining = 1;
@@ -107,14 +107,14 @@ abstract class BaseGeoService implements ServiceInterface
         return false;
     }
 
-    public function getBatch(array $ips)
+    public function getBatch(array $ips): array
     {
         $apiKey = $this->settings->get("{$this->settingPrefix}.access_key");
 
         if ($this->requiresApiKey() && !$apiKey) {
             $this->logger->error("No API key found for {$this->host}");
 
-            return null;
+            return [];
         }
 
         if ($this->isRateLimited()) {
@@ -138,6 +138,8 @@ abstract class BaseGeoService implements ServiceInterface
             return $this->parseBatchResponse(json_decode($response->getBody()->getContents()));
         } else {
             $this->storeForLaterLookup($ips);
+
+            return [];
         }
     }
 

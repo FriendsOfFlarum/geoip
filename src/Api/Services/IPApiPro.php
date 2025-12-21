@@ -17,8 +17,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class IPApiPro extends IPApi
 {
-    protected $host = 'https://pro.ip-api.com';
-    protected $settingPrefix = 'fof-geoip.services.ipapi-pro';
+    protected string $host = 'https://pro.ip-api.com';
+    protected string $settingPrefix = 'fof-geoip.services.ipapi-pro';
 
     protected function requiresApiKey(): bool
     {

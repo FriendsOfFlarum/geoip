@@ -21,7 +21,7 @@ class RemoveErrorsOnSettingsUpdate
     {
     }
 
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         foreach ($event->settings as $key => $value) {
             if (!Str::startsWith($key, 'fof-geoip.service')) {

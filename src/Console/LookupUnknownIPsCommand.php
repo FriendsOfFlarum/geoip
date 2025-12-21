@@ -41,7 +41,7 @@ class LookupUnknownIPsCommand extends Command
         parent::__construct();
     }
 
-    public function handle()
+    public function handle(): void
     {
         foreach ($this->ipModels as $model => $column) {
             if (!class_exists($model)) {
