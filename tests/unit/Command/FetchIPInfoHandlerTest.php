@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Tests\unit\Command;
 
+use Flarum\Testing\unit\TestCase;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
 use FoF\GeoIP\Command\FetchIPInfo;
@@ -22,7 +23,6 @@ use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class FetchIPInfoHandlerTest extends TestCase
