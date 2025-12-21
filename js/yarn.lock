@@ -3038,11 +3038,6 @@ tsutils@3:
   dependencies:
     tslib "^1.8.1"
 
-twemoji-basename@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/twemoji-basename/-/twemoji-basename-1.0.0.tgz#16534d986a3b07057afaae0f75f67bd8c6cd886b"
-  integrity sha512-owC/8DmtH/G7pSz+QICiiczOF1Mc99NjKPjoK6EnT1I8awKYfnhtr8h3IPTJfCU5eXvKUYREXWEGhp4IlhRqqA==
-
 type-coverage-core@^2.17.2:
   version "2.29.7"
   resolved "https://registry.yarnpkg.com/type-coverage-core/-/type-coverage-core-2.29.7.tgz#dbc50f88e7eaf4fab6ca6fbf1811a3612cfdf451"
