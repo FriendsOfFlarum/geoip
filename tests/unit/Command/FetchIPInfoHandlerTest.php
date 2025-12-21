@@ -12,11 +12,6 @@
 namespace FoF\GeoIP\Tests\unit\Command;
 
 use Flarum\Testing\unit\TestCase;
-use FoF\GeoIP\Api\GeoIP;
-use FoF\GeoIP\Api\ServiceResponse;
-use FoF\GeoIP\Command\FetchIPInfoBatch;
-use FoF\GeoIP\Command\FetchIPInfoBatchHandler;
-use FoF\GeoIP\Repositories\GeoIPRepository;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -32,7 +27,7 @@ class FetchIPInfoHandlerTest extends TestCase
     public function batch_handler_uses_array_diff_to_skip_existing_ips()
     {
         // This test verifies that we use array_diff() not Arr::except() which was a bug
-        $batchHandlerCode = file_get_contents(__DIR__ . '/../../../src/Command/FetchIPInfoBatchHandler.php');
+        $batchHandlerCode = file_get_contents(__DIR__.'/../../../src/Command/FetchIPInfoBatchHandler.php');
 
         // Verify we use array_diff not Arr::except (which was a bug)
         $this->assertStringContainsString('array_diff', $batchHandlerCode, 'Should use array_diff to exclude existing IPs');
@@ -43,15 +38,15 @@ class FetchIPInfoHandlerTest extends TestCase
     public function test_handler_uses_update_or_create_pattern()
     {
         // This is more of a code review test - verify the handlers use updateOrCreate
-        $batchHandlerCode = file_get_contents(__DIR__ . '/../../../src/Command/FetchIPInfoBatchHandler.php');
-        $singleHandlerCode = file_get_contents(__DIR__ . '/../../../src/Command/FetchIPInfoHandler.php');
+        $batchHandlerCode = file_get_contents(__DIR__.'/../../../src/Command/FetchIPInfoBatchHandler.php');
+        $singleHandlerCode = file_get_contents(__DIR__.'/../../../src/Command/FetchIPInfoHandler.php');
 
         // Verify updateOrCreate is used (the safe pattern)
         $this->assertStringContainsString('updateOrCreate', $batchHandlerCode, 'Batch handler should use updateOrCreate to prevent race conditions');
         $this->assertStringContainsString('updateOrCreate', $singleHandlerCode, 'Single handler should use updateOrCreate to prevent race conditions');
 
         // Verify we don't use the unsafe pattern of firstOrNew + save
-        $this->assertStringNotContainsString('firstOrNew(', $batchHandlerCode . ') ... ->save()', 'Batch handler should not use unsafe firstOrNew + save pattern');
+        $this->assertStringNotContainsString('firstOrNew(', $batchHandlerCode.') ... ->save()', 'Batch handler should not use unsafe firstOrNew + save pattern');
 
         // Verify we use array_diff not Arr::except (which was a bug)
         $this->assertStringContainsString('array_diff', $batchHandlerCode, 'Should use array_diff to exclude existing IPs');
