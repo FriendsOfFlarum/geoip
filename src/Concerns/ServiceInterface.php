@@ -19,6 +19,7 @@ interface ServiceInterface
 
     /**
      * @param array<string> $ips
+     *
      * @return array<ServiceResponse>
      */
     public function getBatch(array $ips): array;
