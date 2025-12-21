@@ -41,9 +41,13 @@ class FetchIPInfoHandler
             }
 
             if ($response) {
-                $ipInfo->address = $command->ip;
-                $ipInfo->fill($response->toJSON());
-                $ipInfo->save();
+                $data = $response->toJSON();
+                $data['address'] = $command->ip;
+
+                $ipInfo = IPInfo::query()->updateOrCreate(
+                    ['address' => $command->ip],
+                    $data
+                );
             }
         }
 
