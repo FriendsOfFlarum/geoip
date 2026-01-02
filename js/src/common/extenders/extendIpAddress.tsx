@@ -5,7 +5,6 @@ import { getIPData } from '../helpers/IPDataHelper';
 import Tooltip from 'flarum/common/components/Tooltip';
 import Button from 'flarum/common/components/Button';
 import { handleCopyIP } from '../helpers/ClipboardHelper';
-import MapModal from '../components/MapModal';
 import type Mithril from 'mithril';
 import ItemList from 'flarum/common/utils/ItemList';
 
@@ -52,7 +51,7 @@ export default function extendIpAddress() {
             className="Button Button--icon Button--link"
             onclick={(e: Event) => {
               e.stopPropagation();
-              app.modal.show(MapModal, { ipInfo: this.ipInfo, ipAddr: this.ip });
+              app.modal.show(() => import('../components/MapModal'), { ipInfo: this.ipInfo, ipAddr: this.ip });
             }}
             aria-label={app.translator.trans('fof-geoip.forum.map_button_label')}
           />
