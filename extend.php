@@ -34,6 +34,9 @@ return [
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
         }),
 
+    (new Extend\Frontend('common'))
+        ->jsDirectory(__DIR__.'/js/dist/common'),
+
     (new Extend\Model(Post::class))
         ->relationship('ip_info', Model\IPInfoRelationship::class),
 
