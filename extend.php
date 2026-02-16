@@ -80,6 +80,20 @@ return [
             return $endpoint->addDefaultInclude(['firstPost.ipInfo']);
         }),
 
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(fn () => [
+            Schema\Arr::make('fofGeoipLeafletMarkerUrls')
+                ->get(function () {
+                    $base = rtrim(resolve('filesystem')->disk('flarum-assets')->url(''), '/');
+
+                    return [
+                        'iconUrl'       => $base.'/extensions/fof-geoip/marker-icon.png',
+                        'iconRetinaUrl' => $base.'/extensions/fof-geoip/marker-icon-2x.png',
+                        'shadowUrl'     => $base.'/extensions/fof-geoip/marker-shadow.png',
+                    ];
+                }),
+        ]),
+
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi')
         ->default('fof-geoip.showFlag', false)

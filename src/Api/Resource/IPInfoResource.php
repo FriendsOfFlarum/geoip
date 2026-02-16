@@ -64,6 +64,11 @@ class IPInfoResource extends Resource\AbstractDatabaseResource
         // The ID is the IP address (URL encoded)
         $ip = urldecode($id);
 
+        // Reject invalid IPs to prevent abuse and unnecessary external API calls
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return null;
+        }
+
         // Try to find existing record first
         $ipInfo = IPInfo::query()->where('address', $ip)->first();
 

@@ -41,8 +41,8 @@ class RetrieveIP extends AbstractJob
         $ip = $this->ip;
         $cacheKey = "fof-geoip.retrieving.$ip";
 
-        // Return if 1) no IP, 2) already retrieving this IP, 3) already retrieved this IP, 4) already cached this IP
-        if (!$ip || self::isRetrieving($ip) || Arr::has(static::$retrieved, $ip) || $cache->has($cacheKey)) {
+        // Return if 1) no IP, 2) invalid IP, 3) already retrieving this IP, 4) already retrieved this IP, 5) already cached this IP
+        if (!$ip || filter_var($ip, FILTER_VALIDATE_IP) === false || self::isRetrieving($ip) || Arr::has(static::$retrieved, $ip) || $cache->has($cacheKey)) {
             return;
         }
 

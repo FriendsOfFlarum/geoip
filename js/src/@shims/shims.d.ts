@@ -17,5 +17,6 @@ declare module 'flarum/common/components/IPAddress' {
   export default interface IPAddress {
     ipInfo?: IPInfo;
     loadIpInfo: () => void;
+    _ipObserver?: IntersectionObserver;
   }
 }
