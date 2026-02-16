@@ -20,7 +20,7 @@
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "cp node_modules/leaflet/dist/images/marker-icon.png node_modules/leaflet/dist/images/marker-icon-2x.png node_modules/leaflet/dist/images/marker-shadow.png ../assets/ && webpack --mode production",
+    "build": "cp node_modules/leaflet/dist/images/marker-icon.png node_modules/leaflet/dist/images/marker-icon-2x.png node_modules/leaflet/dist/images/marker-shadow.png node_modules/leaflet/dist/leaflet.css ../assets/ && webpack --mode production",
     "analyze": "cross-env ANALYZER=true npm run build",
     "format": "prettier --write src",
     "format-check": "prettier --check src",
