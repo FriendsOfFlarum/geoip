@@ -82,7 +82,7 @@ class IPInfoLite extends BaseGeoService
     {
         $code = $response->getStatusCode();
 
-        return $code < 200 || $code >= 300 || isset($body?->error);
+        return $code < 200 || $code >= 300 || isset($body->error);
     }
 
     protected function updateRateLimitsFromResponse(ResponseInterface $response, string $requestType = 'single'): void

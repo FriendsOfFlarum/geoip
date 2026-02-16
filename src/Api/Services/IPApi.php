@@ -85,7 +85,7 @@ class IPApi extends BaseGeoService
             'fields' => $this->requestFields,
         ];
 
-        if ($ips && is_array($ips)) {
+        if ($ips !== null) {
             // array is key => value, we only want values, then encode to json
             $ips = array_values($ips);
 
