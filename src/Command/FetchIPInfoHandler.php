@@ -29,6 +29,8 @@ class FetchIPInfoHandler
     {
         if (!$this->repository->isValidIP($command->ip)) {
             $this->log->info('Invalid IP address: '.$command->ip);
+
+            return IPInfo::query()->firstOrNew(['address' => $command->ip]);
         }
 
         $ipInfo = IPInfo::query()->firstOrNew(['address' => $command->ip]);

@@ -8,12 +8,15 @@ import { handleCopyIP } from '../helpers/ClipboardHelper';
 import type Mithril from 'mithril';
 import ItemList from 'flarum/common/utils/ItemList';
 
+/**
+ * In-flight IP info requests, keyed by IP address.
+ * Prevents duplicate API calls when multiple components request the same IP.
+ */
+const ipInfoRequests = new Map<string, Promise<IPInfo>>();
+
 export default function extendIpAddress() {
   extend('flarum/common/components/IPAddress', 'viewItems', function (items: ItemList<Mithril.Children>) {
-    if (!this.ipInfo) {
-      this.loadIpInfo();
-    }
-
+    // loadIpInfo is triggered by Intersection Observer when component enters viewport
     if (this.ipInfo && items.has('ip')) {
       items.remove('ip');
 
@@ -62,19 +65,53 @@ export default function extendIpAddress() {
   });
 
   override('flarum/common/components/IPAddress', 'view', function () {
-    return <span className="IPAddress IPAddress--enhanced ip-container">{this.viewItems().toArray()}</span>;
+    return (
+      <span
+        className="IPAddress IPAddress--enhanced ip-container"
+        oncreate={(vnode: Mithril.VnodeDOM) => {
+          if (this.ip.length === 0 || this.ipInfo) return;
+          const observer = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  this.loadIpInfo();
+                  observer.disconnect();
+                }
+              }
+            },
+            { rootMargin: '100px' }
+          );
+          observer.observe(vnode.dom);
+          this._ipObserver = observer;
+        }}
+        onremove={() => {
+          if (this._ipObserver) {
+            this._ipObserver.disconnect();
+            this._ipObserver = null;
+          }
+        }}
+      >
+        {this.viewItems().toArray()}
+      </span>
+    );
   });
 
   extend('flarum/common/components/IPAddress', 'oninit', function () {
     this.loadIpInfo = async function () {
       if (this.ip.length === 0) return;
       try {
-        // Try to get from store first
+        // Try to get from store first (e.g. from post's ipInfo include)
         let ipInfo = app.store.getBy<IPInfo>('ip_info', 'ip', this.ip);
 
-        // If not in store, fetch from API
         if (!ipInfo) {
-          ipInfo = await app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip));
+          // Deduplicate: reuse in-flight request if another component already requested this IP
+          let request = ipInfoRequests.get(this.ip);
+          if (!request) {
+            request = app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip));
+            ipInfoRequests.set(this.ip, request);
+            request.finally(() => ipInfoRequests.delete(this.ip));
+          }
+          ipInfo = await request;
         }
 
         this.ipInfo = ipInfo;
