@@ -48,7 +48,7 @@ class LookupUnknownIPsCommand extends Command
                 continue;
             }
 
-            /** @var AbstractModel $model */
+            /** @var class-string<AbstractModel> $model */
             $query = $model::query();
 
             $force = (bool) $this->option('force');

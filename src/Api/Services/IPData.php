@@ -84,7 +84,7 @@ class IPData extends BaseGeoService
 
     protected function hasError(ResponseInterface $response, mixed $body): bool
     {
-        return isset($body?->error) || ($response->getStatusCode() >= 400 && !Str::contains($body?->message, ['is a reserved IP address']));
+        return isset($body->error) || ($response->getStatusCode() >= 400 && !Str::contains($body?->message, ['is a reserved IP address']));
     }
 
     protected function handleError(ResponseInterface $response, object $body): ?ServiceResponse
