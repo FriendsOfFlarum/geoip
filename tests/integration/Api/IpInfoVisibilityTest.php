@@ -57,7 +57,7 @@ class IpInfoVisibilityTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => 10, 'permission' => 'fof-geoip.canSeeCountry'], // Custom group gets canSeeCountry only
-                ['group_id' => 4,  'permission' => 'viewIps'],                 // Mods group gets viewIps
+                ['group_id' => 4,  'permission' => 'discussion.viewIpsPosts'], // Mods group gets viewIps
             ],
             'group_user' => [
                 ['user_id' => 3, 'group_id' => 10], // canseecountry → Country Viewers (canSeeCountry only, no viewIps)

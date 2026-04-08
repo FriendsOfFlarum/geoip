@@ -49,7 +49,7 @@ class NominatimController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $actor->assertPermission($actor->can('viewIps'));
+        $actor->assertPermission($actor->can('discussion.viewIpsPosts'));
 
         $params = $request->getQueryParams();
         $type = Arr::get($params, 'type', '');

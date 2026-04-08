@@ -102,7 +102,7 @@ return [
                     $actor = $context->getActor();
                     $settings = resolve(SettingsRepositoryInterface::class);
 
-                    return $actor->can('viewIps')
+                    return $actor->can('discussion.viewIpsPosts')
                         || $actor->can('fof-geoip.canSeeCountry')
                         || (bool) $settings->get('fof-geoip.showFlag');
                 }),
