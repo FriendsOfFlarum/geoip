@@ -65,12 +65,12 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     this.loading = true;
 
     const data = await app.request<NominatimResult>({
-      url: 'https://nominatim.openstreetmap.org/reverse',
+      url: app.forum.attribute('apiUrl') + '/geoip/nominatim',
       method: 'GET',
       params: {
+        type: 'reverse',
         lat: this.ipInfo.latitude(),
         lon: this.ipInfo.longitude(),
-        format: 'json',
       },
     });
 
@@ -86,13 +86,12 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     this.loading = true;
 
     const data = await app.request<NominatimResult[]>({
-      url: 'https://nominatim.openstreetmap.org/search',
+      url: app.forum.attribute('apiUrl') + '/geoip/nominatim',
       method: 'GET',
       params: {
+        type: 'search',
         q: this.ipInfo.zipCode(),
         countrycodes: this.ipInfo.countryCode(),
-        limit: 1,
-        format: 'json',
       },
     });
 
@@ -120,7 +119,24 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
 
     this.map = L.map(vnode.dom as HTMLElement).setView([centerLat, centerLon], zoomLevel);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // OSM requires a Referer header. Some browser/page Referrer-Policy configs
+    // strip it, causing 403 "Access blocked" on affected tiles. Extend TileLayer
+    // to set referrerpolicy="origin" on each img *before* src is assigned so the
+    // browser sends the origin as referer. Leaflet 1.9 has no native support.
+    const OsmTileLayer = L.TileLayer.extend({
+      createTile(this: any, coords: L.Coords, done: L.DoneCallback) {
+        const tile = document.createElement('img');
+        tile.referrerPolicy = 'origin';
+        tile.alt = '';
+        tile.setAttribute('role', 'presentation');
+        L.DomEvent.on(tile, 'load', this._tileOnLoad.bind(this, done, tile));
+        L.DomEvent.on(tile, 'error', this._tileOnError.bind(this, done, tile));
+        tile.src = this.getTileUrl(coords);
+        return tile;
+      },
+    }) as unknown as new (url: string, options?: L.TileLayerOptions) => L.TileLayer;
+
+    new OsmTileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
