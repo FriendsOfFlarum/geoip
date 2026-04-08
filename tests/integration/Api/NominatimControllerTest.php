@@ -43,7 +43,7 @@ class NominatimControllerTest extends TestCase
     public static function nonAuthorizedUsers(): array
     {
         return [
-            'guest'            => [null],
+            'guest'             => [null],
             'user without perm' => [3],
         ];
     }
