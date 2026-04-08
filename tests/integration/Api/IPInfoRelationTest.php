@@ -227,16 +227,14 @@ class IPInfoRelationTest extends TestCase
         $this->assertEquals('ip_info', $ipInfo['type']);
         $this->assertArrayHasKey('attributes', $ipInfo);
 
-        // Normal users with canSeeCountry permission should see country code (basic info)
+        // canSeeCountry users see country code only
         $this->assertArrayHasKey('countryCode', $ipInfo['attributes']);
         $this->assertEquals('CH', $ipInfo['attributes']['countryCode']);
 
-        // They can also see other basic info like zip code
-        $this->assertArrayHasKey('zipCode', $ipInfo['attributes']);
-        $this->assertEquals('8010', $ipInfo['attributes']['zipCode']);
-
-        // But should NOT see the actual IP address (requires viewIps permission)
-        $this->assertArrayNotHasKey('ip', $ipInfo['attributes'], 'IP address should not be visible to users without viewIps permission');
+        // All other fields require viewIps permission
+        foreach (['ip', 'zipCode', 'latitude', 'longitude', 'isp', 'organization', 'as', 'mobile', 'threatLevel', 'threatType', 'dataProvider'] as $field) {
+            $this->assertArrayNotHasKey($field, $ipInfo['attributes'], "Field '{$field}' should not be visible to canSeeCountry users");
+        }
     }
 
     #[Test]

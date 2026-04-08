@@ -97,24 +97,21 @@ export default function extendIpAddress() {
   });
 
   extend('flarum/common/components/IPAddress', 'oninit', function () {
+    // Populate synchronously if already in store (e.g. included with post response).
+    this.ipInfo = app.store.getBy<IPInfo>('ip_info', 'ip', this.ip) ?? undefined;
+
     this.loadIpInfo = async function () {
       if (this.ip.length === 0) return;
+
       try {
-        // Try to get from store first (e.g. from post's ipInfo include)
-        let ipInfo = app.store.getBy<IPInfo>('ip_info', 'ip', this.ip);
-
-        if (!ipInfo) {
-          // Deduplicate: reuse in-flight request if another component already requested this IP
-          let request = ipInfoRequests.get(this.ip);
-          if (!request) {
-            request = app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip));
-            ipInfoRequests.set(this.ip, request);
-            request.finally(() => ipInfoRequests.delete(this.ip));
-          }
-          ipInfo = await request;
+        // Deduplicate: reuse in-flight request if another component already requested this IP
+        let request = ipInfoRequests.get(this.ip);
+        if (!request) {
+          request = app.store.find<IPInfo>('ip_info', encodeURIComponent(this.ip));
+          ipInfoRequests.set(this.ip, request);
+          request.finally(() => ipInfoRequests.delete(this.ip));
         }
-
-        this.ipInfo = ipInfo;
+        this.ipInfo = await request;
         m.redraw();
       } catch (error) {
         console.error('Failed to load IP info:', error);
