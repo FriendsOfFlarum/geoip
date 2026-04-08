@@ -92,6 +92,20 @@ return [
                         'shadowUrl'     => $base.'/extensions/fof-geoip/marker-shadow.png',
                     ];
                 }),
+
+            // Whether the current actor can see any ip_info data. Used by the
+            // frontend to decide whether to include ipInfo in post list requests.
+            // viewIps is post-scoped but checking without a model gives the global
+            // group-level result, which is sufficient for this purpose.
+            Schema\Boolean::make('fofGeoipCanSeeIpInfo')
+                ->get(function (mixed $_, Context $context) {
+                    $actor = $context->getActor();
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return $actor->can('viewIps')
+                        || $actor->can('fof-geoip.canSeeCountry')
+                        || (bool) $settings->get('fof-geoip.showFlag');
+                }),
         ]),
 
     (new Extend\Settings())

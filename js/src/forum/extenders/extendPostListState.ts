@@ -5,12 +5,11 @@ import PostListState from 'flarum/forum/states/PostListState';
 /**
  * Add ipInfo to the include when loading posts (e.g. on user profile post stream).
  * PostListState explicitly sends include: ['user', 'discussion'], which overrides
- * the API default. Without this, ipInfo is never requested and country flags
- * don't appear on the user profile.
+ * the API default. Without this, ipInfo is never requested for users who can see it.
  */
 export default function extendPostListState() {
   extend(PostListState.prototype, 'requestParams', function (params) {
-    if (app.forum.attribute<boolean>('fof-geoip.showFlag')) {
+    if (app.forum.attribute<boolean>('fofGeoipCanSeeIpInfo')) {
       params.include = [...(params.include || []), 'ipInfo'];
     }
   });

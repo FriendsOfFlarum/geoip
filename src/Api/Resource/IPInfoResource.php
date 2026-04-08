@@ -97,24 +97,35 @@ class IPInfoResource extends Resource\AbstractDatabaseResource
             // Full details - only for users who can view IPs
             Schema\Str::make('ip')
                 ->property('address')
-                ->visible(
-                    fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')
-                ),
-            Schema\Str::make('zipCode'),
-            Schema\Str::make('latitude'),
-            Schema\Str::make('longitude'),
-            Schema\Str::make('isp'),
-            Schema\Str::make('organization'),
-            Schema\Str::make('as'),
-            Schema\Boolean::make('mobile'),
-            Schema\Str::make('threatLevel'),
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('zipCode')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('latitude')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('longitude')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('isp')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('organization')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('as')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Boolean::make('mobile')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('threatLevel')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
             Schema\Str::make('threatType')
-                ->property('threat_types'),
+                ->property('threat_types')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
             Schema\Str::make('error')
-                ->nullable(),
-            Schema\Str::make('dataProvider'),
-            Schema\DateTime::make('createdAt'),
-            Schema\DateTime::make('updatedAt'),
+                ->nullable()
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\Str::make('dataProvider')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\DateTime::make('createdAt')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
+            Schema\DateTime::make('updatedAt')
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('viewIps')),
         ];
     }
 
