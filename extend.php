@@ -130,5 +130,6 @@ return [
     new Extend\ApiResource(Api\Resource\IPInfoResource::class),
 
     (new Extend\Routes('api'))
-        ->get('/geoip/test', 'fof-geoip.test', Api\Controller\TestGeoipController::class),
+        ->get('/geoip/test', 'fof-geoip.test', Api\Controller\TestGeoipController::class)
+        ->get('/geoip/nominatim', 'fof-geoip.nominatim', Api\Controller\NominatimController::class),
 ];
