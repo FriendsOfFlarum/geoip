@@ -35,7 +35,7 @@ class ShowIPEndpontTest extends TestCase
                 ['user_id' => 2, 'group_id' => 4], // Make normal user a moderator
             ],
             'group_permission' => [
-                ['group_id' => 4, 'permission' => 'viewIps'], // Give moderators permission to view IP info
+                ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts'], // Give moderators permission to view IP info
             ],
         ]);
     }

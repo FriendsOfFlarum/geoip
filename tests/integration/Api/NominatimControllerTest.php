@@ -32,7 +32,7 @@ class NominatimControllerTest extends TestCase
                 $this->normalUser(),
             ],
             'group_permission' => [
-                ['group_id' => 4, 'permission' => 'viewIps'],
+                ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts'],
             ],
             'group_user' => [
                 ['user_id' => 2, 'group_id' => 4],
