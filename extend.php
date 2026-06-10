@@ -63,7 +63,9 @@ return [
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi')
         ->default('fof-geoip.showFlag', false)
-        ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval'),
+        ->default('fof-geoip.allowCustomFlag', false)
+        ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval')
+        ->serializeToForum('fof-geoip.allowCustomFlag', 'fof-geoip.allowCustomFlag', 'boolval'),
 
     (new Extend\Routes('api'))
         ->get('/ip_info/{ip}', 'fof-geoip.api.ip_info', Api\Controller\ShowIpInfoController::class)
@@ -73,7 +75,8 @@ return [
         ->command(Console\LookupUnknownIPsCommand::class),
 
     (new Extend\User())
-        ->registerPreference('showIPCountry', 'boolval', false),
+        ->registerPreference('showIPCountry', 'boolval', false)
+        ->registerPreference('customFlagCountry', [Util\CountryCode::class, 'sanitize'], null),
 
     (new Extend\ApiSerializer(BasicUserSerializer::class))
         ->attributes(Api\BasicUserAttributes::class),

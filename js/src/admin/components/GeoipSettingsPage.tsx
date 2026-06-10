@@ -73,6 +73,16 @@ export default class GeoipSettingsPage extends ExtensionPage {
       })
     );
 
+    items.add(
+      'allow-custom-flag',
+      this.buildSettingComponent({
+        setting: 'fof-geoip.allowCustomFlag',
+        type: 'boolean',
+        label: app.translator.trans('fof-geoip.admin.settings.allow_custom_flag_label'),
+        help: app.translator.trans('fof-geoip.admin.settings.allow_custom_flag_help'),
+      })
+    );
+
     return items;
   }
 
