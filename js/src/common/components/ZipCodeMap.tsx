@@ -51,7 +51,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     if (this.loading) {
       return <LoadingIndicator size="medium" />;
     } else if (this.data && 'unknown' in this.data) {
-      return <div className="helpText">{app.translator.trans('fof-geoip.forum.map_modal.not_enough_data')}</div>;
+      return <div className="helpText">{app.translator.trans('fof-geoip.lib.map_modal.not_enough_data')}</div>;
     } else if (!this.data) {
       return <div />;
     }
