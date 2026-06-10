@@ -1,12 +1,27 @@
 import app from 'flarum/common/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-// @ts-expect-error
-import load from 'external-load';
 import type Mithril from 'mithril';
 import IPInfo from '../models/IPInfo';
+import L from 'leaflet';
 
-const leafletCDN = 'https://unpkg.com/leaflet@1.9.4/dist/';
+// Fix default marker icon paths - Leaflet's default paths break when bundled.
+// Use the extension's published assets (assets/extensions/fof-geoip/), whose
+// URLs are exposed on the forum via the `fofGeoipLeafletMarkerUrls` attribute.
+let leafletIconsConfigured = false;
+function configureLeafletMarkerIcons(): void {
+  if (leafletIconsConfigured) return;
+  const urls = (app.forum.attribute('fofGeoipLeafletMarkerUrls') as { iconUrl?: string; iconRetinaUrl?: string; shadowUrl?: string }) || {};
+  if (urls.iconUrl) {
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconUrl: urls.iconUrl,
+      iconRetinaUrl: urls.iconRetinaUrl || urls.iconUrl,
+      shadowUrl: urls.shadowUrl || '',
+    });
+    leafletIconsConfigured = true;
+  }
+}
 
 export interface ZipCodeMapAttrs extends ComponentAttrs {
   ipInfo: IPInfo;
@@ -15,16 +30,13 @@ export interface ZipCodeMapAttrs extends ComponentAttrs {
 export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
   ipInfo!: IPInfo;
   loading = false;
-  map: any;
+  map: L.Map | null = null;
   data: any;
-  addedResources = false;
 
   oninit(vnode: Mithril.Vnode<ZipCodeMapAttrs, this>) {
     super.oninit(vnode);
 
     this.ipInfo = this.attrs.ipInfo;
-
-    this.addResources();
 
     this.data = null;
 
@@ -35,15 +47,6 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     } else {
       this.data = { unknown: true };
     }
-  }
-
-  async addResources() {
-    if (this.addedResources) return;
-
-    await load.css(leafletCDN + 'leaflet.css');
-    await load.js(leafletCDN + 'leaflet.js');
-
-    this.addedResources = true;
   }
 
   view() {
@@ -104,6 +107,8 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
   configMap(vnode: Mithril.VnodeDOM) {
     if (!this.data) return;
 
+    configureLeafletMarkerIcons();
+
     const { boundingbox: bounding, display_name: displayName } = this.data;
 
     // Extract the latitude and longitude from the bounding box
@@ -118,16 +123,20 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
 
     const zoomLevel = 5; // Set your preferred zoom level here
 
-    // @ts-expect-error
-    this.map = L.map(vnode.dom).setView([centerLat, centerLon], zoomLevel);
+    this.map = L.map(vnode.dom as HTMLElement).setView([centerLat, centerLon], zoomLevel);
 
-    // @ts-expect-error
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.map);
 
     // Set a marker at the center of the bounding box
-    // @ts-expect-error
     L.marker([centerLat, centerLon]).addTo(this.map).bindPopup(displayName).openPopup();
+  }
+
+  onremove() {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
   }
 }
