@@ -70,7 +70,9 @@ fof-geoip:
       error_prefix: "Error:"
       error_code_prefix: "Code:"
 
-  forum:
+  # Keys shared between the forum and admin frontends. The `lib` namespace is
+  # shipped to every frontend by Flarum's AddTranslations::forFrontend filter.
+  lib:
     alerts:
       ip_copied: Copied IP Address
     copy_ip_label: Copy IP to clipboard
@@ -88,6 +90,8 @@ fof-geoip:
       threat_types: "Threat Types"
       error: "Error"
       not_enough_data: "Not enough data to draw a map"
+
+  forum:
     user:
       settings:
         ip_country: Show the flag of the country I post from, based on my IP address
