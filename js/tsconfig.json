@@ -8,6 +8,11 @@
     "compilerOptions": {
       // This will output typings to `dist-typings`
       "declarationDir": "./dist-typings",
+      // Skip type-checking of declaration files (core's dist-typings and
+      // node_modules) so type errors inside dependencies we can't control —
+      // e.g. core typings referencing mithril/dayjs/focus-trap — don't fail
+      // our build. Our own `src` is still fully type-checked.
+      "skipLibCheck": true,
       "baseUrl": ".",
       "paths": {
         "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"]
