@@ -1,10 +1,14 @@
 import app from 'flarum/admin/app';
 import GeoipSettingsPage from './components/GeoipSettingsPage';
+import extendIpAddress from '../common/extenders/extendIpAddress';
 
 export * from './components';
+export * from '../common/models';
 export { default as extend } from './extend';
 
 app.initializers.add('fof/geoip', () => {
+  extendIpAddress();
+
   app.extensionData
     .for('fof-geoip')
     .registerPage(GeoipSettingsPage)

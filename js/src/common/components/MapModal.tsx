@@ -1,4 +1,4 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import ZipCodeMap from './ZipCodeMap';
 import IPInfo from '../models/IPInfo';
@@ -28,7 +28,7 @@ export default class MapModal extends Modal<MapModalAttrs> {
   }
 
   title() {
-    return app.translator.trans('fof-geoip.forum.map_modal.title');
+    return app.translator.trans('fof-geoip.lib.map_modal.title');
   }
 
   content() {
@@ -47,11 +47,11 @@ export default class MapModal extends Modal<MapModalAttrs> {
         <div className="IPDetails">
           {this.dataItems().toArray()}
 
-          {ipInfo.threatLevel() && <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.threat_level')} value={ipInfo.threatLevel()} />}
+          {ipInfo.threatLevel() && <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.threat_level')} value={ipInfo.threatLevel()} />}
           {ipInfo.threatTypes().length > 0 && (
-            <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.threat_types')} value={ipInfo.threatTypes().join(', ')} />
+            <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.threat_types')} value={ipInfo.threatTypes().join(', ')} />
           )}
-          {ipInfo.error() && <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.error')} value={ipInfo.error()} />}
+          {ipInfo.error() && <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.error')} value={ipInfo.error()} />}
         </div>
         <hr />
         <div className="IPDetails--map">{this.mapItems().toArray()}</div>
@@ -65,7 +65,7 @@ export default class MapModal extends Modal<MapModalAttrs> {
     items.add(
       'ipAddress',
       <LabelValue
-        label={app.translator.trans('fof-geoip.forum.map_modal.ip_address')}
+        label={app.translator.trans('fof-geoip.lib.map_modal.ip_address')}
         value={
           <span className="clickable-ip" onclick={handleCopyIP(this.ipAddr)}>
             {this.ipAddr}
@@ -79,28 +79,28 @@ export default class MapModal extends Modal<MapModalAttrs> {
       this.ipInfo.countryCode?.() &&
         items.add(
           'countryCode',
-          <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.country_code')} value={this.ipInfo.countryCode()} />,
+          <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.country_code')} value={this.ipInfo.countryCode()} />,
           90
         );
 
       this.ipInfo.zipCode?.() &&
-        items.add('zipCode', <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.zip_code')} value={this.ipInfo.zipCode()} />, 80);
+        items.add('zipCode', <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.zip_code')} value={this.ipInfo.zipCode()} />, 80);
 
       this.ipInfo.isp?.() &&
-        items.add('isp', <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.isp')} value={this.ipInfo.isp()} />, 70);
+        items.add('isp', <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.isp')} value={this.ipInfo.isp()} />, 70);
 
       this.ipInfo.organization?.() &&
         items.add(
           'organization',
-          <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.organization')} value={this.ipInfo.organization()} />,
+          <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.organization')} value={this.ipInfo.organization()} />,
           60
         );
 
-      this.ipInfo.as?.() && items.add('as', <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.as')} value={this.ipInfo.as()} />, 50);
+      this.ipInfo.as?.() && items.add('as', <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.as')} value={this.ipInfo.as()} />, 50);
 
       items.add(
         'mobileNetwork',
-        <LabelValue label={app.translator.trans('fof-geoip.forum.map_modal.mobile')} value={this.ipInfo.mobile() ? 'yes' : 'no'} />,
+        <LabelValue label={app.translator.trans('fof-geoip.lib.map_modal.mobile')} value={this.ipInfo.mobile() ? 'yes' : 'no'} />,
         40
       );
     }
