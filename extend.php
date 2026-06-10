@@ -14,6 +14,7 @@ namespace FoF\GeoIP;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Frontend\Document;
@@ -83,6 +84,20 @@ return [
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(Api\CurrentUserAttributes::class),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attribute('fofGeoipLeafletMarkerUrls', function () {
+            // The map markers are served from the extension's published assets
+            // (assets/extensions/fof-geoip/). Bundled Leaflet otherwise resolves
+            // marker images relative to the JS bundle, which 404s.
+            $base = rtrim(resolve('filesystem')->disk('flarum-assets')->url(''), '/');
+
+            return [
+                'iconUrl'       => $base.'/extensions/fof-geoip/marker-icon.png',
+                'iconRetinaUrl' => $base.'/extensions/fof-geoip/marker-icon-2x.png',
+                'shadowUrl'     => $base.'/extensions/fof-geoip/marker-shadow.png',
+            ];
+        }),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
