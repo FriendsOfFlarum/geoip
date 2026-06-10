@@ -1,3 +1,5 @@
+@import "common.less";
+
 .PostMeta {
   .PostMeta-ip, .Modal div label[for="ban-option-only"] {
       img {
@@ -28,75 +30,10 @@
   }
 }
 
-.ip-container {
-  display: flex;            
-  align-items: center;      
-  white-space: nowrap;      
-  overflow: hidden;         
-
-  > span {
-      overflow: hidden;         
-      text-overflow: ellipsis;  
-      max-width: 90%;           
-  }
-
-  img {
-      margin-right: 10px;
-      vertical-align: text-top;
-  }
-}
-
 .Post-header {
   .item-country {
     img {
       vertical-align: text-top;
     }
-  }
-}
-
-.Modal #geoip-map {
-  height: 300px;
-  resize: vertical;
-  overflow: hidden;
-}
-
-.MapModal {
-  .IPSubtitle {
-    font-size: 1em;
-    font-weight: normal;
-    color: @muted-color;
-    margin-top: -10px;
-    margin-bottom: 20px;
-  }
-
-  .IPDetails {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid @muted-color;
-    border-radius: @border-radius;
-    background-color: @control-bg;
-
-    h3 {
-      font-size: 1.25em;
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: @primary-color;
-    }
-
-    p {
-      margin: 5px 0;
-      color: @text-color;
-    }
-  }
-
-  .clickable-ip:hover {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-
-  #mapContainer {
-    margin-top: 10px;
-    border: 1px solid @muted-color;
-    border-radius: @border-radius;
   }
 }

@@ -1,4 +1,4 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import IPInfo from '../models/IPInfo';
 import getFlagEmojiUrl from '../util/getFlagEmojiUrl';
 import Tooltip from 'flarum/common/components/Tooltip';

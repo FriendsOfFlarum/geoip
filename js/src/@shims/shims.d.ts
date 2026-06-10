@@ -1,4 +1,4 @@
-import IPInfo from '../forum/models/IPInfo';
+import IPInfo from '../common/models/IPInfo';
 
 declare module 'flarum/common/models/Post' {
   export default interface Post {
