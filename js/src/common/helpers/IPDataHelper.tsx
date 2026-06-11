@@ -11,11 +11,11 @@ export const getThreat = (ipInfo: IPInfo) => {
   return ipInfo.threatTypes() && ipInfo.threatTypes().join(', ');
 };
 
-export const getFlagImage = (ipInfo: IPInfo | null | undefined) => {
-  if (!ipInfo) return null;
-
-  const countryCode = ipInfo.countryCode?.();
-
+/**
+ * Render a flag image for a bare ISO 3166-1 alpha-2 country code. Shared by the
+ * IP-derived flag (getFlagImage) and the user-selected custom flag.
+ */
+export const getFlagImageForCountry = (countryCode: string | null | undefined) => {
   if (!countryCode) {
     return null;
   }
@@ -32,13 +32,22 @@ export const getFlagImage = (ipInfo: IPInfo | null | undefined) => {
   const displayNames = new Intl.DisplayNames([currentLocale], { type: 'region' });
 
   // Get the full country name using the country code
-  const countryName = displayNames.of(countryCode) || countryCode;
+  let countryName = countryCode;
+  try {
+    countryName = displayNames.of(countryCode) || countryCode;
+  } catch (e) {
+    // Intl.DisplayNames throws on codes it doesn't recognise; fall back to the code.
+  }
 
   return (
     <Tooltip text={countryName}>
       <img src={url} alt={countryName} height="16" loading="lazy" />
     </Tooltip>
   );
+};
+
+export const getFlagImage = (ipInfo: IPInfo | null | undefined) => {
+  return getFlagImageForCountry(ipInfo?.countryCode?.());
 };
 
 export const getIPData = (ipInfo: IPInfo) => {

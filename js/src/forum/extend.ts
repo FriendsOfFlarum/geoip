@@ -13,5 +13,6 @@ export default [
 
   new Extend.Model(User) //
     .attribute('showIPCountry')
-    .attribute('canSeeCountry'),
+    .attribute('canSeeCountry')
+    .attribute<string | null>('customFlagCountry'),
 ];

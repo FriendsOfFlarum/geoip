@@ -38,3 +38,58 @@
     }
   }
 }
+
+.CountryFlagPicker {
+  position: relative;
+
+  .CountryFlagPicker-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .FormControl {
+      flex: 1;
+    }
+  }
+
+  .CountryFlagPicker-flag {
+    flex: 0 0 auto;
+    border-radius: 2px;
+  }
+
+  // The base AutocompleteDropdown renders a .Dropdown-suggestions menu; style
+  // each suggestion as a standard, full-width, hoverable dropdown row.
+  .Dropdown-suggestions > li {
+    margin: 0;
+  }
+
+  .CountryFlagPicker-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 15px;
+    border: 0;
+    background: none;
+    color: var(--text-color);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .Dropdown-suggestions > li:hover .CountryFlagPicker-option,
+  .Dropdown-suggestions > li.active .CountryFlagPicker-option {
+    background: var(--control-bg);
+    color: var(--control-color);
+  }
+
+  .CountryFlagPicker-optionFlag {
+    flex: 0 0 auto;
+    border-radius: 2px;
+  }
+
+  .CountryFlagPicker-optionName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
