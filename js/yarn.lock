@@ -2413,11 +2413,6 @@ leaflet@^1.9.4:
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.9.4.tgz#23fae724e282fa25745aff82ca4d394748db7d8d"
   integrity sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==
 
-linkify-lite@^2.0.0:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/linkify-lite/-/linkify-lite-2.0.1.tgz#8a84253f0e7a5603e9cd8f57f8548be918344c4e"
-  integrity sha512-/VYMIfkN+rCuSGQnXM8TriPfs7cKXf6Rrbu5orHvrENbh6paR2r1DF42wQwtPRkGV4Zjd1DGFsFNcQdmusRtYQ==
-
 loader-runner@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-4.3.1.tgz#6c76ed29b0ccce9af379208299f07f876de737e3"

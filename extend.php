@@ -111,13 +111,17 @@ return [
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi')
         ->default('fof-geoip.showFlag', false)
-        ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval'),
+        ->default('fof-geoip.allowCustomFlag', false)
+        ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval')
+        ->serializeToForum('fof-geoip.allowCustomFlag', 'fof-geoip.allowCustomFlag', 'boolval'),
 
     (new Extend\Console())
         ->command(Console\LookupUnknownIPsCommand::class),
 
     (new Extend\User())
-        ->registerPreference('showIPCountry', 'boolval', false),
+        ->registerPreference('showIPCountry', 'boolval', false)
+        // Self-selected ISO 3166-1 alpha-2 country code, or null for none.
+        ->registerPreference('customFlagCountry', [Util\CountryCode::class, 'sanitize'], null),
 
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
@@ -128,6 +132,19 @@ return [
                     return (bool) $settings->get('fof-geoip.showFlag');
                 })
                 ->get(fn (\Flarum\User\User $user) => (bool) $user->getPreference('showIPCountry')),
+            // The self-disclosed custom flag is public: it is intentionally
+            // chosen by the user and is not derived from their IP, so it carries
+            // no canSeeCountry gate. Only exposed while the feature is enabled;
+            // if the admin later disables it, the field is omitted and the
+            // frontend falls back to today's IP-based behaviour.
+            Schema\Str::make('customFlagCountry')
+                ->nullable()
+                ->visible(function () {
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return (bool) $settings->get('fof-geoip.allowCustomFlag');
+                })
+                ->get(fn (\Flarum\User\User $user) => Util\CountryCode::sanitize($user->getPreference('customFlagCountry'))),
             Schema\Boolean::make('canSeeCountry')
                 ->visible(fn (\Flarum\User\User $user, Context $context) => $user->id === $context->getActor()->id)
                 ->get(
@@ -139,6 +156,8 @@ return [
         ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
             (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
                 ->default('showIPCountry', false, 'bool'),
+            (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
+                ->default('customFlagCountry', '', 'string'),
         ]),
 
     new Extend\ApiResource(Api\Resource\IPInfoResource::class),
