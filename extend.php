@@ -23,6 +23,9 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
 
 return [
+    (new Extend\ServiceProvider())
+        ->register(Provider\ResolverProvider::class),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/resources/less/forum.less'),
@@ -63,12 +66,31 @@ return [
                         return true;
                     }
 
-                    // Basic country info for users with canSeeCountry permission or user preference
-                    $viewCountry = $actor->can('fof-geoip.canSeeCountry');
-                    $showFlagsFeatureEnabled = resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag');
-                    $userPreference = $post->user?->getPreference('showIPCountry');
+                    // Basic country info for users with the canSeeCountry permission.
+                    if ($actor->can('fof-geoip.canSeeCountry')) {
+                        return true;
+                    }
 
-                    return $viewCountry || ($showFlagsFeatureEnabled && $userPreference);
+                    // ...or, when the showFlag feature is enabled, if the post's
+                    // author opted in via their showIPCountry preference.
+                    //
+                    // Evaluated last and short-circuited so the author preference
+                    // is only consulted when it is actually decisive (showFlag on,
+                    // and the actor lacks the broader permissions above). This
+                    // preserves the original decision
+                    // `viewCountry || (showFlag && authorPref)` exactly.
+                    if (! resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
+                        return false;
+                    }
+
+                    // Resolve the author preference via the memoizing resolver
+                    // rather than $post->user, which would lazy-load one user per
+                    // post during serialization (firstPost, lastPost, and every
+                    // post in a stream) — an N+1 on the hottest endpoints. We read
+                    // user_id off the post directly (a loaded column, no relation
+                    // load) and let the request-scoped resolver batch/cache.
+                    return resolve(Repositories\AuthorFlagPreferenceResolver::class)
+                        ->wantsFlag($post->user_id);
                 }),
         ])
         ->endpoint(['show', 'index', 'update'], function (Endpoint\Show|Endpoint\Index|Endpoint\Update $endpoint): Endpoint\Show|Endpoint\Index|Endpoint\Update {
