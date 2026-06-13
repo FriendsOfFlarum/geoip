@@ -39,7 +39,7 @@ class AuthorFlagPreferenceResolver
             return false;
         }
 
-        if (! array_key_exists($userId, $this->cache)) {
+        if (!array_key_exists($userId, $this->cache)) {
             $this->load([$userId]);
         }
 
@@ -57,7 +57,7 @@ class AuthorFlagPreferenceResolver
     {
         $missing = array_values(array_unique(array_filter(
             $userIds,
-            fn ($id) => $id !== null && ! array_key_exists($id, $this->cache)
+            fn ($id) => $id !== null && !array_key_exists($id, $this->cache)
         )));
 
         if (empty($missing)) {

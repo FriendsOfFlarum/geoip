@@ -79,7 +79,7 @@ return [
                     // and the actor lacks the broader permissions above). This
                     // preserves the original decision
                     // `viewCountry || (showFlag && authorPref)` exactly.
-                    if (! resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
+                    if (!resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
                         return false;
                     }
 
