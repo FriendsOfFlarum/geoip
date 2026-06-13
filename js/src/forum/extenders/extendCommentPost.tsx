@@ -14,8 +14,8 @@ export default function extendCommentPost() {
     // the admin feature is enabled. If the admin later disables it, the stored
     // preference is not serialized (see the customFlagCountry field visibility
     // in extend.php), so we fall back to today's IP-based behaviour.
-    if (app.forum.attribute<boolean>('fof-geoip.allowCustomFlag')) {
-      const customFlag = postUser?.customFlagCountry();
+    if (postUser && app.forum.attribute<boolean>('fof-geoip.allowCustomFlag')) {
+      const customFlag = postUser.customFlagCountry();
       if (customFlag) {
         // Custom flag is self-disclosed and therefore visible to everyone.
         const image = getFlagImageForCountry(customFlag);
