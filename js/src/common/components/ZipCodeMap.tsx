@@ -3,8 +3,8 @@ import Component, { ComponentAttrs } from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
 import IPInfo from '../model/IPInfo';
-import type { Map } from 'leaflet';
-import type Leaflet from 'leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export interface ZipCodeMapAttrs extends ComponentAttrs {
   ipInfo: IPInfo;
@@ -13,7 +13,7 @@ export interface ZipCodeMapAttrs extends ComponentAttrs {
 export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
   ipInfo!: IPInfo;
   loading = false;
-  map: Map | null = null;
+  map: L.Map | null = null;
   data: NominatimResult | { unknown: true } | null = null;
 
   oninit(vnode: Mithril.Vnode<ZipCodeMapAttrs, this>) {
@@ -85,10 +85,10 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     m.redraw();
   }
 
-  async configMap(vnode: Mithril.VnodeDOM) {
+  configMap(vnode: Mithril.VnodeDOM) {
     if (!this.data || 'unknown' in this.data) return;
 
-    const { default: L } = await import('../leaflet');
+    L.Icon.Default.imagePath = `${app.forum.attribute('baseUrl')}/assets/extensions/fof-geoip/`;
 
     const { boundingbox: bounding, display_name: displayName } = this.data;
 
@@ -108,7 +108,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     // to set referrerpolicy="origin" on each img *before* src is assigned so the
     // browser sends the origin as referer. Leaflet 1.9 has no native support.
     const OsmTileLayer = L.TileLayer.extend({
-      createTile(this: any, coords: Leaflet.Coords, done: Leaflet.DoneCallback) {
+      createTile(this: any, coords: L.Coords, done: L.DoneCallback) {
         const tile = document.createElement('img');
         tile.referrerPolicy = 'origin';
         tile.alt = '';
@@ -118,7 +118,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
         tile.src = this.getTileUrl(coords);
         return tile;
       },
-    }) as unknown as new (url: string, options?: Leaflet.TileLayerOptions) => L.TileLayer;
+    }) as unknown as new (url: string, options?: L.TileLayerOptions) => L.TileLayer;
 
     new OsmTileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
