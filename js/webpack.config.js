@@ -34,6 +34,7 @@ module.exports = (env, argv) => {
                 loader: 'css-loader',
                 options: {
                   sourceMap: !isProduction,
+                  url: false,
                 },
               },
               {
