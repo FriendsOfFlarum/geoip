@@ -3,24 +3,8 @@ import Component, { ComponentAttrs } from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
 import IPInfo from '../model/IPInfo';
-import L from 'leaflet';
-
-// Fix default marker icon paths - Leaflet's default paths break when bundled.
-// Use extension assets (published to assets/extensions/fof-geoip/).
-let leafletIconsConfigured = false;
-function configureLeafletMarkerIcons(): void {
-  if (leafletIconsConfigured) return;
-  const urls = (app.forum.attribute('fofGeoipLeafletMarkerUrls') as { iconUrl?: string; iconRetinaUrl?: string; shadowUrl?: string }) || {};
-  if (urls.iconUrl) {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconUrl: urls.iconUrl,
-      iconRetinaUrl: urls.iconRetinaUrl || urls.iconUrl,
-      shadowUrl: urls.shadowUrl || '',
-    });
-    leafletIconsConfigured = true;
-  }
-}
+import type { Map } from 'leaflet';
+import type Leaflet from 'leaflet';
 
 export interface ZipCodeMapAttrs extends ComponentAttrs {
   ipInfo: IPInfo;
@@ -29,7 +13,7 @@ export interface ZipCodeMapAttrs extends ComponentAttrs {
 export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
   ipInfo!: IPInfo;
   loading = false;
-  map: L.Map | null = null;
+  map: Map | null = null;
   data: NominatimResult | { unknown: true } | null = null;
 
   oninit(vnode: Mithril.Vnode<ZipCodeMapAttrs, this>) {
@@ -101,10 +85,10 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     m.redraw();
   }
 
-  configMap(vnode: Mithril.VnodeDOM) {
+  async configMap(vnode: Mithril.VnodeDOM) {
     if (!this.data || 'unknown' in this.data) return;
 
-    configureLeafletMarkerIcons();
+    const { default: L } = await import('../leaflet');
 
     const { boundingbox: bounding, display_name: displayName } = this.data;
 
@@ -124,7 +108,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     // to set referrerpolicy="origin" on each img *before* src is assigned so the
     // browser sends the origin as referer. Leaflet 1.9 has no native support.
     const OsmTileLayer = L.TileLayer.extend({
-      createTile(this: any, coords: L.Coords, done: L.DoneCallback) {
+      createTile(this: any, coords: Leaflet.Coords, done: Leaflet.DoneCallback) {
         const tile = document.createElement('img');
         tile.referrerPolicy = 'origin';
         tile.alt = '';
@@ -134,7 +118,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
         tile.src = this.getTileUrl(coords);
         return tile;
       },
-    }) as unknown as new (url: string, options?: L.TileLayerOptions) => L.TileLayer;
+    }) as unknown as new (url: string, options?: Leaflet.TileLayerOptions) => L.TileLayer;
 
     new OsmTileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

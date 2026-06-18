@@ -5,3 +5,4 @@ vendor
 composer.lock
 .phpunit.cache
 .aider*
+js/coverage-ts
