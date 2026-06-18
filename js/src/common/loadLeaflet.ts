@@ -5,6 +5,6 @@ export default async function loadLeaflet() {
 
   const [, L] = await Promise.all([import('leaflet/dist/leaflet.css'), import('leaflet')]);
 
-  L.Icon.Default.imagePath = `${app.forum.attribute('baseUrl')}/assets/extensions/fof-geoip/images/`;
+  L.Icon.Default.imagePath = `${app.forum.attribute('baseUrl')}/assets/extensions/fof-geoip/`;
   return L;
 }
