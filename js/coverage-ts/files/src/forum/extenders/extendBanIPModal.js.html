@@ -1,0 +1,72 @@
+
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>extendBanIPModal.js</title>
+      <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" type="text/css" rel="stylesheet">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/codemirror.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/mode/javascript/javascript.min.js" type="text/javascript" charset="utf-8"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/codemirror.min.css" type="text/css" rel="stylesheet">
+<script src="../../../../assets/source-file.js" type="text/javascript" charset="utf-8"></script>
+<link href="../../../../assets/source-file.css" type="text/css" rel="stylesheet">
+    </head>
+    <body>
+    <div style="margin-top:3em" class="ui container"><h1 class="ui header"><a href="../../../../index.html">TypeScript coverage report</a></h1><table style="margin-top:2em" class="ui celled table"><thead class=""><tr class=""><th class="">Filename</th><th class="">Percent</th><th class="">Threshold</th><th class="">Total</th><th class="">Covered</th><th class="">Uncovered</th></tr></thead><tbody class=""><tr class="positive"><td class="">src/forum/extenders/extendBanIPModal.js</td><td class="">82.61%</td><td class="">80%</td><td class="">115</td><td class="">95</td><td class="">20</td></tr></tbody></table><textarea id="editor" readonly="" style="margin-top:3em">import app from &#x27;flarum/forum/app&#x27;;
+import { extend } from &#x27;flarum/common/extend&#x27;;
+import ZipCodeMap from &#x27;../../common/components/ZipCodeMap&#x27;;
+import Tooltip from &#x27;flarum/common/components/Tooltip&#x27;;
+import { getIPData } from &#x27;../../common/helpers/IPDataHelper&#x27;;
+import { handleCopyIP } from &#x27;../../common/helpers/ClipboardHelper&#x27;;
+
+export default function extendBanIPModal() {
+  const BanIPModal = flarum.core.compat[&#x27;fof/ban-ips/components/BanIPModal&#x27;];
+
+  if (BanIPModal) {
+    extend(BanIPModal.prototype, &#x27;content&#x27;, function (vdom) {
+      if (!this.post || !this.post.ipAddress()) return;
+
+      const ipInfo = this.post.ip_info();
+      const formGroup = vdom.children.find((e) =&gt; e?.attrs?.className?.includes(&#x27;Form-group&#x27;) &amp;&amp; e.children?.find?.((e) =&gt; e.tag === &#x27;div&#x27;));
+
+      if (!ipInfo || !formGroup) return;
+
+      for (const child of formGroup.children) {
+        const label = child.children.find((e) =&gt; e?.tag === &#x27;label&#x27;);
+        const code = label &amp;&amp; label.children.find((e) =&gt; e?.tag === &#x27;code&#x27;);
+
+        const codeIndex = code &amp;&amp; label.children.indexOf(code);
+        if (!code) continue;
+
+        const { description, threat, image } = getIPData(ipInfo);
+
+        if (!code.attrs) code.attrs = {};
+        code.attrs[&#x27;data-threat-level&#x27;] = ipInfo.threatLevel();
+
+        code.children[1] = (
+          &lt;Tooltip text={description + (!!threat ? ` (${threat})` : &#x27;&#x27;)}&gt;
+            &lt;span&gt;{code.children[1]}&lt;/span&gt;
+          &lt;/Tooltip&gt;
+        );
+
+        if (image) {
+          label.children.splice(codeIndex, 0, image);
+        }
+      }
+
+      if (ipInfo.zipCode() &amp;&amp; ipInfo.countryCode()) {
+        vdom.children.splice(
+          2,
+          0,
+          &lt;div className=&quot;Form-group&quot;&gt;
+            &lt;ZipCodeMap zip={ipInfo.zipCode()} country={ipInfo.countryCode()} /&gt;
+          &lt;/div&gt;
+        );
+      }
+    });
+  }
+}
+</textarea><pre id="annotations" style="display:none">[{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:44,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:50,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:53,&quot;text&quot;:&quot;attrs&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:60,&quot;text&quot;:&quot;className&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:71,&quot;text&quot;:&quot;includes&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:97,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:99,&quot;text&quot;:&quot;children&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:109,&quot;text&quot;:&quot;find&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:117,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:123,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:15,&quot;character&quot;:125,&quot;text&quot;:&quot;tag&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:20,&quot;character&quot;:43,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:20,&quot;character&quot;:49,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:20,&quot;character&quot;:52,&quot;text&quot;:&quot;tag&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:21,&quot;character&quot;:51,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:21,&quot;character&quot;:57,&quot;text&quot;:&quot;e&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:21,&quot;character&quot;:60,&quot;text&quot;:&quot;tag&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:26,&quot;character&quot;:29,&quot;text&quot;:&quot;threat&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:32,&quot;character&quot;:42,&quot;text&quot;:&quot;threat&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendBanIPModal.js&quot;,&quot;line&quot;:32,&quot;character&quot;:56,&quot;text&quot;:&quot;threat&quot;,&quot;kind&quot;:1}]</pre></div>
+    <p class="footer-text">TypeScript Coverage Report generated by <a href="https://github.com/plantain-00/type-coverage">type-coverage</a> and <a href="https://github.com/alexcanessa/typescript-coverage-report">typescript-coverage-report</a> at Thu, 18 Jun 2026 01:33:18 GMT</p>
+    </body>
+  </html>
+  

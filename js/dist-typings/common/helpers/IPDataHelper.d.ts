@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import IPInfo from '../models/IPInfo';
 export declare const getDescription: (ipInfo: IPInfo) => string;
 export declare const getThreat: (ipInfo: IPInfo) => any;

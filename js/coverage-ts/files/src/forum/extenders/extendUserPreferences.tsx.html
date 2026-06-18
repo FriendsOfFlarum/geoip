@@ -1,0 +1,85 @@
+
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>extendUserPreferences.tsx</title>
+      <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" type="text/css" rel="stylesheet">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/codemirror.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/mode/javascript/javascript.min.js" type="text/javascript" charset="utf-8"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.2/codemirror.min.css" type="text/css" rel="stylesheet">
+<script src="../../../../assets/source-file.js" type="text/javascript" charset="utf-8"></script>
+<link href="../../../../assets/source-file.css" type="text/css" rel="stylesheet">
+    </head>
+    <body>
+    <div style="margin-top:3em" class="ui container"><h1 class="ui header"><a href="../../../../index.html">TypeScript coverage report</a></h1><table style="margin-top:2em" class="ui celled table"><thead class=""><tr class=""><th class="">Filename</th><th class="">Percent</th><th class="">Threshold</th><th class="">Total</th><th class="">Covered</th><th class="">Uncovered</th></tr></thead><tbody class=""><tr class="positive"><td class="">src/forum/extenders/extendUserPreferences.tsx</td><td class="">96.04%</td><td class="">80%</td><td class="">101</td><td class="">97</td><td class="">4</td></tr></tbody></table><textarea id="editor" readonly="" style="margin-top:3em">import app from &#x27;flarum/forum/app&#x27;;
+import { extend } from &#x27;flarum/common/extend&#x27;;
+import SettingsPage from &#x27;flarum/forum/components/SettingsPage&#x27;;
+import Switch from &#x27;flarum/common/components/Switch&#x27;;
+import Select from &#x27;flarum/common/components/Select&#x27;;
+import extractText from &#x27;flarum/common/utils/extractText&#x27;;
+import countryOptions from &#x27;../../common/helpers/countryOptions&#x27;;
+
+// SettingsPage doesn&#x27;t declare the transient loading flags we set while a
+// preference save is in flight, so widen `this` to allow them.
+type SettingsPageContext = SettingsPage &amp; {
+  showIPCountryLoading?: boolean;
+  customFlagLoading?: boolean;
+};
+
+export default function extendUserPreferences() {
+  extend(SettingsPage.prototype, &#x27;privacyItems&#x27;, function (this: SettingsPageContext, items) {
+    const user = this.user;
+    if (!user) return;
+
+    if (app.forum.attribute&lt;boolean&gt;(&#x27;fof-geoip.showFlag&#x27;)) {
+      items.add(
+        &#x27;ip-country&#x27;,
+        Switch.component(
+          {
+            state: user.preferences()?.showIPCountry,
+            onchange: (value: boolean) =&gt; {
+              this.showIPCountryLoading = true;
+
+              user.savePreferences({ showIPCountry: value }).then(() =&gt; {
+                this.showIPCountryLoading = false;
+                m.redraw();
+              });
+            },
+            loading: this.showIPCountryLoading,
+          },
+          app.translator.trans(&#x27;fof-geoip.forum.user.settings.ip_country&#x27;)
+        )
+      );
+    }
+
+    if (app.forum.attribute&lt;boolean&gt;(&#x27;fof-geoip.allowCustomFlag&#x27;)) {
+      const none = extractText(app.translator.trans(&#x27;fof-geoip.lib.custom_flag.none&#x27;));
+
+      items.add(
+        &#x27;custom-flag&#x27;,
+        &lt;div className=&quot;Form-group&quot;&gt;
+          &lt;label&gt;{app.translator.trans(&#x27;fof-geoip.forum.user.settings.custom_flag_label&#x27;)}&lt;/label&gt;
+          &lt;p className=&quot;helpText&quot;&gt;{app.translator.trans(&#x27;fof-geoip.forum.user.settings.custom_flag_help&#x27;)}&lt;/p&gt;
+          {Select.component({
+            value: user.preferences()?.customFlagCountry || &#x27;&#x27;,
+            disabled: this.customFlagLoading,
+            options: { &#x27;&#x27;: none, ...countryOptions() },
+            onchange: (value: string) =&gt; {
+              this.customFlagLoading = true;
+
+              user.savePreferences({ customFlagCountry: value || null }).then(() =&gt; {
+                this.customFlagLoading = false;
+                m.redraw();
+              });
+            },
+          })}
+        &lt;/div&gt;
+      );
+    }
+  });
+}
+</textarea><pre id="annotations" style="display:none">[{&quot;file&quot;:&quot;src/forum/extenders/extendUserPreferences.tsx&quot;,&quot;line&quot;:25,&quot;character&quot;:12,&quot;text&quot;:&quot;state&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendUserPreferences.tsx&quot;,&quot;line&quot;:25,&quot;character&quot;:39,&quot;text&quot;:&quot;showIPCountry&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendUserPreferences.tsx&quot;,&quot;line&quot;:50,&quot;character&quot;:12,&quot;text&quot;:&quot;value&quot;,&quot;kind&quot;:1},{&quot;file&quot;:&quot;src/forum/extenders/extendUserPreferences.tsx&quot;,&quot;line&quot;:50,&quot;character&quot;:39,&quot;text&quot;:&quot;customFlagCountry&quot;,&quot;kind&quot;:1}]</pre></div>
+    <p class="footer-text">TypeScript Coverage Report generated by <a href="https://github.com/plantain-00/type-coverage">type-coverage</a> and <a href="https://github.com/alexcanessa/typescript-coverage-report">typescript-coverage-report</a> at Thu, 18 Jun 2026 01:33:18 GMT</p>
+    </body>
+  </html>
+  
