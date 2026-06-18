@@ -14,7 +14,6 @@ namespace FoF\GeoIP;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Frontend\Document;
