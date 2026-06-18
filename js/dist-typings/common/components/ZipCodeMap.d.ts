@@ -1,14 +1,14 @@
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 import IPInfo from '../model/IPInfo';
-import L from 'leaflet';
+import type { Map } from 'leaflet';
 export interface ZipCodeMapAttrs extends ComponentAttrs {
     ipInfo: IPInfo;
 }
 export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     ipInfo: IPInfo;
     loading: boolean;
-    map: L.Map | null;
+    map: Map | null;
     data: NominatimResult | {
         unknown: true;
     } | null;
@@ -16,7 +16,7 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
     view(): JSX.Element;
     searchLatLon(): Promise<void>;
     searchZip(): Promise<void>;
-    configMap(vnode: Mithril.VnodeDOM): void;
+    configMap(vnode: Mithril.VnodeDOM): Promise<void>;
     onremove(): void;
 }
 interface NominatimResult {
