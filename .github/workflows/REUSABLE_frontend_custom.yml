@@ -1,0 +1,187 @@
+# Copied from 2.x's reusable frontend script, but commits ALL dirty files and not just the ones in js directory.
+# https://github.com/flarum/framework/blob/21fee19a3e08f2a64734b35e4fb2f9473cbb17e3/.github/workflows/REUSABLE_frontend.yml
+
+name: Flarum Frontend Jobs
+
+on:
+  workflow_call:
+    inputs:
+      build_script:
+        description: "Script to run for production build. Empty value to disable."
+        type: string
+        required: false
+        default: build
+      build_typings_script:
+        description: "Script to run for typings build. Empty value to disable."
+        type: string
+        required: false
+        default: build-typings
+      format_script:
+        description: "Script to run for code formatting. Empty value to disable."
+        type: string
+        required: false
+        default: format-check
+      check_typings_script:
+        description: "Script to run for tyiping check. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings
+      type_coverage_script:
+        description: "Script to run for type coverage. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings-coverage
+      test_script:
+        description: "Script to run for tests. Empty value to disable."
+        type: string
+        required: false
+        default: test
+
+      enable_bundlewatch:
+        description: "Enable Bundlewatch?"
+        type: boolean
+        default: false
+        required: false
+      enable_prettier:
+        description: "Enable Prettier?"
+        type: boolean
+        default: true
+        required: false
+      enable_typescript:
+        description: "Enable TypeScript?"
+        type: boolean
+        default: true
+        required: false
+      enable_tests:
+        description: "Enable Tests?"
+        type: boolean
+        default: false
+        required: false
+
+      backend_directory:
+        description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
+        type: string
+        required: false
+        default: '.'
+      frontend_directory:
+        description: The directory of the project where frontend code is located. This should contain a `package.json` file.
+        type: string
+        required: false
+        default: './js'
+      main_git_branch:
+        description: The main git branch to use for the workflow.
+        type: string
+        required: false
+        default: main
+      node_version:
+        description: The node version to use for the workflow.
+        type: number
+        required: false
+        default: 20
+
+      js_package_manager:
+        description: "Enable TypeScript?"
+        type: string
+        default: yarn
+        required: false
+      cache_dependency_path:
+        description: "The path to the cache dependency file."
+        type: string
+        required: false
+
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+
+      git_actor_name:
+        description: The name of the git actor to use for the bundled JS output.
+        type: string
+        required: false
+      git_actor_email:
+        description: The email of the git actor to use for the bundled JS output.
+        type: string
+        required: false
+
+    secrets:
+      bundlewatch_github_token:
+        description: The GitHub token to use for Bundlewatch.
+        required: false
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
+        required: false
+      git_actor_token:
+        description: The personal access token from the custom git actor.
+        required: false
+
+env:
+  COMPOSER_ROOT_VERSION: dev-main
+  ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
+  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  DISABLE_V8_COMPILE_CACHE: 1
+
+jobs:
+  build:
+    name: Checks & Build
+    runs-on: ${{ inputs.runner_type }}
+    env:
+      GIT_ACTOR_TOKEN: ${{ secrets.git_actor_token }}
+
+    if: >-
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: ${{ inputs.js_package_manager }}
+          cache-dependency-path: ${{ env.cache_dependency_path }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          tools: composer:v2
+
+      # Needed since tsconfig draws typings from vendor folder.
+      - name: Install Composer dependencies
+        run: composer install
+        working-directory: ${{ inputs.backend_directory }}
+
+      - name: Install JS dependencies
+        run: ${{ env.ci_script }}
+        working-directory: ${{ inputs.frontend_directory }}
+
+      - name: JS Checks & Production Build
+        uses: flarum/action-build@v4.1
+        with:
+          build_script: ${{ inputs.build_script }}
+          build_typings_script: ${{ inputs.build_typings_script }}
+          format_script: ${{ inputs.enable_prettier == true && inputs.format_script || '' }}
+          check_typings_script: ${{ inputs.enable_typescript == true && inputs.check_typings_script || '' }}
+          type_coverage_script: ${{ inputs.enable_typescript == true && inputs.type_coverage_script || '' }}
+          test_script: ${{ inputs.enable_tests == true && inputs.test_script || '' }}
+          package_manager: ${{ inputs.js_package_manager }}
+          js_path: ${{ inputs.frontend_directory }}
+          do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
+          git_actor_name: ${{ inputs.git_actor_name || '' }}
+          git_actor_email: ${{ inputs.git_actor_email || '' }}
+          commit_all_dirty: true
+
+      - name: Check bundle size change
+        if: ${{ inputs.enable_bundlewatch }}
+        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
+        working-directory: ${{ inputs.frontend_directory }}
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
+          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_BRANCH_BASE: ${{ github.event.pull_request.base.ref }}
