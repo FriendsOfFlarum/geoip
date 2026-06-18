@@ -104,17 +104,6 @@ return [
 
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(fn () => [
-            Schema\Arr::make('fofGeoipLeafletMarkerUrls')
-                ->get(function () {
-                    $base = rtrim(resolve('filesystem')->disk('flarum-assets')->url(''), '/');
-
-                    return [
-                        'iconUrl'       => $base.'/extensions/fof-geoip/marker-icon.png',
-                        'iconRetinaUrl' => $base.'/extensions/fof-geoip/marker-icon-2x.png',
-                        'shadowUrl'     => $base.'/extensions/fof-geoip/marker-shadow.png',
-                    ];
-                }),
-
             // Whether the current actor can see any ip_info data. Used by the
             // frontend to decide whether to include ipInfo in post list requests.
             // viewIps is post-scoped but checking without a model gives the global

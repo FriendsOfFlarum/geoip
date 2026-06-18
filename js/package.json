@@ -10,16 +10,23 @@
   "devDependencies": {
     "@flarum/prettier-config": "^1.0.0",
     "@types/leaflet": "^1.9.21",
+    "css-loader": "^7.1.4",
+    "cssnano": "^8.0.2",
+    "filemanager-webpack-plugin": "^10.0.1",
     "flarum-tsconfig": "^2.0.0",
     "flarum-webpack-config": "^3.0.0",
+    "postcss-loader": "^8.2.1",
     "prettier": "^3.0.3",
+    "style-loader": "^4.0.0",
+    "typescript": "^5.9.3",
     "typescript-coverage-report": "^0.6.1",
     "webpack": "^5.104.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "cp node_modules/leaflet/dist/images/marker-icon.png node_modules/leaflet/dist/images/marker-icon-2x.png node_modules/leaflet/dist/images/marker-shadow.png node_modules/leaflet/dist/leaflet.css ../assets/ && webpack --mode production",
+    "build": "webpack --mode production",
     "analyze": "cross-env ANALYZER=true npm run build",
     "format": "prettier --write src",
     "format-check": "prettier --check src",
