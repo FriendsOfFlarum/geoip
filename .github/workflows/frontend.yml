@@ -4,7 +4,7 @@ on: [workflow_dispatch, push, pull_request]
 
 jobs:
   run:
-    uses: ./.github/workflows/REUSABLE_frontend_custom.yml
+    uses: flarum/framework/.github/workflows/REUSABLE_frontend.yml@2.x
     with:
       enable_bundlewatch: false
       enable_prettier: true
@@ -15,6 +15,7 @@ jobs:
       node_version: 24
       js_package_manager: yarn
       main_git_branch: 2.x
+      commit_all_dirty: true
 
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
