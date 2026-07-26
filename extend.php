@@ -63,43 +63,70 @@ return [
 
                     // Full IP info for users with viewIps permission
                     if ($actor->can('viewIps', $post)) {
-                        return true;
+                        $visible = true;
+                    } elseif ($actor->can('fof-geoip.canSeeCountry')) {
+                        // Basic country info for users with the canSeeCountry permission.
+                        $visible = true;
+                    } elseif (!resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
+                        // ...or, when the showFlag feature is enabled, if the post's
+                        // author opted in via their showIPCountry preference.
+                        //
+                        // Evaluated last and short-circuited so the author preference
+                        // is only consulted when it is actually decisive (showFlag on,
+                        // and the actor lacks the broader permissions above). This
+                        // preserves the original decision
+                        // `viewCountry || (showFlag && authorPref)` exactly.
+                        $visible = false;
+                    } else {
+                        // Resolve the author preference via the memoizing resolver
+                        // rather than $post->user, which would lazy-load one user per
+                        // post during serialization (firstPost, lastPost, and every
+                        // post in a stream) — an N+1 on the hottest endpoints. We read
+                        // user_id off the post directly (a loaded column, no relation
+                        // load) and let the request-scoped resolver batch/cache.
+                        $visible = (bool) resolve(Repositories\AuthorFlagPreferenceResolver::class)
+                            ->wantsFlag($post->user_id);
                     }
 
-                    // Basic country info for users with the canSeeCountry permission.
-                    if ($actor->can('fof-geoip.canSeeCountry')) {
-                        return true;
+                    // Self-heal missing lookups: when the (eager-loaded) relation
+                    // shows this post has no stored ip_info, queue a retrieval.
+                    // This replaces the relationship's previous withDefault, whose
+                    // closure Laravel invoked once per post BEFORE the batched
+                    // relation query even ran — one wasted query per post on every
+                    // list. Here the miss is only observed on the loaded relation.
+                    if ($visible && $post->ip_address && $post->relationLoaded('ip_info') && !$post->getRelation('ip_info')) {
+                        $info = resolve(Repositories\GeoIPRepository::class)->queueLookupForPost($post);
+
+                        // With the sync queue driver the lookup already ran, so
+                        // serialize the fresh data right away.
+                        if ($info) {
+                            $post->setRelation('ip_info', $info);
+                        }
                     }
 
-                    // ...or, when the showFlag feature is enabled, if the post's
-                    // author opted in via their showIPCountry preference.
-                    //
-                    // Evaluated last and short-circuited so the author preference
-                    // is only consulted when it is actually decisive (showFlag on,
-                    // and the actor lacks the broader permissions above). This
-                    // preserves the original decision
-                    // `viewCountry || (showFlag && authorPref)` exactly.
-                    if (!resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
-                        return false;
-                    }
-
-                    // Resolve the author preference via the memoizing resolver
-                    // rather than $post->user, which would lazy-load one user per
-                    // post during serialization (firstPost, lastPost, and every
-                    // post in a stream) — an N+1 on the hottest endpoints. We read
-                    // user_id off the post directly (a loaded column, no relation
-                    // load) and let the request-scoped resolver batch/cache.
-                    return resolve(Repositories\AuthorFlagPreferenceResolver::class)
-                        ->wantsFlag($post->user_id);
+                    return $visible;
                 }),
         ])
         ->endpoint(['show', 'index', 'update'], function (Endpoint\Show|Endpoint\Index|Endpoint\Update $endpoint): Endpoint\Show|Endpoint\Index|Endpoint\Update {
-            return $endpoint->addDefaultInclude(['ipInfo']);
+            // Eager load the relation alongside the posts: included to-one
+            // relations are otherwise resolved one post at a time during
+            // serialization — one ip_info query per post on the post stream.
+            return $endpoint
+                ->addDefaultInclude(['ipInfo'])
+                ->eagerLoad(['ip_info']);
         }),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->endpoint(['show', 'index'], function (Endpoint\Show|Endpoint\Index $endpoint): Endpoint\Show|Endpoint\Index {
-            return $endpoint->addDefaultInclude(['firstPost.ipInfo']);
+            // Same as above, for the posts included on discussion endpoints:
+            // one batched ip_info load per relation path instead of one query
+            // per included post.
+            return $endpoint
+                ->addDefaultInclude(['firstPost.ipInfo'])
+                ->eagerLoadWhenIncluded([
+                    'firstPost' => ['firstPost.ip_info'],
+                    'lastPost'  => ['lastPost.ip_info'],
+                ]);
         }),
 
     (new Extend\ApiResource(Resource\ForumResource::class))
