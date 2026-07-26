@@ -41,23 +41,27 @@ class GeoIPRepository
     }
 
     /**
-     * @param Post $post
+     * Queue a lookup for a post whose ip_info is known to be missing.
      *
-     * @return IPInfo|void
+     * Unlike the old retrieveForPost(), this never queries the database —
+     * callers are expected to have already observed the miss on the loaded
+     * relation. Returns the freshly retrieved info when the (sync) queue
+     * driver executed the job immediately.
      */
-    public function retrieveForPost(Post $post)
+    public function queueLookupForPost(Post $post): ?IPInfo
     {
         $ip = $post->ip_address;
-        $info = $this->get($ip);
 
-        // Return the info or null. If we're already retrieving this IP, we don't want to queue it again
-        if ($info || !$ip || RetrieveIP::isQueued($ip)) {
-            return $info;
+        if (!$ip) {
+            return null;
         }
 
-        $this->queue->push(new RetrieveIP($ip));
+        // If we're already retrieving this IP, we don't want to queue it again.
+        if (!RetrieveIP::isQueued($ip)) {
+            $this->queue->push(new RetrieveIP($ip));
+        }
 
-        // If using the sync queue driver (default), the job will be executed immediately
+        // If using the sync queue driver (default), the job has already run.
         return Arr::get(RetrieveIP::$retrieved, $ip);
     }
 

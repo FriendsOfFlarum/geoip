@@ -12,20 +12,17 @@
 namespace FoF\GeoIP\Model;
 
 use Flarum\Post\Post;
-use FoF\GeoIP\Repositories\GeoIPRepository;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class IPInfoRelationship
 {
-    public function __construct(protected GeoIPRepository $geoIP)
-    {
-    }
-
     public function __invoke(Post $post): HasOne
     {
-        return $post->hasOne(IPInfo::class, 'address', 'ip_address')
-            ->withDefault(function (IPInfo $instance, Post $submodel) {
-                return $this->geoIP->retrieveForPost($submodel);
-            });
+        // No withDefault here: Laravel's eager loading calls getDefaultFor()
+        // for every parent BEFORE the batched relation query runs, so a
+        // default closure that looks anything up executes once per post on
+        // every list. Missing lookups are queued at serialization time
+        // instead, where a genuine miss is observable (see extend.php).
+        return $post->hasOne(IPInfo::class, 'address', 'ip_address');
     }
 }
