@@ -81,11 +81,12 @@ return [
                         // Resolve the author preference via the memoizing resolver
                         // rather than $post->user, which would lazy-load one user per
                         // post during serialization (firstPost, lastPost, and every
-                        // post in a stream) — an N+1 on the hottest endpoints. We read
-                        // user_id off the post directly (a loaded column, no relation
-                        // load) and let the request-scoped resolver batch/cache.
+                        // post in a stream) — an N+1 on the hottest endpoints. The
+                        // resolver reads the post's eager-loaded `user` relation when
+                        // present (no query), and only falls back to a lookup for a
+                        // post whose author was not loaded alongside it.
                         $visible = (bool) resolve(Repositories\AuthorFlagPreferenceResolver::class)
-                            ->wantsFlag($post->user_id);
+                            ->wantsFlagFor($post);
                     }
 
                     // Self-heal missing lookups: when the (eager-loaded) relation
@@ -121,12 +122,28 @@ return [
             // Same as above, for the posts included on discussion endpoints:
             // one batched ip_info load per relation path instead of one query
             // per included post.
-            return $endpoint
+            $endpoint = $endpoint
                 ->addDefaultInclude(['firstPost.ipInfo'])
                 ->eagerLoadWhenIncluded([
                     'firstPost' => ['firstPost.ip_info'],
                     'lastPost'  => ['lastPost.ip_info'],
                 ]);
+
+            // When the showFlag feature is on, the ip_info visibility check
+            // needs each post author's showIPCountry preference. Load the
+            // authors alongside the posts so the resolver reads them without
+            // a query — otherwise it falls back to one lookup per distinct
+            // author. Gated on the setting because with the flag off the
+            // visibility decision never consults the author at all, and the
+            // extra relation would be a wasted query.
+            if ((bool) resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
+                $endpoint = $endpoint->eagerLoadWhenIncluded([
+                    'firstPost' => ['firstPost.user'],
+                    'lastPost'  => ['lastPost.user'],
+                ]);
+            }
+
+            return $endpoint;
         }),
 
     (new Extend\ApiResource(Resource\ForumResource::class))

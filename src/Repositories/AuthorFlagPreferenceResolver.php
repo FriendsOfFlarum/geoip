@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Repositories;
 
+use Flarum\Post\Post;
 use Flarum\User\User;
 
 /**
@@ -32,6 +33,33 @@ class AuthorFlagPreferenceResolver
 {
     /** @var array<int, bool> userId => showIPCountry */
     protected array $cache = [];
+
+    /**
+     * Resolve the preference for a post's author, preferring the post's
+     * already eager-loaded `user` relation — reading it costs no query at
+     * all. Endpoints that serialize many posts eager load their authors
+     * (core does for the post stream, our extender does for the posts
+     * included on discussion lists), so this is the hot path; the id-based
+     * lookup below is only the fallback for a post whose author was not
+     * loaded alongside it.
+     */
+    public function wantsFlagFor(Post $post): bool
+    {
+        $userId = $post->user_id;
+
+        if ($userId === null) {
+            return false;
+        }
+
+        if (!array_key_exists($userId, $this->cache) && $post->relationLoaded('user')) {
+            /** @var User|null $user */
+            $user = $post->getRelation('user');
+
+            $this->cache[$userId] = $user !== null && (bool) $user->getPreference('showIPCountry');
+        }
+
+        return $this->wantsFlag($userId);
+    }
 
     public function wantsFlag(?int $userId): bool
     {
