@@ -119,11 +119,13 @@ return [
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->endpoint(['show', 'index'], function (Endpoint\Show|Endpoint\Index $endpoint): Endpoint\Show|Endpoint\Index {
-            // Same as above, for the posts included on discussion endpoints:
-            // one batched ip_info load per relation path instead of one query
-            // per included post.
+            // Batched loads for clients that explicitly include post
+            // relations on discussion endpoints. No default include: nothing
+            // on the discussion list displays ip_info (flags render in the
+            // post stream, fed by the posts endpoint), and default-including
+            // firstPost.ipInfo forced every first post to be fully serialized
+            // — rendered HTML and per-post policies — on every index view.
             $endpoint = $endpoint
-                ->addDefaultInclude(['firstPost.ipInfo'])
                 ->eagerLoadWhenIncluded([
                     'firstPost' => ['firstPost.ip_info'],
                     'lastPost'  => ['lastPost.ip_info'],
