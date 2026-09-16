@@ -211,13 +211,11 @@ class TestGeoipController implements RequestHandlerInterface
 
             // Get the buildUrl method
             $buildUrlMethod = $reflection->getMethod('buildUrl');
-            $buildUrlMethod->setAccessible(true);
             $host = $reflection->getProperty('host')->getValue($service);
             $url = $buildUrlMethod->invoke($service, $ip, $apiKey);
 
             // Get the request options
             $getRequestOptionsMethod = $reflection->getMethod('getRequestOptions');
-            $getRequestOptionsMethod->setAccessible(true);
             $options = $getRequestOptionsMethod->invoke($service, $apiKey);
 
             $uri = new Uri($host.$url);
@@ -225,7 +223,6 @@ class TestGeoipController implements RequestHandlerInterface
 
             // Get the HTTP client
             $clientProperty = $reflection->getProperty('client');
-            $clientProperty->setAccessible(true);
             $client = $clientProperty->getValue($service);
 
             // Make the raw HTTP request
