@@ -51,8 +51,24 @@
     }
   }
 
-  .CountryFlagPicker-flag {
+  // Fixed-size slot ahead of the input. It holds its width even when empty, so
+  // selecting or clearing a country does not shift the field sideways. Sized
+  // to the height of the adjacent .FormControl so the flag reads as part of
+  // the field rather than a small icon floating beside it.
+  .CountryFlagPicker-flagSlot {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+  }
+
+  .CountryFlagPicker-flag {
+    // Overrides the intrinsic height attribute on the <img>, which is kept as
+    // a sensible fallback for when this stylesheet has not loaded.
+    height: 24px;
+    width: auto;
     border-radius: 2px;
   }
 

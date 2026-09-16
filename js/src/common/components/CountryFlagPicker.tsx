@@ -1,5 +1,6 @@
 import app from 'flarum/common/app';
 import AutocompleteDropdown, { type AutocompleteDropdownAttrs } from 'flarum/common/components/AutocompleteDropdown';
+import classList from 'flarum/common/utils/classList';
 import extractText from 'flarum/common/utils/extractText';
 import type Mithril from 'mithril';
 import getCountries, { type Country } from '../util/getCountries';
@@ -59,7 +60,12 @@ export default class CountryFlagPicker extends AutocompleteDropdown<CountryFlagP
 
     vnode.children = [
       <div className="CountryFlagPicker-control">
-        {flagUrl && <img className="CountryFlagPicker-flag" src={flagUrl} alt="" height="16" />}
+        {/*
+          The slot is always rendered, even with no country selected, so the
+          input keeps the same position whether or not a flag is showing —
+          selecting or clearing a country no longer shifts the field sideways.
+        */}
+        <span className="CountryFlagPicker-flagSlot">{flagUrl && <img className="CountryFlagPicker-flag" src={flagUrl} alt="" height="16" />}</span>
         <input
           className="FormControl"
           autocomplete="off"
@@ -78,7 +84,17 @@ export default class CountryFlagPicker extends AutocompleteDropdown<CountryFlagP
       </div>,
     ];
 
-    return super.view(vnode);
+    const dropdown = super.view(vnode) as Mithril.Vnode<any, any>;
+
+    // Core's AutocompleteDropdown builds its wrapper's class list itself and
+    // never merges `attrs.className`, so our own class would otherwise never
+    // reach the DOM — taking every rule nested under `.CountryFlagPicker` with
+    // it, which is what left the flag stacked above the input (issue #109).
+    // Append rather than replace: core's `AutocompleteDropdown`, `focused` and
+    // `open` classes carry its positioning and the suggestions menu.
+    dropdown.attrs.className = classList(dropdown.attrs.className, 'CountryFlagPicker');
+
+    return dropdown;
   }
 
   suggestions(): JSX.Element[] {
