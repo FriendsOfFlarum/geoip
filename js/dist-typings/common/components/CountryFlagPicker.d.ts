@@ -22,7 +22,7 @@ export default class CountryFlagPicker extends AutocompleteDropdown<CountryFlagP
     onupdate(vnode: Mithril.VnodeDOM<CountryFlagPickerAttrs, this>): void;
     private syncQueryToValue;
     private currentCountry;
-    view(vnode: Mithril.Vnode<CountryFlagPickerAttrs, this>): Mithril.Children;
+    view(vnode: Mithril.Vnode<CountryFlagPickerAttrs, this>): Mithril.Vnode<any, any>;
     suggestions(): JSX.Element[];
     private select;
 }
