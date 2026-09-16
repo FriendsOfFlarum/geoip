@@ -29,6 +29,16 @@ class ServiceResponse implements \JsonSerializable
     private $zip_code;
 
     /**
+     * @var ?string
+     */
+    private $city;
+
+    /**
+     * @var ?string
+     */
+    private $region;
+
+    /**
      * @var string
      */
     private $latitude;
@@ -64,7 +74,7 @@ class ServiceResponse implements \JsonSerializable
     private $error;
 
     /**
-     * @var bool
+     * @var ?bool
      */
     private $mobile;
 
@@ -117,6 +127,42 @@ class ServiceResponse implements \JsonSerializable
     public function getZipCode(): ?string
     {
         return $this->zip_code;
+    }
+
+    /**
+     * The city name, where the service supplies one.
+     *
+     * Empty strings are normalised to null: ip-api returns "" rather than
+     * omitting the field when it has no city, and an empty value would render
+     * as a blank line rather than being hidden.
+     */
+    public function setCity(?string $city): self
+    {
+        $this->city = ($city === null || trim($city) === '') ? null : $city;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    /**
+     * The region, state or subdivision name. The human-readable form, not a
+     * code: ip-api's `regionName` rather than `region`, matching the
+     * `subdivisions[].names` the offline databases carry.
+     */
+    public function setRegion(?string $region): self
+    {
+        $this->region = ($region === null || trim($region) === '') ? null : $region;
+
+        return $this;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
     }
 
     public function setLatitude(?string $latitude): self
@@ -215,14 +261,22 @@ class ServiceResponse implements \JsonSerializable
         return $this->as;
     }
 
-    public function setMobile(bool $mobile): self
+    /**
+     * Whether the address belongs to a cellular network, or null when the
+     * service cannot tell.
+     *
+     * Null rather than false for the unknown case: the offline databases carry
+     * no connection-type data, and reporting false would claim the address is
+     * definitely not mobile. Consumers show the field only when it is known.
+     */
+    public function setMobile(?bool $mobile): self
     {
         $this->mobile = $mobile;
 
         return $this;
     }
 
-    public function getMobile(): bool
+    public function getMobile(): ?bool
     {
         return $this->mobile;
     }

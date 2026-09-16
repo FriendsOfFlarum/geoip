@@ -19,6 +19,8 @@ use Flarum\Database\ScopeVisibilityTrait;
  * @property string      $address
  * @property string|null $country_code
  * @property string|null $zip_code
+ * @property string|null $city
+ * @property string|null $region
  * @property string|null $latitude
  * @property string|null $longitude
  * @property string|null $isp
@@ -46,7 +48,7 @@ class IPInfo extends AbstractModel
 
     protected $fillable = [
         'address',
-        'country_code', 'zip_code', 'latitude', 'longitude',
+        'country_code', 'zip_code', 'city', 'region', 'latitude', 'longitude',
         'isp', 'organization', 'as', 'mobile',
         'threat_level', 'threat_types',
         'error', 'data_provider',

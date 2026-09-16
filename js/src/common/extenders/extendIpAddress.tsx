@@ -32,6 +32,25 @@ const ipInfoLookups = new Map<string, { promise: Promise<IPInfo | null>; record?
  */
 const FAILED_LOOKUP_TTL = 60 * 1000;
 
+/**
+ * Find a record the page already loaded, without issuing a request.
+ *
+ * Records arrive in the `included` section of the posts response and are keyed
+ * in the store by their resource id, which the backend returns as a SHA-256
+ * hash of the address. Hashing here to look one up would need an async digest,
+ * so the match is made on the `ip` attribute instead.
+ *
+ * That attribute is only serialized for actors holding
+ * `discussion.viewIpsPosts`. For everyone else this simply finds nothing and
+ * the usual lazy lookup takes over — those actors see only a flag, for which
+ * one small request per address is acceptable.
+ */
+function findInStore(ip: string): IPInfo | undefined {
+  if (!ip) return undefined;
+
+  return app.store.all<IPInfo>('ip_info').find((record) => record.ip?.() === ip);
+}
+
 export default function extendIpAddress() {
   extend('flarum/common/components/IPAddress', 'viewItems', function (items: ItemList<Mithril.Children>) {
     // loadIpInfo is triggered by Intersection Observer when component enters viewport
@@ -115,9 +134,15 @@ export default function extendIpAddress() {
   });
 
   extend('flarum/common/components/IPAddress', 'oninit', function () {
-    // Populate synchronously from an already-resolved lookup, so a re-mounted
-    // component renders its flag immediately and never re-requests.
-    this.ipInfo = ipInfoLookups.get(this.ip)?.record ?? undefined;
+    // Populate synchronously, so a row renders enriched on first paint rather
+    // than waiting for an observer and a request.
+    //
+    // Two sources, in order: a lookup this page already resolved, then the
+    // store. The backend eager loads ip_info and ships it in the `included`
+    // section of the posts response, so for a post stream the record is
+    // already present before anything renders — fetching it again would be
+    // both slower and redundant.
+    this.ipInfo = ipInfoLookups.get(this.ip)?.record ?? findInStore(this.ip) ?? undefined;
 
     this.loadIpInfo = async function () {
       if (this.ip.length === 0) return;

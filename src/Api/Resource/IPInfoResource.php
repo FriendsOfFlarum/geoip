@@ -100,6 +100,15 @@ class IPInfoResource extends Resource\AbstractDatabaseResource
                 ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('discussion.viewIpsPosts')),
             Schema\Str::make('zipCode')
                 ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('discussion.viewIpsPosts')),
+            // Location data, gated exactly as zipCode and coordinates are: it
+            // narrows a user's whereabouts well beyond the country flag that
+            // canSeeCountry actors are permitted to see.
+            Schema\Str::make('city')
+                ->nullable()
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('discussion.viewIpsPosts')),
+            Schema\Str::make('region')
+                ->nullable()
+                ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('discussion.viewIpsPosts')),
             Schema\Str::make('latitude')
                 ->visible(fn (IPInfo $ipInfo, Context $context) => $context->getActor()->can('discussion.viewIpsPosts')),
             Schema\Str::make('longitude')

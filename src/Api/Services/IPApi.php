@@ -119,6 +119,11 @@ class IPApi extends BaseGeoService
 
         return $response->setCountryCode($body->countryCode)
             ->setZipCode($body->zip)
+            // Already requested via $requestFields but previously discarded.
+            // `regionName` is the readable form ("Virginia"); `region` is the
+            // short code ("VA"), which is not what is stored.
+            ->setCity($body->city ?? null)
+            ->setRegion($body->regionName ?? null)
             ->setLatitude($body->lat)
             ->setLongitude($body->lon)
             ->setIsp($body->isp)

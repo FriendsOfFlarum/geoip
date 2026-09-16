@@ -583,3 +583,104 @@ describe('IPAddress lookups below the fold', () => {
     expect(new Set(requestedIds).size).toBe(requestedIds.length);
   });
 });
+
+/**
+ * The backend eager loads ip_info and includes it with the posts response, so
+ * by the time a post renders its IP the record is already in the store.
+ *
+ * Ignoring that and waiting for an IntersectionObserver to fire a fresh
+ * request per row is both slow — the flag appears well after the post — and
+ * wasteful, since it re-fetches data the browser already holds.
+ */
+describe('IPAddress records included with the page', () => {
+  let viewport: FakeViewport;
+
+  beforeEach(async () => {
+    jest.resetModules();
+    document.body.innerHTML = '';
+    // Rows start below the fold, so nothing can be explained away by the
+    // observer happening to fire.
+    viewport = new FakeViewport(500, 0).install();
+    await boot();
+  });
+
+  /** Push a record as the posts endpoint's `included` section would. */
+  function includeRecord(ip: string, countryCode = 'DE') {
+    return app.store.pushObject({
+      // The backend's id is a hash of the address, never the address itself.
+      id: `hash-of-${encodeURIComponent(ip)}`,
+      type: 'ip_info',
+      attributes: { ip, countryCode },
+    });
+  }
+
+  async function mountRow(ip: string, offset = 2000) {
+    const { default: IPAddress } = await import('flarum/common/components/IPAddress');
+
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+
+    const placeholder = document.createElement('span');
+    root.appendChild(placeholder);
+    viewport.place(placeholder, offset);
+
+    m.mount(root, { view: () => m(IPAddress as any, { ip }) });
+
+    if (root.firstElementChild && root.firstElementChild !== placeholder) {
+      viewport.place(root.firstElementChild, offset);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    m.redraw.sync();
+
+    return root;
+  }
+
+  it('renders immediately from a record already in the store', async () => {
+    includeRecord('8.8.8.8');
+
+    const root = await mountRow('8.8.8.8');
+
+    // Enriched on first paint, with no request and without being scrolled to.
+    expect(root.querySelector('.ip-info')).not.toBeNull();
+    expect(root.querySelector('.ip-info img')).not.toBeNull();
+    expect(requestedIds).toHaveLength(0);
+  });
+
+  it('never requests an IP the page already supplied', async () => {
+    includeRecord('8.8.8.8');
+    includeRecord('1.1.1.1', 'AU');
+
+    await mountRow('8.8.8.8');
+    await mountRow('1.1.1.1');
+
+    // Even once scrolled into view, there is nothing left to fetch.
+    viewport.scrollTo(2000);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(requestedIds).toHaveLength(0);
+  });
+
+  it('still fetches an IP the page did not supply', async () => {
+    includeRecord('8.8.8.8');
+
+    // Rendered in the viewport so the observer fires.
+    await mountRow('9.9.9.9', 0);
+
+    expect(requestedIds).toEqual(['9.9.9.9']);
+  });
+
+  /**
+   * IPv6 addresses are percent-encoded in the resource id, so matching a
+   * stored record to a component's plain address must survive that.
+   */
+  it('matches an included IPv6 record', async () => {
+    const ip = '2a02:390:9e5c:beef:8899:30cb:242f:9539';
+    includeRecord(ip, 'GB');
+
+    const root = await mountRow(ip);
+
+    expect(root.querySelector('.ip-info')).not.toBeNull();
+    expect(requestedIds).toHaveLength(0);
+  });
+});

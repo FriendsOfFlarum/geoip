@@ -17,6 +17,14 @@ export default class IPInfo extends Model {
     return Model.attribute<string | null>('zipCode').call(this);
   }
 
+  city() {
+    return Model.attribute<string | null>('city').call(this);
+  }
+
+  region() {
+    return Model.attribute<string | null>('region').call(this);
+  }
+
   latitude() {
     return Model.attribute<number | null>('latitude').call(this);
   }

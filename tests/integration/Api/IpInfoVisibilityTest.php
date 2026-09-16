@@ -37,7 +37,7 @@ class IpInfoVisibilityTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     // Full set of sensitive fields that must never leak to non-viewIps actors
-    private const SENSITIVE_FIELDS = ['ip', 'latitude', 'longitude', 'isp', 'organization', 'as', 'mobile', 'threatLevel', 'threatType', 'dataProvider'];
+    private const SENSITIVE_FIELDS = ['ip', 'city', 'region', 'latitude', 'longitude', 'isp', 'organization', 'as', 'mobile', 'threatLevel', 'threatType', 'dataProvider'];
 
     public function setUp(): void
     {
@@ -157,6 +157,8 @@ class IpInfoVisibilityTest extends TestCase
     #[Test]
     public function forum_attribute_is_false_for_guest()
     {
+        $this->setting('fof-geoip.showFlag', false);
+
         $body = $this->getForumData(null);
         $this->assertFalse($body['data']['attributes']['fofGeoipCanSeeIpInfo']);
     }
@@ -164,6 +166,10 @@ class IpInfoVisibilityTest extends TestCase
     #[Test]
     public function forum_attribute_is_false_for_regular_user_when_showflag_off()
     {
+        // The name says "when showflag off", so say so rather than depending
+        // on whatever the default happens to be.
+        $this->setting('fof-geoip.showFlag', false);
+
         $body = $this->getForumData(2);
         $this->assertFalse($body['data']['attributes']['fofGeoipCanSeeIpInfo']);
     }

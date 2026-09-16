@@ -1,6 +1,7 @@
 import app from 'flarum/common/app';
 import IPInfo from '../model/IPInfo';
 import getFlagEmojiUrl from '../util/getFlagEmojiUrl';
+import getCountryName from '../util/getCountryName';
 import Tooltip from 'flarum/common/components/Tooltip';
 
 export const getDescription = (ipInfo: IPInfo) => {
@@ -26,18 +27,7 @@ export const getFlagImageForCountry = (countryCode: string | null | undefined) =
     return null;
   }
 
-  const currentLocale = app.translator.getLocale() as string;
-
-  // Create an instance of Intl.DisplayNames for displaying full country names
-  const displayNames = new Intl.DisplayNames([currentLocale], { type: 'region' });
-
-  // Get the full country name using the country code
-  let countryName = countryCode;
-  try {
-    countryName = displayNames.of(countryCode) || countryCode;
-  } catch (e) {
-    // Intl.DisplayNames throws on codes it doesn't recognise; fall back to the code.
-  }
+  const countryName = getCountryName(countryCode) ?? countryCode;
 
   return (
     <Tooltip text={countryName}>

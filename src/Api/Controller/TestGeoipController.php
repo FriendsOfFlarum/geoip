@@ -64,6 +64,14 @@ class TestGeoipController implements RequestHandlerInterface
             ], 500);
         }
 
+        // An offline driver performs no HTTP request, so there is no raw
+        // exchange to report. Reflecting into buildUrl()/client here threw and
+        // the failure was surfaced as a service error, even when the lookup
+        // itself had succeeded.
+        if ($service instanceof \FoF\GeoIP\Concerns\OfflineServiceInterface) {
+            return $this->testOfflineService($service, $serviceName, $ip);
+        }
+
         try {
             $startTime = microtime(true);
 
@@ -115,6 +123,61 @@ class TestGeoipController implements RequestHandlerInterface
                 ],
             ]);
         }
+    }
+
+    /**
+     * Report an offline lookup in terms of what it actually does: which
+     * databases are configured, which answered, and what they returned.
+     */
+    private function testOfflineService(
+        \FoF\GeoIP\Concerns\OfflineServiceInterface $service,
+        ?string $serviceName,
+        string $ip
+    ): ResponseInterface {
+        $databases = $service->databaseStatus();
+
+        $startTime = microtime(true);
+        $response = $service->get($ip);
+        $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+        $error = null;
+        $notice = null;
+
+        if (!$service->isAvailable()) {
+            $configured = array_filter($databases, fn (array $db) => $db['configured']);
+
+            $error = $configured === []
+                ? 'No databases are configured. Set at least one database path above.'
+                : 'No configured database could be opened. See the status of each database above.';
+        } elseif ($response === null) {
+            // A public address the databases do not cover — worth flagging, as
+            // it may mean a stale or wrong edition.
+            $error = "No database contains an entry for $ip. The database may be out of date, or of an edition that does not cover this address.";
+        } elseif ($response->getCountryCode() === null && $response->getIsp() !== null) {
+            // Private and reserved ranges resolved correctly; they simply have
+            // no location. The configuration works, so this is a success with
+            // an explanation rather than a red failure.
+            $notice = "{$ip} is a {$response->getIsp()} address, so it has no geographic location. The lookup itself worked correctly.";
+        }
+
+        return new JsonResponse([
+            'data' => [
+                'type'       => 'geoip-test',
+                'id'         => 'test',
+                'attributes' => [
+                    'success'            => $error === null,
+                    'service'            => $serviceName,
+                    'ip'                 => $ip,
+                    'response_time_ms'   => $elapsed,
+                    'processed_response' => $response?->toJSON(),
+                    'service_response'   => $response?->jsonSerialize(),
+                    'databases'          => $databases,
+                    'error'              => $error,
+                    'notice'             => $notice,
+                    'timestamp'          => Carbon::now()->toISOString(),
+                ],
+            ],
+        ]);
     }
 
     private function isResponseSuccessful(array $rawHttpResponse, ?\FoF\GeoIP\Api\ServiceResponse $serviceResponse): bool

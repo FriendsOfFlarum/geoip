@@ -20,7 +20,11 @@
     ],
     "require": {
         "flarum/core": "^2.0.0",
-        "guzzlehttp/guzzle": "^7.3"
+        "guzzlehttp/guzzle": "^7.3",
+        "maxmind-db/reader": "^1.11"
+    },
+    "suggest": {
+        "ext-maxminddb": "Accelerates offline MaxMind/DB-IP lookups; the pure-PHP reader is used when absent."
     },
     "authors": [
         {
@@ -66,7 +70,8 @@
         "flarum/phpstan": "^2.0.0",
         "fof/drafts": "^2.0.0",
         "fof/default-user-preferences": "^2.0.0",
-        "flarum/testing": "^2.0.0"
+        "flarum/testing": "^2.0.0",
+        "flarum/audit": "*"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse --memory-limit 1G",
