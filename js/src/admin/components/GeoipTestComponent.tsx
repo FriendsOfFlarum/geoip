@@ -74,10 +74,49 @@ export default class GeoipTestComponent extends Component<GeoipTestComponentAttr
             </div>
 
             <div>
-              <h5>{app.translator.trans('fof-geoip.admin.settings.test_http_status_code_label')}</h5>
-              <div className="GeoipTest-codeBlock">
-                {this.testResult.http_status_code || app.translator.trans('fof-geoip.admin.settings.status_unknown')}
-              </div>
+              {/* An offline driver makes no HTTP request, so there is no
+                  status code to show — rendering "Unknown" here made a
+                  successful local lookup look like a failure. */}
+              {!this.testResult.databases && (
+                <div>
+                  <h5>{app.translator.trans('fof-geoip.admin.settings.test_http_status_code_label')}</h5>
+                  <div className="GeoipTest-codeBlock">
+                    {this.testResult.http_status_code || app.translator.trans('fof-geoip.admin.settings.status_unknown')}
+                  </div>
+                </div>
+              )}
+
+              {/* What an offline lookup actually consulted. */}
+              {this.testResult.databases && (
+                <div>
+                  <h5>{app.translator.trans('fof-geoip.admin.settings.test_databases_label')}</h5>
+                  <pre className="GeoipTest-codeBlock">
+                    {Object.entries(this.testResult.databases)
+                      .map(([kind, db]: [string, any]) => {
+                        if (!db.configured) {
+                          return `${kind.padEnd(8)} ${extractText(app.translator.trans('fof-geoip.admin.settings.database_not_configured'))}`;
+                        }
+
+                        if (!db.available) {
+                          return `${kind.padEnd(8)} ${db.error}`;
+                        }
+
+                        return `${kind.padEnd(8)} ${db.type} (${db.path})`;
+                      })
+                      .join('\n')}
+                  </pre>
+                </div>
+              )}
+
+              {/* A successful lookup that simply has no location to report,
+                  such as a private address. Not a failure, so it is not shown
+                  as one. */}
+              {this.testResult.notice && (
+                <div>
+                  <h5>{app.translator.trans('fof-geoip.admin.settings.test_notice_label')}</h5>
+                  <pre className="GeoipTest-codeBlock">{this.testResult.notice}</pre>
+                </div>
+              )}
 
               {!this.testResult.success && this.testResult.error && (
                 <div>

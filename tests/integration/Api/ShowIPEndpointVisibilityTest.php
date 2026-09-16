@@ -36,7 +36,7 @@ class ShowIPEndpointVisibilityTest extends TestCase
     private const IP = '1.2.3.4';
 
     /** Fields that must never reach an actor without discussion.viewIpsPosts. */
-    private const SENSITIVE_FIELDS = ['ip', 'zipCode', 'latitude', 'longitude', 'isp', 'organization', 'as', 'mobile', 'threatLevel', 'threatType', 'dataProvider'];
+    private const SENSITIVE_FIELDS = ['ip', 'zipCode', 'city', 'region', 'latitude', 'longitude', 'isp', 'organization', 'as', 'mobile', 'threatLevel', 'threatType', 'dataProvider'];
 
     public function setUp(): void
     {

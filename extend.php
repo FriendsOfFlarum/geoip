@@ -35,6 +35,34 @@ return [
         ->css(__DIR__.'/resources/less/admin.less')
         ->content(function (Document $document) {
             $document->payload['fof-geoip.services'] = array_keys(GeoIP::$services);
+
+            /** @var GeoIP $geoip */
+            $geoip = resolve(GeoIP::class);
+
+            // Whether an extender pinned the driver, so the admin selector can
+            // show what is actually in effect rather than offering a choice
+            // that would be ignored.
+            $document->payload['fof-geoip.forcedService'] = GeoIP::$forced;
+
+            // The settings the active service declares. Rendering from this
+            // means a service is configurable by adding one PHP class, with no
+            // frontend change and no list to keep in sync.
+            $document->payload['fof-geoip.serviceSettings'] = $geoip->serviceSettings();
+
+            // Per-database diagnostics: type, build date and any error, read
+            // from the files themselves. This is what makes a wrong path or a
+            // stale database visible instead of silently degrading.
+            $service = $geoip->getService();
+
+            if ($service instanceof Concerns\OfflineServiceInterface) {
+                $document->payload['fof-geoip.databaseStatus'] = $service->databaseStatus();
+            }
+
+            // A service can be selected but unusable — an offline driver with
+            // no readable database. Nothing else surfaces that: the forum keeps
+            // working and posts simply never get flags, so the admin page says
+            // so rather than leaving it to be discovered.
+            $document->payload['fof-geoip.serviceUnavailable'] = !$geoip->isAvailable();
         }),
 
     (new Extend\Frontend('common'))
@@ -167,7 +195,7 @@ return [
 
     (new Extend\Settings())
         ->default('fof-geoip.service', 'ipapi')
-        ->default('fof-geoip.showFlag', false)
+        ->default('fof-geoip.showFlag', true)
         ->default('fof-geoip.allowCustomFlag', false)
         ->serializeToForum('fof-geoip.showFlag', 'fof-geoip.showFlag', 'boolval')
         ->serializeToForum('fof-geoip.allowCustomFlag', 'fof-geoip.allowCustomFlag', 'boolval'),
@@ -215,6 +243,32 @@ return [
                 ->default('showIPCountry', false, 'bool'),
             (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
                 ->default('customFlagCountry', '', 'string'),
+        ]),
+
+    // The audit log renders an IP per row but carries no ip_info of its own,
+    // so each row fetched its own record after the page had painted. Attaching
+    // the relation and eager loading it means one batched query serves the
+    // whole page and the records ship with it, exactly as for posts.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new Extend\Model(\Flarum\Audit\AuditLog::class))
+                ->relationship('ip_info', Model\IPInfoRelationship::class),
+
+            (new Extend\ApiResource(\Flarum\Audit\Api\Resource\AuditLogResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToOne::make('ipInfo')
+                        ->type('ip_info')
+                        ->property('ip_info')
+                        ->includable()
+                        // Audit access is already restricted to administrators,
+                        // but the field-level gating on IPInfoResource still
+                        // applies to what each attribute exposes.
+                        ->visible(fn (object $log, Context $context) => $context->getActor()->can('viewIps', $log)),
+                ])
+                // Index only: the audit resource exposes no show endpoint.
+                ->endpoint('index', fn (Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['ipInfo'])
+                    ->eagerLoad(['ip_info'])),
         ]),
 
     new Extend\ApiResource(Api\Resource\IPInfoResource::class),

@@ -25,4 +25,22 @@ interface ServiceInterface
     public function getBatch(array $ips): array;
 
     public function batchSupported(): bool;
+
+    /**
+     * The settings this service needs, for the admin page to render.
+     *
+     * Declared here rather than in the frontend so a service is configurable
+     * by adding one class, and so the fields cannot drift from what the
+     * service actually reads.
+     *
+     * Keyed by full setting key; each entry is:
+     *   type         'text' | 'number' | 'boolean' (default 'text')
+     *   label        translation key
+     *   help         optional translation key
+     *   placeholder  optional literal placeholder
+     *   required     optional bool, default false
+     *
+     * @return array<string, array{type?: string, label: string, help?: string, placeholder?: string, required?: bool}>
+     */
+    public function settings(): array;
 }

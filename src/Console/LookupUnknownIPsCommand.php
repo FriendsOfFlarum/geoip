@@ -51,15 +51,25 @@ class LookupUnknownIPsCommand extends Command
             /** @var class-string<AbstractModel> $model */
             $query = $model::query();
 
+            // The class can exist while its table does not: fof/drafts ships
+            // the Draft model, but an installation that has the package
+            // without the extension enabled has never run its migrations.
+            if (!$query->getModel()->getConnection()->getSchemaBuilder()->hasTable($query->getModel()->getTable())) {
+                continue;
+            }
+
             $force = (bool) $this->option('force');
+
+            // Records without an address are never lookupable — access tokens
+            // and imported posts routinely have none. --force skips the
+            // "not seen before" filter, but must not skip this one: a null
+            // address reaching FetchIPInfo aborts the entire run.
+            $query->select('id', $column)->whereNotNull($column);
 
             if ($force) {
                 $this->info("Forcing lookup for {$model}");
-                $query->select('id', $column);
             } else {
-                $query->select('id', $column)
-                ->whereNotNull($column)
-                ->whereNotIn($column, function ($query) use ($column) {
+                $query->whereNotIn($column, function ($query) use ($column) {
                     $query->select('address')
                         ->from('ip_info')
                         ->whereColumn('address', $column);

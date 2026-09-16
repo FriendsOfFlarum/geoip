@@ -36,6 +36,16 @@ class FetchIPInfoHandler
         $ipInfo = IPInfo::query()->firstOrNew(['address' => $command->ip]);
 
         if (!$ipInfo->exists || $command->refresh) {
+            // A service that is selected but unusable — an offline driver with
+            // no readable database — fails for every address alike. Report the
+            // configuration fault once rather than logging a lookup failure per
+            // address, which buries the real cause and never stops.
+            if (!$this->geoip->isAvailable()) {
+                $this->log->warning('[fof/geoip] The configured lookup service is not available; check its configuration in the admin panel.');
+
+                return $ipInfo;
+            }
+
             $response = $this->geoip->get($command->ip);
 
             if (!$response || $response->fake) {

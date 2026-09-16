@@ -13,6 +13,7 @@ namespace FoF\GeoIP\Api\Services;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Api\ServiceResponse;
 use FoF\GeoIP\Concerns\ServiceInterface;
 use GuzzleHttp\Client;
@@ -46,14 +47,24 @@ abstract class BaseGeoService implements ServiceInterface
         ]);
     }
 
+    /**
+     * The API key, resolved through GeoIP so a value pinned by the Services
+     * extender takes precedence over the stored setting.
+     */
+    protected function apiKey(): ?string
+    {
+        // The prefix is "fof-geoip.services.<name>"; config() takes the name.
+        $serviceName = substr($this->settingPrefix, strrpos($this->settingPrefix, '.') + 1);
+
+        $apiKey = resolve(GeoIP::class)->config($serviceName, 'access_key');
+
+        // Guard against whitespace pasted in alongside the key.
+        return $apiKey === null ? null : (trim($apiKey) ?: null);
+    }
+
     public function get(string $ip): ?ServiceResponse
     {
-        $apiKey = $this->settings->get("{$this->settingPrefix}.access_key");
-
-        if (!empty($apiKey)) {
-            // ensure that we don't have any whitespace, etc in the key
-            $apiKey = trim($apiKey);
-        }
+        $apiKey = $this->apiKey();
 
         if ($this->requiresApiKey() && !$apiKey) {
             $this->logger->error("No API key found for {$this->host}");
@@ -102,6 +113,25 @@ abstract class BaseGeoService implements ServiceInterface
         return true;
     }
 
+    /**
+     * An access key field for the services that need one, derived from
+     * requiresApiKey() so the two can never disagree.
+     */
+    public function settings(): array
+    {
+        if (!$this->requiresApiKey()) {
+            return [];
+        }
+
+        return [
+            "{$this->settingPrefix}.access_key" => [
+                'type'     => 'text',
+                'label'    => 'fof-geoip.admin.settings.access_key_label',
+                'required' => true,
+            ],
+        ];
+    }
+
     public function batchSupported(): bool
     {
         return false;
@@ -109,7 +139,7 @@ abstract class BaseGeoService implements ServiceInterface
 
     public function getBatch(array $ips): array
     {
-        $apiKey = $this->settings->get("{$this->settingPrefix}.access_key");
+        $apiKey = $this->apiKey();
 
         if ($this->requiresApiKey() && !$apiKey) {
             $this->logger->error("No API key found for {$this->host}");

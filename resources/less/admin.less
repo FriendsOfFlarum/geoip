@@ -1,5 +1,36 @@
 @import "common.less";
 
+// Settings declared by the active lookup service.
+.GeoipServiceSettings {
+  // Each field renders as a Form-group followed by its status line; without
+  // this the next field's label butts straight against that line.
+  > div + div {
+    margin-top: 20px;
+  }
+
+  // The status line belongs to the field above it, so close up the gap the
+  // Form-group leaves behind.
+  .Form-group {
+    margin-bottom: 4px;
+  }
+}
+
+.GeoipDatabases {
+  &-status {
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--muted-color);
+
+    &--error {
+      color: var(--alert-error-color);
+    }
+
+    &--stale {
+      color: var(--alert-warning-color, var(--muted-color));
+    }
+  }
+}
+
 // Test result styling
 
 .GeoipTest-codeBlock {

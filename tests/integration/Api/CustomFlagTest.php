@@ -163,6 +163,10 @@ class CustomFlagTest extends TestCase
     #[Test]
     public function showipcountry_is_hidden_when_showflag_off()
     {
+        // Set explicitly rather than relying on the default, so the test
+        // states the condition it is asserting about.
+        $this->setting('fof-geoip.showFlag', false);
+
         $attributes = $this->showUser(2, 2);
 
         $this->assertArrayNotHasKey('showIPCountry', $attributes);

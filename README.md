@@ -12,91 +12,144 @@ Provide moderators with powerful IP geolocation tools for better forum managemen
 - **Location Insights**: Enable moderators to identify the country and region of users.
 - **Interactive Mapping**: Let moderators visualize user locations with an integrated map view.
 - **Threat Detection**: Equip moderators with the ability to highlight potentially malicious IP addresses through threat level indicators. (Via supported IP location data providers)
+- **Offline Lookups**: Resolve addresses from local MaxMind or DB-IP databases, with no rate limits and no IP address leaving your server.
 
 ### 🔌 Supported IP Data Providers
 
-GeoIP supports multiple IP lookup services, each with different features, rate limits, and data coverage:
+GeoIP supports multiple lookup services, each with different features, rate limits and data coverage. One is active at a time, chosen in the admin settings.
 
-**Default Provider**: The extension comes pre-configured with **IP-API** as the default provider since it requires no API key and allows you to get started immediately with up to 45 lookups per minute.
+**Default**: **IP-API**, which needs no API key and allows up to 45 lookups per minute.
 
-#### **IPData** (`ipdata`)
+| Provider | Key | API key | Country | City / Region | Postal | Coords | ISP / Org | ASN | Mobile | Threat |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Offline databases | `maxmind` | — | ✅ | ✅ | ⚠️ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| IP-API | `ipapi` | — | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| IP-API Pro | `ipapi-pro` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| IPData | `ipdata` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 7x Geolocation | `ipsevenex` | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| IPInfo Lite | `ipinfo-lite` | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| IP Location | `iplocation` | — | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+
+⚠️ Postal codes are available from MaxMind's City databases but **not** from DB-IP's Lite editions.
+
+#### Offline databases — MaxMind / DB-IP (`maxmind`)
+
+Reads local MaxMind-format (`.mmdb`) databases instead of calling a remote API. Lookups are instant, unlimited, and no IP address ever leaves your server — but you install and update the database files yourself.
+
+Works with MaxMind's GeoLite2/GeoIP2 and DB-IP's Lite editions; both publish compatible formats.
+
+- **Requirements**: at least one `.mmdb` file. The PHP `maxminddb` extension is optional and makes lookups roughly 5× faster; the bundled pure-PHP reader is used when it is absent.
+- **Databases**: all three are optional and independent.
+  - **Country** — country code. Enough on its own for country flags (~8 MB).
+  - **City** — the above plus city, region and coordinates (~120 MB).
+  - **ASN** — autonomous system number and organisation (~9 MB).
+- **Not available offline**: threat data and mobile/cellular detection. Neither vendor ships them.
+
+Configure the paths in the admin settings, or pin them in `extend.php` (see [Configuring in code](#configuring-in-code)). The settings page shows each database's type and build date, and flags one as out of date once it is **more than 90 days old** — roughly three missed editions, since both vendors publish monthly. A stale database still works; its allocations are just increasingly likely to be wrong.
+
+##### Obtaining the databases
+
+These are examples, not something the extension runs for you. Adapt them to your host and schedule them however you prefer — monthly is typical, since both vendors publish new editions each month.
+
+**DB-IP Lite** — no account required, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/):
+
+```sh
+mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP
+MONTH=$(date +%Y-%m)
+
+for DB in country city asn; do
+  curl -fsSL "https://download.db-ip.com/free/dbip-$DB-lite-$MONTH.mmdb.gz" \
+    | gunzip > "dbip-$DB-lite.mmdb"
+done
+```
+
+**MaxMind GeoLite2** — free, but requires an account and a licence key. Debian and Ubuntu package the official updater:
+
+```sh
+apt install geoipupdate
+# configure /etc/GeoIP.conf with your AccountID and LicenseKey, then:
+geoipupdate
+```
+
+If you cannot write to `/usr/share/GeoIP` — shared hosting, or a container running as an unprivileged user — put the files anywhere readable, such as `storage/geoip/` inside your Flarum install, and point the settings at that path.
+
+> **Attribution**: DB-IP's Lite databases are CC BY 4.0 and **require** visible attribution wherever you surface results derived from them, for example `IP Geolocation by <a href="https://db-ip.com">DB-IP</a>`. MaxMind's GeoLite2 licence has a similar requirement. Check the terms of whichever databases you install.
+
+#### IPData (`ipdata`)
+
 - **Service**: [https://ipdata.co](https://ipdata.co)
-- **Free Tier**: Up to 1,500 lookups daily
-- **Paid Plans**: Available for higher usage limits
-- **Requirements**: API key required
-- **Data Provided**:
-  - ✅ Country Code
-  - ✅ Zip/Postal Code
-  - ✅ Latitude/Longitude
-  - ✅ ISP
-  - ✅ Organization
-  - ✅ ASN (Autonomous System Number)
-  - ✅ Mobile/Cellular Detection
-  - ✅ Threat Level Detection
-  - ✅ Threat Type Classification (attacker/abuser)
+- **Free tier**: 1,500 lookups daily; paid plans for more
+- **Requirements**: API key
+- The only provider offering **threat level and threat type** (attacker / abuser) classification.
 
-#### **IP-API** (`ipapi`) - *Default*
+#### IP-API (`ipapi`) — *default*
+
 - **Service**: [http://ip-api.com](http://ip-api.com)
-- **Free Tier**: Up to 45 lookups per minute
-- **Rate Limiting**: Requests exceeding the limit are automatically queued and processed when the limit resets
-- **Batch Support**: Yes (up to 15 batch requests per minute)
-- **Automatic Retry**: Built-in retry logic for failed requests
-- **Requirements**: No API key needed
-- **Data Provided**:
-  - ✅ Country Code
-  - ✅ Zip/Postal Code
-  - ✅ Latitude/Longitude
-  - ✅ ISP
-  - ✅ Organization
-  - ✅ ASN (Autonomous System Number)
-  - ✅ Mobile/Cellular Detection
+- **Free tier**: 45 lookups per minute
+- **Requirements**: none
+- **Batch support**: yes, up to 15 batch requests per minute
+- Requests exceeding the limit are queued and retried once the window resets.
 
-#### **IP-API Pro** (`ipapi-pro`)
+#### IP-API Pro (`ipapi-pro`)
+
 - **Service**: [https://members.ip-api.com/#pricing](https://members.ip-api.com/#pricing)
-- **Usage**: Unlimited lookups (paid service)
-- **Requirements**: API key required
-- **Data Provided**: Same as IP-API (inherits all features)
-  - ✅ Country Code
-  - ✅ Zip/Postal Code
-  - ✅ Latitude/Longitude
-  - ✅ ISP
-  - ✅ Organization
-  - ✅ ASN (Autonomous System Number)
-  - ✅ Mobile/Cellular Detection
+- **Usage**: unlimited (paid)
+- **Requirements**: API key
+- Same data as IP-API, without the rate limit.
 
-#### **IP Location** (`iplocation`)
-- **Service**: [https://www.iplocation.net/](https://www.iplocation.net/)
-- **Rate Limits**: Unknown/undocumented
-- **Requirements**: No API key needed
-- **Data Provided** (Limited):
-  - ✅ Country Code
-  - ✅ ISP
-  - ❌ No zip code, coordinates, or threat data
+#### 7x Geolocation API (`ipsevenex`)
 
-#### **7x Geolocation API** (`ipsevenex`)
 - **Service**: [https://7x.ax](https://7x.ax)
-- **Free Tier**: Up to 20 requests per minute with API key
-- **Paid Plans**: Available for higher usage limits
-- **Requirements**: API key required (free registration available)
-- **Data Provided**:
-  - ✅ Country Code
-  - ✅ Zip/Postal Code
-  - ✅ Latitude/Longitude
-  - ✅ ISP
-  - ✅ Organization
+- **Free tier**: 20 requests per minute; paid plans for more
+- **Requirements**: API key (free registration)
 
-#### **IPInfo Lite** (`ipinfo-lite`)
+#### IPInfo Lite (`ipinfo-lite`)
+
 - **Service**: [https://ipinfo.io](https://ipinfo.io)
-- **Usage**: No rate limiting or restrictions
-- **Requirements**: API key required (free registration available)
-- **Data Provided**:
-  - ✅ Country Code
-  - ✅ Organization (AS Name)
-  - ✅ ISP (AS Domain)
-  - ✅ ASN (Autonomous System Number)
-  - ❌ No zip code, coordinates, mobile detection, or threat data
+- **Usage**: no rate limiting
+- **Requirements**: API key (free registration)
+- Country and network data only — no city, coordinates or postal code.
 
-Choose the provider that best fits your forum's traffic volume, data requirements, and budget.
+#### IP Location (`iplocation`)
+
+- **Service**: [https://www.iplocation.net/](https://www.iplocation.net/)
+- **Rate limits**: undocumented
+- **Requirements**: none
+- Country and ISP only.
+
+### Configuring in code
+
+Everything configurable in the admin panel can instead be pinned in your `extend.php`. This suits Docker images and managed deployments, where the correct provider is a property of the environment rather than something an administrator should have to set — or be able to break. Pinned values take precedence over stored settings and survive a settings reset.
+
+```php
+use FoF\GeoIP\Extend\Services;
+
+return [
+    (new Services())
+        ->force('maxmind')
+        ->configure('maxmind', [
+            'country' => '/usr/share/GeoIP/dbip-country-lite.mmdb',
+            'city'    => '/usr/share/GeoIP/dbip-city-lite.mmdb',
+            'asn'     => '/usr/share/GeoIP/dbip-asn-lite.mmdb',
+        ]),
+];
+```
+
+The same works for the hosted providers:
+
+```php
+(new Services())
+    ->force('ipdata')
+    ->configure('ipdata', ['access_key' => 'your-api-key']),
+```
+
+| Method | Purpose |
+|---|---|
+| `force(string $service)` | Use this provider regardless of the setting. The admin selector is locked and explains why. |
+| `configure(string $service, array $config)` | Supply configuration in code. Keys match the provider's settings: `access_key` for hosted providers, `country` / `city` / `asn` for offline databases. |
+| `register(string $name, string $class)` | Register an additional provider implementing `FoF\GeoIP\Concerns\ServiceInterface`. |
+
+Anything pinned is shown read-only in the admin panel, so the interface reflects what is actually in effect.
 
 ### 🔐 Permissions
 
@@ -144,7 +197,9 @@ php flarum fof:geoip:lookup --force
 
 ### Queue offloading
 
-The IP lookup can be time consuming, so the lookup of an unknown IP address is dispatched in a job, if you have a queue running this will run on a worker thread, rather than the main thread.
+Lookups against a hosted provider can be slow, so an unknown IP address is dispatched as a job; with a queue worker running it is handled off the main thread.
+
+This does not apply to the offline databases, where a lookup is a local file read measured in microseconds — queueing one would cost far more than performing it.
 
 All IP address lookup jobs are dispatched to the `default` queue by default. If you have multiple queues, you can specify which queue to use for these jobs in your `extend.php`:
 
@@ -188,7 +243,13 @@ This testing feature is invaluable for:
 **Rate limit exceeded**
 - IP-API: Requests are automatically queued, wait for the next minute
 - IPData: Check your daily quota usage
-- Consider upgrading to a paid plan for higher limits
+- Consider upgrading to a paid plan for higher limits, or switching to the offline databases, which have no limits
+
+**Offline databases not working**
+1. The settings page lists each database with its type and build date — a path that is missing, unreadable or not a valid `.mmdb` file is reported there
+2. A banner appears when the selected provider cannot answer lookups at all
+3. Check the file is readable by the web server user
+4. Private and reserved addresses (`192.168.x.x`, `127.0.0.1`) are absent from every database by design, and are recorded as such rather than looked up repeatedly
 
 **No country flags showing**
 1. Ensure "Show country flag for each post" is enabled in settings
@@ -201,12 +262,14 @@ This testing feature is invaluable for:
 
 ### ⚡ Performance Considerations
 
-- **Queue Processing**: IP lookups are processed in background jobs to avoid blocking page loads
-- **Caching**: Results are cached to avoid repeated API calls for the same IP
-- **Rate Limiting**: Built-in rate limiting prevents API quota exhaustion
-- **Batch Processing**: Some providers support batch lookups for better efficiency
+- **Queue Processing**: lookups against hosted providers run in background jobs to avoid blocking page loads
+- **Caching**: results are stored locally, so an address is looked up once
+- **Rate Limiting**: built-in rate limiting prevents API quota exhaustion
+- **Batch Processing**: some providers support batch lookups
+- **Eager Loading**: IP data is loaded alongside posts and audit log entries in a single query, and ships with the page rather than being fetched per row
 
 For high-traffic forums, consider:
+- The offline databases, which have no rate limits, no per-lookup latency and no external calls
 - Using a paid provider with higher rate limits
 - Ensuring your queue worker is properly configured
 - Monitoring your API usage through provider dashboards
@@ -214,9 +277,9 @@ For high-traffic forums, consider:
 ### 📊 Data Storage
 
 - IP geolocation data is stored locally in your database after lookup
-- Data includes: country, coordinates, ISP, organization, and threat information (where available)
+- Data includes: country, city, region, coordinates, ISP, organization, and threat information (where the provider supplies it)
 - No personal user data is sent to IP lookup providers
-- Only IP addresses are transmitted for geolocation lookup
+- Only IP addresses are transmitted for geolocation lookup — and with the offline databases, nothing is transmitted at all
 
 ### Installation
 
@@ -235,7 +298,7 @@ php flarum cache:clear
 
 ### Links
 
-[![OpenCollective](https://img.shields.io/badge/donate-friendsofflarum-44AEE5?style=for-the-badge&logo=open-collective)](https://opencollective.com/fof/donate) [![GitHub](https://img.shields.io/badge/donate-datitisev-ea4aaa?style=for-the-badge&logo=github)](https://datitisev.me/donate/github)
+[![OpenCollective](https://img.shields.io/badge/donate-friendsofflarum-44AEE5?style=for-the-badge&logo=open-collective)](https://opencollective.com/fof/donate)
 
 - [Packagist](https://packagist.org/packages/fof/geoip)
 - [GitHub](https://github.com/FriendsOfFlarum/geoip)

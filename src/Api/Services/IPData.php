@@ -58,6 +58,17 @@ class IPData extends BaseGeoService
         return true;
     }
 
+    public function settings(): array
+    {
+        return parent::settings() + [
+            "{$this->settingPrefix}.quota" => [
+                'type'        => 'number',
+                'label'       => 'fof-geoip.admin.settings.quota_label',
+                'placeholder' => '1500',
+            ],
+        ];
+    }
+
     protected function buildUrl(string $ip, ?string $apiKey): string
     {
         return "/{$ip}";
@@ -103,6 +114,10 @@ class IPData extends BaseGeoService
 
         $response->setCountryCode($body->country_code)
             ->setZipCode($body->postal)
+            // ipdata returns these at the top level. Null-coalesced because
+            // the fields available vary by plan.
+            ->setCity($body->city ?? null)
+            ->setRegion($body->region ?? null)
             ->setLatitude($body->latitude)
             ->setLongitude($body->longitude)
             ->setThreatLevel($body->threat->is_threat)
