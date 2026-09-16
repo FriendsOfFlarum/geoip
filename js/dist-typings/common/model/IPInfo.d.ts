@@ -4,6 +4,8 @@ export default class IPInfo extends Model {
     ip(): string | undefined;
     countryCode(): string | null;
     zipCode(): string | null;
+    city(): string | null;
+    region(): string | null;
     latitude(): number | null;
     longitude(): number | null;
     isp(): string | null;
