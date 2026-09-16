@@ -58,10 +58,23 @@ mkdir -p /usr/share/GeoIP && cd /usr/share/GeoIP
 MONTH=$(date +%Y-%m)
 
 for DB in country city asn; do
-  curl -fsSL "https://download.db-ip.com/free/dbip-$DB-lite-$MONTH.mmdb.gz" \
-    | gunzip > "dbip-$DB-lite.mmdb"
+  # Download to a temp file in the SAME directory, then rename into place.
+  # rename(2) on one filesystem is atomic, so a lookup happening mid-update
+  # never sees a half-written file: readers with the old file open keep it
+  # until they close, new opens get the new one. Never write straight over a
+  # live .mmdb — `curl | gunzip > file` truncates it and can corrupt a
+  # concurrent read.
+  tmp=$(mktemp "dbip-$DB-lite.XXXXXX.mmdb")
+  if curl -fsSL "https://download.db-ip.com/free/dbip-$DB-lite-$MONTH.mmdb.gz" \
+       | gunzip > "$tmp"; then
+    mv -f "$tmp" "dbip-$DB-lite.mmdb"        # atomic swap
+  else
+    rm -f "$tmp"                             # keep the existing file on failure
+  fi
 done
 ```
+
+The filenames stay the same every month, so whatever you point the settings (or `extend.php`) at keeps working across updates.
 
 **MaxMind GeoLite2** — free, but requires an account and a licence key. Debian and Ubuntu package the official updater:
 
@@ -71,9 +84,9 @@ apt install geoipupdate
 geoipupdate
 ```
 
-If you cannot write to `/usr/share/GeoIP` — shared hosting, or a container running as an unprivileged user — put the files anywhere readable, such as `storage/geoip/` inside your Flarum install, and point the settings at that path.
+If you cannot write to `/usr/share/GeoIP` — shared hosting, or a container running as an unprivileged user — put the files anywhere readable, such as `storage/geoip/` inside your Flarum install, and point the settings at that path. Keep the temp file and the final file on the same filesystem (the example above puts both in the destination directory) so the `mv` stays an atomic rename rather than a copy.
 
-> **Attribution**: DB-IP's Lite databases are CC BY 4.0 and **require** visible attribution wherever you surface results derived from them, for example `IP Geolocation by <a href="https://db-ip.com">DB-IP</a>`. MaxMind's GeoLite2 licence has a similar requirement. Check the terms of whichever databases you install.
+> **Attribution**: DB-IP's Lite databases are CC BY 4.0 and **require** visible attribution wherever you surface results derived from them, for example `IP Geolocation by <a href="https://db-ip.com">DB-IP</a>`. MaxMind's GeoLite2 licence has a similar requirement. Check the terms of whichever databases you install. This attribution is shown in the map modal whenever DB-IP data is displayed.
 
 #### IPData (`ipdata`)
 

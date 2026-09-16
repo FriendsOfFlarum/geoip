@@ -60,11 +60,17 @@ class LookupUnknownIPsCommand extends Command
 
             $force = (bool) $this->option('force');
 
-            // Records without an address are never lookupable — access tokens
-            // and imported posts routinely have none. --force skips the
-            // "not seen before" filter, but must not skip this one: a null
-            // address reaching FetchIPInfo aborts the entire run.
-            $query->select('id', $column)->whereNotNull($column);
+            // Only the address is read from the result, so select it alone
+            // and take distinct values — each address needs looking up once,
+            // however many rows carry it. (Selecting `id` alongside a GROUP BY
+            // on the address is invalid SQL: PostgreSQL rejects it, while
+            // MySQL and SQLite silently allow it.)
+            //
+            // Rows without an address are never lookupable — access tokens and
+            // imported posts routinely have none. --force skips the "not seen
+            // before" filter below, but must not skip this: a null address
+            // reaching FetchIPInfo aborts the whole run.
+            $query->select($column)->distinct()->whereNotNull($column);
 
             if ($force) {
                 $this->info("Forcing lookup for {$model}");
@@ -76,16 +82,18 @@ class LookupUnknownIPsCommand extends Command
                 });
             }
 
-            $query->groupBy($column);
-
             if ($query->count() > 0) {
                 $this->info("Looking up IP data for {$model}");
 
                 $this->output->progressStart($query->count());
                 $chunkSize = 100;
 
+                // chunk(), not chunkById(): the query selects only the
+                // address, so there is no id to page by. Ordering keeps the
+                // pages stable, and nothing is mutated during the walk.
                 $query
-                    ->chunkById($chunkSize, function ($models) use ($column, $chunkSize, $force) {
+                    ->orderBy($column)
+                    ->chunk($chunkSize, function ($models) use ($column, $chunkSize, $force) {
                         if ($this->geoIP->batchSupported()) {
                             $ips = $models->pluck($column)->toArray();
                             $count = count($ips);

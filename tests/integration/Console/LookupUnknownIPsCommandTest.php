@@ -97,6 +97,36 @@ class LookupUnknownIPsCommandTest extends ConsoleTestCase
         $this->assertSame(2, IPInfo::count());
     }
 
+    /**
+     * The command looks up each distinct address once, not once per row that
+     * happens to carry it.
+     *
+     * It expressed that by selecting `id` while grouping by the address, which
+     * MySQL and SQLite tolerate but PostgreSQL rejects outright: a selected
+     * column must appear in GROUP BY or an aggregate. Only the address is ever
+     * read from the result, so selecting it alone and taking distinct values
+     * is both correct and portable.
+     */
+    #[Test]
+    public function a_repeated_address_is_looked_up_once(): void
+    {
+        // Posts 3-5 share 8.8.8.8 with post 1 (see setUp), so four rows carry
+        // the same address.
+        $this->prepareDatabase([
+            Post::class => [
+                ['id' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>dup</p></t>', 'ip_address' => '8.8.8.8'],
+                ['id' => 4, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>dup</p></t>', 'ip_address' => '8.8.8.8'],
+                ['id' => 5, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>dup</p></t>', 'ip_address' => '8.8.8.8'],
+            ],
+        ]);
+
+        $this->runCommand(['command' => 'fof:geoip:lookup', '--force' => true]);
+
+        $this->assertSame(1, IPInfo::query()->where('address', '8.8.8.8')->count());
+        // 8.8.8.8 and the access token's 1.1.1.1, and nothing else.
+        $this->assertSame(2, IPInfo::query()->count());
+    }
+
     #[Test]
     public function force_refreshes_an_existing_record(): void
     {
