@@ -61,7 +61,7 @@ class InlineOfflineLookupTest extends TestCase
             ->write($this->dir.'/country.mmdb');
 
         $this->prepareDatabase([
-            User::class => [$this->normalUser()],
+            User::class        => [$this->normalUser()],
             'group_permission' => [
                 ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts'],
             ],
