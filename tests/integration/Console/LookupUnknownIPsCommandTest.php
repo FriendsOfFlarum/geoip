@@ -47,7 +47,7 @@ class LookupUnknownIPsCommandTest extends ConsoleTestCase
             ->write($this->dir.'/country.mmdb');
 
         $this->prepareDatabase([
-            User::class => [$this->normalUser()],
+            User::class       => [$this->normalUser()],
             Discussion::class => [
                 ['id' => 1, 'title' => 'Lookup', 'slug' => 'lookup', 'created_at' => Carbon::now()->toDateTimeString(), 'last_posted_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2],
             ],
