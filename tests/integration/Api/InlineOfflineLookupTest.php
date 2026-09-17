@@ -106,6 +106,23 @@ class InlineOfflineLookupTest extends TestCase
         return $spy;
     }
 
+    /**
+     * Build a repository wired to the given queue.
+     *
+     * Not resolved from the container: both the repository and the event
+     * subscriber are constructed at boot, before a test can replace the queue
+     * binding, so a container-resolved instance holds the real queue and the
+     * spy never sees anything.
+     */
+    private function repository(RecordingQueue $queue): \FoF\GeoIP\Repositories\GeoIPRepository
+    {
+        return new \FoF\GeoIP\Repositories\GeoIPRepository(
+            $this->app()->getContainer()->make(GeoIP::class),
+            $queue,
+            $this->app()->getContainer()->make(\Illuminate\Contracts\Bus\Dispatcher::class)
+        );
+    }
+
     #[Test]
     public function an_offline_lookup_is_resolved_without_a_job(): void
     {
@@ -113,8 +130,7 @@ class InlineOfflineLookupTest extends TestCase
 
         $spy = $this->spyOnQueue();
 
-        $repository = $this->app()->getContainer()->make(\FoF\GeoIP\Repositories\GeoIPRepository::class);
-        $record = $repository->lookupForPost(Post::query()->find(1));
+        $record = $this->repository($spy)->lookupForPost(Post::query()->find(1));
 
         $this->assertNotNull($record, 'the record should be resolved inline');
         $this->assertSame('US', $record->country_code);
@@ -125,10 +141,8 @@ class InlineOfflineLookupTest extends TestCase
     public function the_record_is_persisted_so_it_is_not_looked_up_again(): void
     {
         $this->useOfflineDriver();
-        $this->spyOnQueue();
 
-        $repository = $this->app()->getContainer()->make(\FoF\GeoIP\Repositories\GeoIPRepository::class);
-        $repository->lookupForPost(Post::query()->find(1));
+        $this->repository($this->spyOnQueue())->lookupForPost(Post::query()->find(1));
 
         $stored = IPInfo::query()->find('8.8.8.8');
 
@@ -147,10 +161,60 @@ class InlineOfflineLookupTest extends TestCase
 
         $spy = $this->spyOnQueue();
 
-        $repository = $this->app()->getContainer()->make(\FoF\GeoIP\Repositories\GeoIPRepository::class);
-        $repository->lookupForPost(Post::query()->find(1));
+        $this->repository($spy)->lookupForPost(Post::query()->find(1));
 
         $this->assertCount(1, $spy->pushed, 'a hosted provider should still queue the lookup');
+    }
+
+    /**
+     * The inline path must never fire for a hosted provider: an HTTP round
+     * trip during a post save would block the request on a third party.
+     *
+     * Asserted on the record that results, rather than on the queue: the
+     * event subscriber is constructed at boot, before a test can replace the
+     * queue binding, so it holds the real queue. On the sync driver that runs
+     * the job immediately — which is the queue working as configured, not the
+     * inline path. The two are distinguishable by which service produced the
+     * record.
+     */
+    #[Test]
+    public function a_hosted_provider_is_never_resolved_inline(): void
+    {
+        $this->setting('fof-geoip.service', 'ipapi');
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json'            => [
+                    'data' => [
+                        'attributes'    => ['content' => 'queued please'],
+                        'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => '1']]],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $record = IPInfo::query()->find(Post::query()->latest('id')->first()->ip_address);
+
+        // Whatever wrote this, it went through the configured HTTP service —
+        // not the offline driver, which would have stamped a DBIP-* type.
+        if ($record !== null) {
+            $this->assertStringNotContainsString('DBIP', (string) $record->data_provider);
+            $this->assertStringNotContainsString('GeoLite', (string) $record->data_provider);
+        }
+
+        // And the repository refuses to resolve one inline when asked.
+        // Built after the spy is installed, so it receives the spy rather than
+        // the queue it was constructed with at boot.
+        $spy = $this->spyOnQueue();
+
+        IPInfo::query()->where('address', '8.8.8.8')->delete();
+        $this->repository($spy)->lookupForPost(Post::query()->find(1));
+
+        $this->assertCount(1, $spy->pushed, 'a hosted provider must queue rather than resolve inline');
+        $this->assertNull(IPInfo::query()->find('8.8.8.8'), 'nothing should be written during the request');
     }
 
     /**
@@ -283,8 +347,7 @@ class InlineOfflineLookupTest extends TestCase
 
         $spy = $this->spyOnQueue();
 
-        $repository = $this->app()->getContainer()->make(\FoF\GeoIP\Repositories\GeoIPRepository::class);
-        $record = $repository->lookupForPost(Post::query()->find(1));
+        $record = $this->repository($spy)->lookupForPost(Post::query()->find(1));
 
         $this->assertNull($record);
         $this->assertSame([], $spy->pushed);
