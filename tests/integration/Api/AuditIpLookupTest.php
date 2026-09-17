@@ -15,12 +15,12 @@ use Carbon\Carbon;
 use Flarum\Audit\AuditLog;
 use Flarum\Audit\AuditLogger;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
-use Illuminate\Contracts\Queue\Queue;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use FoF\GeoIP\Api\GeoIP;
 use FoF\GeoIP\Model\IPInfo;
 use FoF\GeoIP\Tests\fixtures\MmdbBuilder;
+use Illuminate\Contracts\Queue\Queue;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
