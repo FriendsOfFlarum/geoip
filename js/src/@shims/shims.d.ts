@@ -17,6 +17,8 @@ declare module 'flarum/common/models/User' {
 declare module 'flarum/common/components/IPAddress' {
   export default interface IPAddress {
     ipInfo?: IPInfo;
-    loadIpInfo: () => void;
+    loadIpInfo: () => Promise<void>;
+    /** Observer that defers the lookup until the row nears the viewport. */
+    _ipObserver?: IntersectionObserver | null;
   }
 }

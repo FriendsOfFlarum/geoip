@@ -13,7 +13,9 @@ namespace FoF\GeoIP\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
+use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Api\Serializer\BasicIPInfoSerializer;
 use FoF\GeoIP\Api\Serializer\IPInfoSerializer;
 use FoF\GeoIP\Command\FetchIPInfo;
 use FoF\GeoIP\Model\IPInfo;
@@ -24,10 +26,13 @@ use Tobscure\JsonApi\Document;
 
 class ShowIpInfoController extends AbstractShowController
 {
-    public $serializer = IPInfoSerializer::class;
+    public $serializer = BasicIPInfoSerializer::class;
 
-    public function __construct(protected GeoIP $geoIP, protected Dispatcher $bus)
-    {
+    public function __construct(
+        protected GeoIP $geoIP,
+        protected Dispatcher $bus,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
     /**
@@ -42,6 +47,17 @@ class ShowIpInfoController extends AbstractShowController
     {
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
+
+        // Mirror the gating `AttachRelation` applies to `ip_info` embedded in a
+        // post payload. There is no post in scope here, so the post-scoped
+        // `viewIps` ability cannot be used: `PostPolicy::can()` delegates it to
+        // `viewIpsPosts` on the post's discussion, which resolves to the global
+        // `discussion.viewIpsPosts` permission — so check that directly.
+        if ($actor->hasPermission('discussion.viewIpsPosts')) {
+            $this->serializer = IPInfoSerializer::class;
+        } else {
+            $actor->assertCan('fof-geoip.canSeeCountry');
+        }
 
         $ip = urldecode(Arr::get($request->getQueryParams(), 'ip'));
 
