@@ -13,8 +13,11 @@ namespace FoF\GeoIP\Repositories;
 
 use Flarum\Post\Post;
 use FoF\GeoIP\Api\GeoIP;
+use FoF\GeoIP\Command\FetchIPInfo;
+use FoF\GeoIP\Concerns\OfflineServiceInterface;
 use FoF\GeoIP\Jobs\RetrieveIP;
 use FoF\GeoIP\Model\IPInfo;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 
@@ -22,7 +25,8 @@ class GeoIPRepository
 {
     public function __construct(
         protected GeoIP $geoIP,
-        protected Queue $queue
+        protected Queue $queue,
+        protected Dispatcher $bus
     ) {
     }
 
@@ -41,19 +45,27 @@ class GeoIPRepository
     }
 
     /**
-     * Queue a lookup for a post whose ip_info is known to be missing.
+     * Resolve the ip_info for a post whose record is known to be missing.
      *
-     * Unlike the old retrieveForPost(), this never queries the database —
-     * callers are expected to have already observed the miss on the loaded
-     * relation. Returns the freshly retrieved info when the (sync) queue
-     * driver executed the job immediately.
+     * Never queries the database for the record: callers are expected to have
+     * already observed the miss on the loaded relation.
+     *
+     * An offline service resolves inline. The lookup is a memory-mapped file
+     * read — microseconds — so dispatching a job to perform one costs far more
+     * than the work, and on a real queue driver it also delays the result until
+     * a worker picks it up. Hosted providers still queue: an HTTP round trip is
+     * exactly the kind of work that should not block a request.
      */
-    public function queueLookupForPost(Post $post): ?IPInfo
+    public function lookupForPost(Post $post): ?IPInfo
     {
         $ip = $post->ip_address;
 
         if (!$ip) {
             return null;
+        }
+
+        if ($this->geoIP->getService() instanceof OfflineServiceInterface) {
+            return $this->lookupInline($ip);
         }
 
         // If we're already retrieving this IP, we don't want to queue it again.
@@ -63,6 +75,24 @@ class GeoIPRepository
 
         // If using the sync queue driver (default), the job has already run.
         return Arr::get(RetrieveIP::$retrieved, $ip);
+    }
+
+    /**
+     * Resolve and persist an address without touching the queue.
+     *
+     * Returns null when the service cannot answer — an unusable offline driver
+     * fails identically for every address, so there is nothing to retry and
+     * nothing worth storing.
+     */
+    public function lookupInline(string $ip): ?IPInfo
+    {
+        if (!$this->isValidIP($ip) || !$this->geoIP->isAvailable()) {
+            return null;
+        }
+
+        $record = $this->bus->dispatch(new FetchIPInfo($ip));
+
+        return $record->exists ? $record : null;
     }
 
     /**

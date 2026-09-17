@@ -124,7 +124,7 @@ return [
                     // relation query even ran — one wasted query per post on every
                     // list. Here the miss is only observed on the loaded relation.
                     if ($visible && $post->ip_address && $post->relationLoaded('ip_info') && !$post->getRelation('ip_info')) {
-                        $info = resolve(Repositories\GeoIPRepository::class)->queueLookupForPost($post);
+                        $info = resolve(Repositories\GeoIPRepository::class)->lookupForPost($post);
 
                         // With the sync queue driver the lookup already ran, so
                         // serialize the fresh data right away.
@@ -136,10 +136,15 @@ return [
                     return $visible;
                 }),
         ])
-        ->endpoint(['show', 'index', 'update'], function (Endpoint\Show|Endpoint\Index|Endpoint\Update $endpoint): Endpoint\Show|Endpoint\Index|Endpoint\Update {
+        ->endpoint(['show', 'index', 'update', 'create'], function (Endpoint\Show|Endpoint\Index|Endpoint\Update|Endpoint\Create $endpoint): Endpoint\Show|Endpoint\Index|Endpoint\Update|Endpoint\Create {
             // Eager load the relation alongside the posts: included to-one
             // relations are otherwise resolved one post at a time during
             // serialization — one ip_info query per post on the post stream.
+            //
+            // `create` included so the response that creates a post already
+            // carries its ip_info. With an offline service the address is
+            // resolved during the request, so the data exists by the time the
+            // response is serialized and the flag renders on first paint.
             return $endpoint
                 ->addDefaultInclude(['ipInfo'])
                 ->eagerLoad(['ip_info']);
