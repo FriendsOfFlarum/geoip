@@ -259,6 +259,14 @@ return [
             (new Extend\Model(\Flarum\Audit\AuditLog::class))
                 ->relationship('ip_info', Model\IPInfoRelationship::class),
 
+            // Look up the address as the entry is recorded, so a new row
+            // arrives with its data rather than waiting for the console
+            // command. flarum/audit publishes no events of its own, but
+            // AuditLogger persists via $log->save(), so the Eloquent model
+            // event fires.
+            (new Extend\Event())
+                ->listen('eloquent.created: '.\Flarum\Audit\AuditLog::class, Listeners\RetrieveAuditIP::class),
+
             (new Extend\ApiResource(\Flarum\Audit\Api\Resource\AuditLogResource::class))
                 ->fields(fn () => [
                     Schema\Relationship\ToOne::make('ipInfo')
@@ -268,7 +276,31 @@ return [
                         // Audit access is already restricted to administrators,
                         // but the field-level gating on IPInfoResource still
                         // applies to what each attribute exposes.
-                        ->visible(fn (object $log, Context $context) => $context->getActor()->can('viewIps', $log)),
+                        ->visible(function (object $log, Context $context) {
+                            if (!$context->getActor()->can('viewIps', $log)) {
+                                return false;
+                            }
+
+                            // Self-heal, as the post resource does: when the
+                            // eager-loaded relation shows no stored record,
+                            // resolve it now so the row is populated on this
+                            // response rather than staying bare until the
+                            // console command next runs.
+                            //
+                            // Only entries predating the created listener
+                            // reach this, so it drains rather than recurring.
+                            // The miss is read from the loaded relation, never
+                            // queried per row.
+                            if ($log->ip_address && $log->relationLoaded('ip_info') && !$log->getRelation('ip_info')) {
+                                $info = resolve(Repositories\GeoIPRepository::class)->lookupForAddress($log->ip_address);
+
+                                if ($info) {
+                                    $log->setRelation('ip_info', $info);
+                                }
+                            }
+
+                            return true;
+                        }),
                 ])
                 // Index only: the audit resource exposes no show endpoint.
                 ->endpoint('index', fn (Endpoint\Index $endpoint) => $endpoint

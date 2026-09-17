@@ -46,6 +46,14 @@ class GeoIPRepository
 
     /**
      * Resolve the ip_info for a post whose record is known to be missing.
+     */
+    public function lookupForPost(Post $post): ?IPInfo
+    {
+        return $this->lookupForAddress($post->ip_address);
+    }
+
+    /**
+     * Resolve the ip_info for an address whose record is known to be missing.
      *
      * Never queries the database for the record: callers are expected to have
      * already observed the miss on the loaded relation.
@@ -55,11 +63,13 @@ class GeoIPRepository
      * than the work, and on a real queue driver it also delays the result until
      * a worker picks it up. Hosted providers still queue: an HTTP round trip is
      * exactly the kind of work that should not block a request.
+     *
+     * Takes the address rather than the record: this began as the post-only
+     * path, but the audit log needs the same behaviour and its rows are not
+     * posts, so they would not satisfy that type hint.
      */
-    public function lookupForPost(Post $post): ?IPInfo
+    public function lookupForAddress(?string $ip): ?IPInfo
     {
-        $ip = $post->ip_address;
-
         if (!$ip) {
             return null;
         }
