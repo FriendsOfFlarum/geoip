@@ -12,6 +12,8 @@
 namespace FoF\GeoIP\Tests\integration\Console;
 
 use Carbon\Carbon;
+use Flarum\Audit\AuditLog;
+use Flarum\Audit\AuditLogger;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\AccessToken;
 use Flarum\Post\Post;
@@ -44,6 +46,7 @@ class LookupUnknownIPsCommandTest extends ConsoleTestCase
         (new MmdbBuilder('DBIP-Country-Lite'))
             ->add('8.8.8.0', 24, ['country' => ['iso_code' => 'US']])
             ->add('1.1.1.0', 24, ['country' => ['iso_code' => 'AU']])
+            ->add('8.8.4.0', 24, ['country' => ['iso_code' => 'US']])
             ->write($this->dir.'/country.mmdb');
 
         $this->prepareDatabase([
@@ -71,6 +74,10 @@ class LookupUnknownIPsCommandTest extends ConsoleTestCase
     {
         @unlink($this->dir.'/country.mmdb');
         @rmdir($this->dir);
+
+        // Static, so it would otherwise stay set for every later test in the
+        // process once one test has enabled it.
+        AuditLogger::$testMode = false;
 
         parent::tearDown();
     }
@@ -163,5 +170,116 @@ class LookupUnknownIPsCommandTest extends ConsoleTestCase
         $this->assertSame('ZZ', IPInfo::find('8.8.8.8')->country_code);
         // The address that had never been seen was resolved.
         $this->assertSame('AU', IPInfo::find('1.1.1.1')?->country_code);
+    }
+
+    /**
+     * The per-address `info()` calls were written into the progress bar's own
+     * line, which Symfony redraws in place — so the bar jumped, duplicated and
+     * left fragments behind. They belong behind -v, where someone debugging a
+     * specific address can ask for them.
+     */
+    #[Test]
+    public function per_address_chatter_is_not_printed_by_default(): void
+    {
+        $output = $this->runCommand(['command' => 'fof:geoip:lookup']);
+
+        $this->assertStringNotContainsString('8.8.8.8', $output);
+        $this->assertStringNotContainsString('1.1.1.1', $output);
+    }
+
+    #[Test]
+    public function per_address_detail_is_available_when_verbose(): void
+    {
+        $output = $this->runCommand([
+            'command'   => 'fof:geoip:lookup',
+            '--verbose' => true,
+        ]);
+
+        $this->assertStringContainsString('8.8.8.8', $output);
+    }
+
+    /**
+     * A run that says nothing about what it did is not much use: the summary
+     * is the part an operator actually reads.
+     */
+    #[Test]
+    public function it_reports_what_it_resolved(): void
+    {
+        $output = $this->runCommand(['command' => 'fof:geoip:lookup']);
+
+        // Two addresses exist in the seeded data and both resolve.
+        $this->assertMatchesRegularExpression('/\b2\b.*resolved/i', $output);
+    }
+
+    /**
+     * Addresses the databases do not cover are a normal outcome, not a
+     * failure, but the operator should be told how many there were.
+     */
+    #[Test]
+    public function it_reports_addresses_it_could_not_resolve(): void
+    {
+        $this->prepareDatabase([
+            Post::class => [
+                // 203.0.113.0/24 is the documentation range: absent from every
+                // database, so it cannot resolve.
+                ['id' => 20, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>x</p></t>', 'ip_address' => '203.0.113.7'],
+            ],
+        ]);
+
+        $output = $this->runCommand(['command' => 'fof:geoip:lookup']);
+
+        $this->assertMatchesRegularExpression('/unresolved|not found|could not/i', $output);
+    }
+
+    /**
+     * The audit log records failed logins and blocked registrations — the
+     * addresses a moderator most wants geolocated, and ones that never produce
+     * a post. They were not scanned at all.
+     */
+    #[Test]
+    public function it_looks_up_addresses_from_the_audit_log(): void
+    {
+        AuditLogger::$testMode = true;
+
+        $this->extension('flarum-audit', 'fof-geoip');
+
+        $this->prepareDatabase([
+            AuditLog::class => [
+                // 8.8.4.4 appears ONLY in the audit log — no post, no token —
+                // so resolving it proves the audit table was scanned rather
+                // than the address having been picked up elsewhere.
+                ['id' => 1, 'actor_id' => 1, 'client' => 'session', 'ip_address' => '8.8.4.4', 'action' => 'user.logged_in', 'created_at' => Carbon::now()->toDateTimeString()],
+                // No address: CLI actions routinely have none.
+                ['id' => 2, 'actor_id' => null, 'client' => 'cli', 'ip_address' => null, 'action' => 'cache_cleared', 'created_at' => Carbon::now()->toDateTimeString()],
+            ],
+        ]);
+
+        $this->runCommand(['command' => 'fof:geoip:lookup']);
+
+        // Not referenced by any post or access token, so only the audit scan
+        // could have resolved it.
+        $this->assertSame(0, Post::query()->where('ip_address', '8.8.4.4')->count());
+        $this->assertSame(0, AccessToken::query()->where('last_ip_address', '8.8.4.4')->count());
+
+        $this->assertNotNull(
+            IPInfo::query()->find('8.8.4.4'),
+            'an address seen only in the audit log should still be resolved'
+        );
+    }
+
+    /**
+     * The audit table is only scanned when that extension is enabled — the
+     * same guard the Draft model already gets, since the class can exist
+     * while its migrations have never run.
+     */
+    #[Test]
+    public function the_audit_table_is_skipped_when_the_extension_is_absent(): void
+    {
+        // flarum-audit is not enabled in this test, so the table does not
+        // exist. The command must complete rather than error.
+        $output = $this->runCommand(['command' => 'fof:geoip:lookup']);
+
+        $this->assertStringNotContainsString('no such table', strtolower($output));
+        $this->assertStringNotContainsString('does not exist', strtolower($output));
     }
 }
