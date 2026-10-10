@@ -302,6 +302,44 @@ class ServiceResponse implements \JsonSerializable
     }
 
     /**
+     * The response as the ip_info table takes it.
+     *
+     * Not every property is a column, and two that are have different names:
+     * the address is stored as `address`, and threat types as `threat_types`.
+     * Whether a response was faked describes the lookup rather than the
+     * address, so it is not stored at all.
+     *
+     * Kept separate from jsonSerialize(), which deliberately exposes the whole
+     * object for the admin service tester. Passing that straight to the model
+     * only worked because $fillable dropped the three keys that are not
+     * columns — silently, so a `threat_type` was never actually saved, and the
+     * mismatch surfaced as a SQL error the moment anything bypassed mass
+     * assignment.
+     *
+     * @return array<string, mixed>
+     */
+    public function toDatabaseAttributes(): array
+    {
+        return [
+            'address'       => $this->ip,
+            'country_code'  => $this->country_code,
+            'zip_code'      => $this->zip_code,
+            'city'          => $this->city,
+            'region'        => $this->region,
+            'latitude'      => $this->latitude,
+            'longitude'     => $this->longitude,
+            'isp'           => $this->isp,
+            'organization'  => $this->organization,
+            'as'            => $this->as,
+            'mobile'        => $this->mobile,
+            'threat_level'  => $this->threat_level,
+            'threat_types'  => $this->threat_type,
+            'error'         => $this->error,
+            'data_provider' => $this->data_provider,
+        ];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function jsonSerialize(): mixed

@@ -42,7 +42,7 @@ class FetchIPInfoBatchHandler
 
             foreach ($responses as $response) {
                 $ip = $response->getIP();
-                $data = $response->toJSON();
+                $data = $response->toDatabaseAttributes();
                 $data['address'] = $ip;
 
                 $ipInfo = IPInfo::query()->updateOrCreate(
