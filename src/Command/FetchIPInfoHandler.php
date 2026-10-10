@@ -53,7 +53,8 @@ class FetchIPInfoHandler
             }
 
             if ($response) {
-                $data = $response->toJSON();
+                $data = $response->toDatabaseAttributes();
+                // The address looked up, not whatever the service echoed back.
                 $data['address'] = $command->ip;
 
                 $ipInfo = IPInfo::query()->updateOrCreate(
