@@ -308,6 +308,64 @@ return [
                     ->eagerLoad(['ip_info'])),
         ]),
 
+    // Private messages (flarum/messages) record the sender's address as posts
+    // do, and show it, through core's IPAddress component, to holders of
+    // `dialog.viewIps`. The same relation, batched load and lookup-on-send as
+    // posts and audit entries get, so the address arrives placed rather than
+    // bare until a lazy lookup catches up.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-messages', fn () => [
+            (new Extend\Model(\Flarum\Messages\DialogMessage::class))
+                ->relationship('ip_info', Model\IPInfoRelationship::class),
+
+            (new Extend\Event())
+                ->listen(\Flarum\Messages\DialogMessage\Event\Created::class, Listeners\RetrieveMessageIP::class),
+
+            (new Extend\ApiResource(\Flarum\Messages\Api\Resource\DialogMessageResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToOne::make('ipInfo')
+                        ->type('ip_info')
+                        ->property('ip_info')
+                        ->includable()
+                        // The same rule as for a post, with the message
+                        // permission in place of the post one: those who may
+                        // see the address, those who may see countries, and
+                        // otherwise — with flags on — the audience the sender
+                        // opted into.
+                        ->visible(function (object $message, Context $context) {
+                            $actor = $context->getActor();
+
+                            if ($actor->can('dialog.viewIps') || $actor->can('fof-geoip.canSeeCountry')) {
+                                $visible = true;
+                            } elseif (!resolve(SettingsRepositoryInterface::class)->get('fof-geoip.showFlag')) {
+                                $visible = false;
+                            } else {
+                                $visible = resolve(Repositories\AuthorFlagPreferenceResolver::class)->wantsFlagForAuthorOf($message);
+                            }
+
+                            if (!$visible) {
+                                return false;
+                            }
+
+                            // Self-heal, as the post resource does: a message
+                            // sent before this integration has no record, so
+                            // resolve it now rather than leaving it bare.
+                            if ($message->ip_address && $message->relationLoaded('ip_info') && !$message->getRelation('ip_info')) {
+                                $info = resolve(Repositories\GeoIPRepository::class)->lookupForAddress($message->ip_address);
+
+                                if ($info) {
+                                    $message->setRelation('ip_info', $info);
+                                }
+                            }
+
+                            return true;
+                        }),
+                ])
+                ->endpoint(['show', 'index', 'create'], fn (Endpoint\Show|Endpoint\Index|Endpoint\Create $endpoint) => $endpoint
+                    ->addDefaultInclude(['ipInfo'])
+                    ->eagerLoad(['ip_info'])),
+        ]),
+
     new Extend\ApiResource(Api\Resource\IPInfoResource::class),
 
     (new Extend\Routes('api'))
