@@ -11,6 +11,7 @@
 
 namespace FoF\GeoIP\Repositories;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
@@ -45,16 +46,26 @@ class AuthorFlagPreferenceResolver
      */
     public function wantsFlagFor(Post $post): bool
     {
-        $userId = $post->user_id;
+        return $this->wantsFlagForAuthorOf($post);
+    }
+
+    /**
+     * The same, for anything with a `user_id` and a `user` relation — a post,
+     * a private message.
+     */
+    public function wantsFlagForAuthorOf(AbstractModel $model): bool
+    {
+        $userId = $model->getAttribute('user_id');
 
         if ($userId === null) {
             return false;
         }
 
-        if (!array_key_exists($userId, $this->cache) && $post->relationLoaded('user')) {
-            /** @var User|null $user */
-            $user = $post->getRelation('user');
+        $userId = (int) $userId;
 
+        if (!array_key_exists($userId, $this->cache) && $model->relationLoaded('user')) {
+            /** @var User|null $user */
+            $user = $model->getRelation('user');
             $this->cache[$userId] = $user !== null && (bool) $user->getPreference('showIPCountry');
         }
 

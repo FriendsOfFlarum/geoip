@@ -1,6 +1,7 @@
 import app from 'flarum/forum/app';
 import extendBanIPModal from './extenders/extendBanIPModal';
 import extendCommentPost from './extenders/extendCommentPost';
+import extendMessage from './extenders/extendMessage';
 import extendPostListState from './extenders/extendPostListState';
 import extendUserPreferences from './extenders/extendUserPreferences';
 import extendIpAddress from '../common/extenders/extendIpAddress';
@@ -11,6 +12,7 @@ app.initializers.add('fof/geoip', () => {
   // @TODO - implement ban IP modal when extension is updated to Flarum 2.0
   //extendBanIPModal();
   extendCommentPost();
+  if ('flarum-messages' in flarum.extensions) extendMessage();
   extendPostListState();
   extendUserPreferences();
   extendIpAddress();

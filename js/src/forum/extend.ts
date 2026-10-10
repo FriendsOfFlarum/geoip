@@ -11,6 +11,16 @@ export default [
   new Extend.Model(Post) //
     .hasOne<IPInfo>('ipInfo'),
 
+  // Private messages record an address too. The model is taken from the
+  // registry rather than imported, so nothing here depends on flarum/messages
+  // being present, and the extender is only built when it is.
+  ...('flarum-messages' in flarum.extensions
+    ? [
+        new Extend.Model(flarum.reg.get('flarum-messages', 'common/models/DialogMessage')) //
+          .hasOne<IPInfo>('ipInfo'),
+      ]
+    : []),
+
   new Extend.Model(User) //
     .attribute('showIPCountry')
     .attribute('canSeeCountry')
