@@ -88,7 +88,10 @@ export default class ZipCodeMap extends Component<ZipCodeMapAttrs> {
   configMap(vnode: Mithril.VnodeDOM) {
     if (!this.data || 'unknown' in this.data) return;
 
-    L.Icon.Default.imagePath = `${app.forum.attribute('baseUrl')}/assets/extensions/fof-geoip/`;
+    // Extension assets are published to the `flarum-assets` disk, which is not
+    // necessarily served from the forum origin (e.g. when it is relocated to S3
+    // or a CDN), so resolve against that disk's URL rather than `baseUrl`.
+    L.Icon.Default.imagePath = `${app.forum.attribute('assetsBaseUrl')}/extensions/fof-geoip/`;
 
     const { boundingbox: bounding, display_name: displayName } = this.data;
 
