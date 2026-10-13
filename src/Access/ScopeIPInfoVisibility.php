@@ -16,15 +16,20 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopeIPInfoVisibility
 {
+    public function __construct(
+        protected CanSeeIPInfo $canSeeIPInfo
+    ) {
+    }
+
     public function __invoke(User $actor, Builder $query): void
     {
-        // IP info is visible to all authenticated users
-        // But we don't show anything to guests
-        if ($actor->isGuest()) {
+        // What reaches a reader is decided per post by its ipInfo relationship
+        // and per field by IPInfoResource, so rows need only be kept from a
+        // guest that nothing could show one to. Keeping guests out regardless
+        // emptied the batched load of their posts' ip_info, which extend.php
+        // then took for missing records and looked up again one post at a time.
+        if ($actor->isGuest() && !($this->canSeeIPInfo)($actor)) {
             $query->whereRaw('FALSE');
         }
-
-        // No additional scoping needed - all authenticated users can see IP info records
-        // Field-level visibility is handled in the Resource
     }
 }

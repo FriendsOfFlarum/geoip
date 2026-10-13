@@ -164,7 +164,7 @@ class IpInfoListQueryCountTest extends TestCase
      * Both firstPost and lastPost are included so the test exercises the
      * lastPost (reply author) path, not just firstPost.
      */
-    private function listResponse(int $actorId): array
+    private function listResponse(?int $actorId): array
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', ['authenticatedAs' => $actorId])
@@ -220,5 +220,80 @@ class IpInfoListQueryCountTest extends TestCase
             "Discussion list issued $userById single-row user fetches with showFlag off — the visibility callback ".
             'should short-circuit before consulting the author preference.'
         );
+    }
+
+    private function countIpInfoQueries(array $log): int
+    {
+        return count(array_filter($log, fn (array $q) => stripos($q['query'], 'ip_info') !== false));
+    }
+
+    /**
+     * Guests see opted-in authors' flags too, so their posts' ip_info must load
+     * in one query per relation path, as it does for members — not be looked
+     * up again for every post.
+     */
+    #[Test]
+    public function a_guests_discussion_list_loads_ip_info_once_per_relation_path()
+    {
+        $this->setting('fof-geoip.showFlag', true);
+
+        $db = $this->database();
+        $db->enableQueryLog();
+
+        [$response] = $this->listResponse(null);
+
+        $queries = $this->countIpInfoQueries($db->getQueryLog());
+        $db->flushQueryLog();
+
+        $included = collect(json_decode($response->getBody()->getContents(), true)['included'] ?? [])->where('type', 'ip_info');
+        $this->assertCount(2 * self::DISCUSSION_COUNT, $included, 'Guests should see the flags these authors chose to show.');
+
+        $this->assertSame(2, $queries, "A guest's discussion list issued $queries ip_info queries for ".self::DISCUSSION_COUNT.' discussions.');
+    }
+
+    /**
+     * What discuss.flarum.org's announcement feed requests: first posts, with
+     * their ip_info neither included nor needed by the client.
+     */
+    #[Test]
+    public function a_guests_discussion_list_with_first_posts_does_not_look_ip_info_up_per_post()
+    {
+        $this->setting('fof-geoip.showFlag', true);
+
+        $db = $this->database();
+        $db->enableQueryLog();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')->withQueryParams(['include' => 'firstPost,user'])
+        );
+
+        $queries = $this->countIpInfoQueries($db->getQueryLog());
+        $db->flushQueryLog();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertLessThanOrEqual(1, $queries, "A guest's discussion list issued $queries ip_info queries for ".self::DISCUSSION_COUNT.' first posts.');
+    }
+
+    #[Test]
+    public function a_guests_post_stream_loads_ip_info_once()
+    {
+        $this->setting('fof-geoip.showFlag', true);
+
+        $db = $this->database();
+        $db->enableQueryLog();
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts')->withQueryParams(['filter' => ['discussion' => 100]])
+        );
+
+        $queries = $this->countIpInfoQueries($db->getQueryLog());
+        $db->flushQueryLog();
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $included = collect(json_decode($response->getBody()->getContents(), true)['included'] ?? [])->where('type', 'ip_info');
+        $this->assertCount(2, $included, 'Guests should see the flags these authors chose to show.');
+
+        $this->assertSame(1, $queries, "A guest's post stream issued $queries ip_info queries for 2 posts.");
     }
 }

@@ -23,7 +23,8 @@ use PHPUnit\Framework\Attributes\Test;
 /**
  * Tests the field-level visibility rules for ip_info:
  *
- * - Guests:                   no ip_info relationship at all
+ * - Guests:                   as anyone else without permissions: only the
+ *                             country of an opted-in author, when showFlag is on
  * - Regular users:            no ip_info (not canSeeCountry, showFlag off)
  * - canSeeCountry users:      countryCode only — no ip, latitude, longitude, isp, etc.
  * - showFlag + showIPCountry: countryCode only — no ip, latitude, longitude, isp, etc.
@@ -215,6 +216,30 @@ class IpInfoVisibilityTest extends TestCase
         $ipInfo = $this->extractIpInfo($body);
 
         $this->assertNull($ipInfo, 'Guest should not receive any ip_info resource');
+    }
+
+    #[Test]
+    public function guest_sees_the_country_of_an_opted_in_author_when_showflag_is_on()
+    {
+        $this->setting('fof-geoip.showFlag', true);
+
+        // Post 2 is authored by user 4 who has showIPCountry=true.
+        $ipInfo = $this->extractIpInfo($this->getPostWithIpInfo(2, null));
+
+        $this->assertNotNull($ipInfo, 'A guest should see the flag an author chose to show');
+        $this->assertEquals('FR', $ipInfo['attributes']['countryCode'] ?? null);
+
+        foreach (self::SENSITIVE_FIELDS as $field) {
+            $this->assertArrayNotHasKey($field, $ipInfo['attributes'], "Field '{$field}' must not be visible to guests");
+        }
+    }
+
+    #[Test]
+    public function guest_sees_no_ip_info_for_an_opted_in_author_when_showflag_is_off()
+    {
+        $this->setting('fof-geoip.showFlag', false);
+
+        $this->assertNull($this->extractIpInfo($this->getPostWithIpInfo(2, null)));
     }
 
     // -------------------------------------------------------------------------
