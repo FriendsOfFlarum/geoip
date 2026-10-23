@@ -19,9 +19,10 @@
     "postcss-loader": "^8.2.1",
     "prettier": "^3.0.3",
     "style-loader": "^4.0.0",
+    "typescript": "^5.9.3",
     "typescript-coverage-report": "^0.6.1",
     "webpack": "^5.104.1",
-    "webpack-cli": "^5.1.4",
+    "webpack-cli": "^7.2.3",
     "webpack-merge": "^6.0.1"
   },
   "scripts": {
